@@ -1,0 +1,877 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Before It Breaks — Gerry</title>
+    <meta name="description" content="Tools built to work. By Gerry, with AI. Fast, affordable, and nothing you don't need.">
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link href="https://fonts.googleapis.com/css2?family=Bangers&family=Roboto:ital,wght@0,400;0,700;0,900;1,400&display=swap" rel="stylesheet">
+    <style>
+        *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+        :root {
+            --bg:           #0c0c12;
+            --surface:      #13131c;
+            --surface2:     #1c1c28;
+            --border:       #252535;
+            --border2:      #32324a;
+            --text:         #e4e4f0;
+            --muted:        #7070a0;
+            --brand:        #0057B8;
+            --brand-lit:    #4a8fe8;
+            --gold:         #F9A825;
+            --accent:       #C62828;
+        }
+
+        html { scroll-behavior: smooth; }
+
+        body {
+            font-family: 'Roboto', sans-serif;
+            background: var(--bg);
+            color: var(--text);
+            line-height: 1.6;
+        }
+
+        a { color: var(--brand-lit); text-decoration: none; }
+        a:hover { text-decoration: underline; }
+
+        /* ═══════════════════════════════
+           NAV
+        ═══════════════════════════════ */
+        nav {
+            position: sticky; top: 0; z-index: 100;
+            background: rgba(12,12,18,0.92);
+            backdrop-filter: blur(12px);
+            border-bottom: 1px solid var(--border);
+            padding: 0 40px;
+            height: 60px;
+            display: flex; align-items: center; justify-content: space-between;
+        }
+        .nav-logo {
+            font-family: 'Bangers', cursive;
+            font-size: 1.4rem;
+            letter-spacing: 1px;
+            color: var(--text);
+        }
+        .nav-logo span { color: var(--brand-lit); }
+        .nav-right { display: flex; align-items: center; gap: 24px; }
+        .nav-link {
+            font-size: 0.8rem;
+            font-weight: 700;
+            letter-spacing: 1px;
+            text-transform: uppercase;
+            color: var(--muted);
+            transition: color 0.15s;
+        }
+        .nav-link:hover { color: var(--text); text-decoration: none; }
+        .nav-cta {
+            font-size: 0.8rem;
+            font-weight: 700;
+            color: var(--bg);
+            background: var(--brand-lit);
+            padding: 8px 18px;
+            box-shadow: 3px 3px 0 var(--brand);
+            transition: box-shadow 0.1s, transform 0.1s;
+        }
+        .nav-cta:hover {
+            box-shadow: none;
+            transform: translate(3px,3px);
+            color: var(--bg);
+            text-decoration: none;
+        }
+
+        /* ═══════════════════════════════
+           HERO
+        ═══════════════════════════════ */
+        .hero {
+            min-height: calc(100vh - 60px);
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 0;
+            align-items: stretch;
+        }
+        .hero-left {
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            padding: 80px 60px 80px 60px;
+            border-right: 1px solid var(--border);
+        }
+        .hero-kicker {
+            font-size: 0.7rem;
+            font-weight: 700;
+            letter-spacing: 4px;
+            text-transform: uppercase;
+            color: var(--brand-lit);
+            margin-bottom: 24px;
+        }
+        .hero h1 {
+            font-family: 'Bangers', cursive;
+            font-size: clamp(3.5rem, 6vw, 5.5rem);
+            line-height: 1.0;
+            letter-spacing: 1px;
+            color: var(--text);
+            margin-bottom: 24px;
+        }
+        .hero-sub {
+            font-size: 1.05rem;
+            color: var(--muted);
+            line-height: 1.8;
+            max-width: 420px;
+            margin-bottom: 40px;
+        }
+        .hero-sub em { color: var(--text); font-style: normal; }
+        .hero-actions { display: flex; gap: 12px; flex-wrap: wrap; align-items: center; }
+        .btn {
+            display: inline-block;
+            font-weight: 700;
+            font-size: 0.85rem;
+            letter-spacing: 0.5px;
+            padding: 12px 24px;
+            transition: box-shadow 0.1s, transform 0.1s;
+        }
+        .btn-primary {
+            background: var(--brand-lit);
+            color: var(--bg);
+            box-shadow: 4px 4px 0 var(--brand);
+        }
+        .btn-primary:hover {
+            box-shadow: none; transform: translate(4px,4px);
+            color: var(--bg); text-decoration: none;
+        }
+        .btn-ghost {
+            color: var(--muted);
+            border: 1px solid var(--border2);
+        }
+        .btn-ghost:hover {
+            color: var(--text); border-color: var(--muted);
+            text-decoration: none;
+        }
+        .hero-right {
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            padding: 80px 60px;
+            background: var(--surface);
+        }
+        .demo-label {
+            font-size: 0.65rem;
+            font-weight: 700;
+            letter-spacing: 3px;
+            text-transform: uppercase;
+            color: var(--muted);
+            margin-bottom: 16px;
+        }
+
+        /* ═══════════════════════════════
+           BROWSER FRAME
+        ═══════════════════════════════ */
+        .browser-frame {
+            border: 1px solid var(--border2);
+            overflow: hidden;
+            display: flex;
+            flex-direction: column;
+        }
+        .browser-chrome {
+            background: var(--border);
+            padding: 10px 14px;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            flex-shrink: 0;
+        }
+        .browser-dots {
+            display: flex; gap: 6px; flex-shrink: 0;
+        }
+        .browser-dots span {
+            width: 10px; height: 10px; border-radius: 50%; display: block;
+        }
+        .browser-dots span:nth-child(1) { background: #ff5f57; }
+        .browser-dots span:nth-child(2) { background: #febc2e; }
+        .browser-dots span:nth-child(3) { background: #28c840; }
+        .browser-url {
+            background: var(--surface2);
+            border: 1px solid var(--border);
+            padding: 5px 12px;
+            font-size: 0.72rem;
+            color: var(--muted);
+            font-family: monospace;
+            flex: 1;
+            white-space: nowrap;
+            overflow: hidden;
+            text-overflow: ellipsis;
+        }
+        .browser-iframe {
+            width: 100%;
+            height: 520px;
+            border: none;
+            display: block;
+            background: #fff;
+        }
+
+        /* ═══════════════════════════════
+           FEATURED TOOLS
+        ═══════════════════════════════ */
+        .tools-section {
+            border-top: 1px solid var(--border);
+        }
+        .tools-header {
+            max-width: 1200px;
+            margin: 0 auto;
+            padding: 80px 60px 48px;
+        }
+        .section-label {
+            font-size: 0.7rem;
+            font-weight: 700;
+            letter-spacing: 4px;
+            text-transform: uppercase;
+            color: var(--brand-lit);
+            margin-bottom: 16px;
+        }
+        .tools-header h2 {
+            font-family: 'Bangers', cursive;
+            font-size: clamp(2.2rem, 4vw, 3.5rem);
+            letter-spacing: 1px;
+            line-height: 1.1;
+            margin-bottom: 12px;
+        }
+        .tools-header p {
+            font-size: 1rem;
+            color: var(--muted);
+            max-width: 500px;
+            line-height: 1.7;
+        }
+
+        .featured-tool {
+            border-top: 1px solid var(--border);
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+        }
+        .featured-tool:nth-child(even) .ft-left { order: 2; border-left: 1px solid var(--border); border-right: none; }
+        .featured-tool:nth-child(even) .ft-right { order: 1; }
+
+        .ft-left {
+            padding: 60px;
+            border-right: 1px solid var(--border);
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+        }
+        .ft-right {
+            padding: 60px;
+            background: var(--surface);
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+        }
+        .ft-problem {
+            font-size: 0.7rem;
+            font-weight: 700;
+            letter-spacing: 3px;
+            text-transform: uppercase;
+            color: var(--muted);
+            margin-bottom: 12px;
+        }
+        .ft-name {
+            font-family: 'Bangers', cursive;
+            font-size: 2.4rem;
+            letter-spacing: 1px;
+            color: var(--text);
+            margin-bottom: 16px;
+            line-height: 1;
+        }
+        .ft-desc {
+            font-size: 1rem;
+            color: var(--muted);
+            line-height: 1.75;
+            margin-bottom: 28px;
+        }
+        .ft-link {
+            font-size: 0.85rem;
+            font-weight: 700;
+            color: var(--brand-lit);
+            display: inline-flex;
+            align-items: center;
+            gap: 8px;
+            border-bottom: 1px solid var(--border2);
+            padding-bottom: 2px;
+            width: fit-content;
+            transition: border-color 0.15s, color 0.15s;
+        }
+        .ft-link:hover { border-color: var(--brand-lit); text-decoration: none; }
+        .ft-link::after { content: '→'; transition: transform 0.15s; }
+        .ft-link:hover::after { transform: translateX(4px); }
+
+        /* ═══════════════════════════════
+           ALL TOOLS GRID
+        ═══════════════════════════════ */
+        .all-tools {
+            max-width: 1200px;
+            margin: 0 auto;
+            padding: 80px 60px;
+            border-top: 1px solid var(--border);
+        }
+        .all-tools h2 {
+            font-family: 'Bangers', cursive;
+            font-size: 2rem;
+            letter-spacing: 1px;
+            margin-bottom: 40px;
+        }
+        .tools-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
+            gap: 1px;
+            background: var(--border);
+            border: 1px solid var(--border);
+        }
+        .tool-cell {
+            background: var(--bg);
+            padding: 24px 28px;
+            display: flex;
+            flex-direction: column;
+            gap: 8px;
+            transition: background 0.15s;
+        }
+        .tool-cell:hover { background: var(--surface); }
+        .tool-cell-name {
+            font-weight: 900;
+            font-size: 0.9rem;
+            letter-spacing: 0.5px;
+            color: var(--text);
+        }
+        .tool-cell-desc {
+            font-size: 0.82rem;
+            color: var(--muted);
+            line-height: 1.6;
+        }
+        .tool-cell-link {
+            font-size: 0.75rem;
+            font-weight: 700;
+            color: var(--brand-lit);
+            margin-top: 4px;
+        }
+        .tool-cell-link:hover { text-decoration: underline; }
+
+        /* ═══════════════════════════════
+           HOW IT WORKS
+        ═══════════════════════════════ */
+        .how-section {
+            border-top: 1px solid var(--border);
+            background: var(--surface);
+        }
+        .how-inner {
+            max-width: 1200px;
+            margin: 0 auto;
+            padding: 80px 60px;
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 80px;
+            align-items: start;
+        }
+        .how-left h2 {
+            font-family: 'Bangers', cursive;
+            font-size: clamp(2rem, 4vw, 3rem);
+            letter-spacing: 1px;
+            line-height: 1.1;
+            margin-bottom: 20px;
+        }
+        .how-left p {
+            font-size: 1rem;
+            color: var(--muted);
+            line-height: 1.8;
+            margin-bottom: 16px;
+        }
+        .how-left p em { color: var(--text); font-style: normal; }
+        .how-steps { display: flex; flex-direction: column; gap: 28px; }
+        .how-step { display: flex; gap: 20px; align-items: flex-start; }
+        .how-num {
+            font-family: 'Bangers', cursive;
+            font-size: 2.2rem;
+            color: var(--brand-lit);
+            line-height: 1;
+            min-width: 36px;
+        }
+        .how-step-body h3 {
+            font-size: 0.95rem;
+            font-weight: 700;
+            margin-bottom: 6px;
+            color: var(--text);
+        }
+        .how-step-body p {
+            font-size: 0.9rem;
+            color: var(--muted);
+            line-height: 1.7;
+        }
+
+        /* ═══════════════════════════════
+           FAQ
+        ═══════════════════════════════ */
+        .faq-section {
+            border-top: 1px solid var(--border);
+            max-width: 1200px;
+            margin: 0 auto;
+            padding: 80px 60px;
+        }
+        .faq-section h2 {
+            font-family: 'Bangers', cursive;
+            font-size: clamp(2rem, 4vw, 3rem);
+            letter-spacing: 1px;
+            margin-bottom: 48px;
+        }
+        .faq-list { display: flex; flex-direction: column; }
+        .faq-item {
+            border-top: 1px solid var(--border);
+            padding: 28px 0;
+        }
+        .faq-item:last-child { border-bottom: 1px solid var(--border); }
+        .faq-q {
+            font-weight: 700;
+            font-size: 1rem;
+            color: var(--text);
+            margin-bottom: 12px;
+        }
+        .faq-a {
+            font-size: 0.95rem;
+            color: var(--muted);
+            line-height: 1.75;
+            max-width: 680px;
+        }
+        .faq-a a { color: var(--brand-lit); }
+
+        /* ═══════════════════════════════
+           PITCH
+        ═══════════════════════════════ */
+        .pitch-section {
+            border-top: 1px solid var(--border);
+        }
+        .pitch-inner {
+            max-width: 1200px;
+            margin: 0 auto;
+            padding: 80px 60px;
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 80px;
+            align-items: start;
+        }
+        .pitch-inner h2 {
+            font-family: 'Bangers', cursive;
+            font-size: clamp(2rem, 4vw, 3rem);
+            letter-spacing: 1px;
+            line-height: 1.1;
+        }
+        .pitch-inner h2 span { color: var(--brand-lit); }
+        .pitch-copy { display: flex; flex-direction: column; gap: 16px; }
+        .pitch-copy p {
+            font-size: 1rem;
+            color: var(--muted);
+            line-height: 1.75;
+        }
+        .pitch-copy em { color: var(--text); font-style: normal; }
+
+        /* ═══════════════════════════════
+           CONTACT
+        ═══════════════════════════════ */
+        .contact-section {
+            background: var(--brand);
+            border-top: 1px solid var(--border);
+        }
+        .contact-inner {
+            max-width: 1200px;
+            margin: 0 auto;
+            padding: 100px 60px;
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 80px;
+            align-items: center;
+        }
+        .contact-left h2 {
+            font-family: 'Bangers', cursive;
+            font-size: clamp(2.5rem, 5vw, 4rem);
+            letter-spacing: 1px;
+            line-height: 1.0;
+            color: #fff;
+            margin-bottom: 20px;
+        }
+        .contact-left p {
+            font-size: 1rem;
+            color: rgba(255,255,255,0.7);
+            line-height: 1.8;
+        }
+        .contact-right { display: flex; flex-direction: column; gap: 20px; }
+        .contact-email-link {
+            font-size: 1.4rem;
+            font-weight: 900;
+            color: #fff;
+            border-bottom: 3px solid rgba(255,255,255,0.3);
+            padding-bottom: 4px;
+            transition: border-color 0.15s;
+            width: fit-content;
+        }
+        .contact-email-link:hover { border-color: #fff; text-decoration: none; }
+        .contact-note {
+            font-size: 0.85rem;
+            color: rgba(255,255,255,0.5);
+            line-height: 1.7;
+            font-style: italic;
+        }
+
+        /* ═══════════════════════════════
+           FOOTER
+        ═══════════════════════════════ */
+        footer {
+            background: var(--surface);
+            border-top: 1px solid var(--border);
+            padding: 28px 60px;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            flex-wrap: wrap;
+            gap: 12px;
+        }
+        footer p { font-size: 0.8rem; color: var(--muted); }
+        footer a { color: var(--muted); }
+        footer a:hover { color: var(--brand-lit); }
+
+        /* ═══════════════════════════════
+           RESPONSIVE
+        ═══════════════════════════════ */
+        @media (max-width: 900px) {
+            nav { padding: 0 24px; }
+            .nav-link { display: none; }
+
+            .hero { grid-template-columns: 1fr; min-height: auto; }
+            .hero-left { padding: 60px 24px 40px; border-right: none; border-bottom: 1px solid var(--border); }
+            .hero-right { padding: 40px 24px 60px; }
+
+            .featured-tool { grid-template-columns: 1fr; }
+            .featured-tool:nth-child(even) .ft-left { order: 0; border-left: none; }
+            .featured-tool:nth-child(even) .ft-right { order: 0; }
+            .ft-left, .ft-right { padding: 40px 24px; border-right: none !important; }
+
+            .tools-header { padding: 60px 24px 40px; }
+            .all-tools { padding: 60px 24px; }
+
+            .how-inner { grid-template-columns: 1fr; gap: 48px; padding: 60px 24px; }
+            .pitch-inner { grid-template-columns: 1fr; gap: 40px; padding: 60px 24px; }
+            .faq-section { padding: 60px 24px; }
+
+            .contact-inner { grid-template-columns: 1fr; gap: 40px; padding: 60px 24px; }
+
+            footer { padding: 24px; }
+        }
+    </style>
+</head>
+<body>
+
+<!-- ── NAV ── -->
+<nav>
+    <span class="nav-logo">Before It <span>Breaks</span></span>
+    <div class="nav-right">
+        <a href="#work" class="nav-link">Work</a>
+        <a href="#how" class="nav-link">How</a>
+        <a href="#faq" class="nav-link">FAQ</a>
+        <a href="mailto:hello@beforeitbreaks.ca" class="nav-cta">Get in touch</a>
+    </div>
+</nav>
+
+<!-- ── HERO ── -->
+<section class="hero">
+    <div class="hero-left">
+        <p class="hero-kicker">Built by Gerry</p>
+        <h1>Tools built<br>to work.</h1>
+        <p class="hero-sub">
+            Real problems. Practical solutions. Made with AI, by someone who needed them — then tested until they actually worked.
+            <em>Everything here is free and runs in your browser.</em>
+        </p>
+        <div class="hero-actions">
+            <a href="#work" class="btn btn-primary">See the work</a>
+            <a href="https://nofnway.ca" target="_blank" class="btn btn-ghost">nofnway.ca</a>
+        </div>
+    </div>
+    <div class="hero-right">
+        <p class="demo-label">Live — [FN] HOW MUCH?</p>
+        <div class="browser-frame">
+            <div class="browser-chrome">
+                <div class="browser-dots">
+                    <span></span><span></span><span></span>
+                </div>
+                <div class="browser-url">nofnway.ca/how_much</div>
+            </div>
+            <iframe src="https://nofnway.ca/how_much" class="browser-iframe" title="[FN] HOW MUCH? — Unit Converter"></iframe>
+        </div>
+    </div>
+</section>
+
+<!-- ── FEATURED TOOLS ── -->
+<div class="tools-section" id="work">
+    <div class="tools-header">
+        <p class="section-label">The Work</p>
+        <h2>Real problems.<br>Working solutions.</h2>
+        <p>Each tool started as something someone actually needed. Three are demonstrated live below. All fifteen are free at nofnway.ca.</p>
+    </div>
+
+    <!-- Sleep Math -->
+    <div class="featured-tool">
+        <div class="ft-left">
+            <p class="ft-problem">The problem</p>
+            <div class="ft-name">Sleep Math</div>
+            <p class="ft-desc">
+                You're exhausted but you don't know when to go to bed. Sleep happens in 90-minute cycles.
+                Go to bed at the wrong time and you wake up mid-cycle — groggy, wrecked.
+                This calculates the rest.
+            </p>
+            <a href="https://nofnway.ca/sleep_math" target="_blank" class="ft-link">Full tool at nofnway.ca</a>
+        </div>
+        <div class="ft-right">
+            <p class="demo-label">Live — [FN] SLEEP MATH</p>
+            <div class="browser-frame">
+                <div class="browser-chrome">
+                    <div class="browser-dots">
+                        <span></span><span></span><span></span>
+                    </div>
+                    <div class="browser-url">nofnway.ca/sleep_math</div>
+                </div>
+                <iframe src="https://nofnway.ca/sleep_math" class="browser-iframe" title="[FN] SLEEP MATH"></iframe>
+            </div>
+        </div>
+    </div>
+
+    <!-- Just Pick -->
+    <div class="featured-tool">
+        <div class="ft-left">
+            <p class="ft-problem">The problem</p>
+            <div class="ft-name">Just Pick</div>
+            <p class="ft-desc">
+                Decision paralysis is real. When every option feels equally impossible —
+                or equally fine — spending ten minutes choosing is a tax on attention you can't afford.
+                Add your options. Get a choice.
+            </p>
+            <a href="https://nofnway.ca/just_pick" target="_blank" class="ft-link">Full tool at nofnway.ca</a>
+        </div>
+        <div class="ft-right">
+            <p class="demo-label">Live — [FN] JUST PICK</p>
+            <div class="browser-frame">
+                <div class="browser-chrome">
+                    <div class="browser-dots">
+                        <span></span><span></span><span></span>
+                    </div>
+                    <div class="browser-url">nofnway.ca/just_pick</div>
+                </div>
+                <iframe src="https://nofnway.ca/just_pick" class="browser-iframe" title="[FN] JUST PICK"></iframe>
+            </div>
+        </div>
+    </div>
+</div>
+
+    <!-- Septic Dispatch -->
+    <div class="featured-tool">
+        <div class="ft-left">
+            <p class="ft-problem">The problem</p>
+            <div class="ft-name">Septic Dispatch</div>
+            <p class="ft-desc">
+                A septic pumping company runs on paper. Calls in a notebook. Job lists handwritten every morning. A portable toilet fleet tracked in someone's head. When the notebook walks out the door, the day goes sideways.
+                This replaces the notebook — call capture, job scheduling, driver assignment, print-ready daily lists, and a full PT fleet tracker. Nothing more.
+            </p>
+            <a href="/dispatch.html" target="_blank" class="ft-link">Explore the live demo</a>
+        </div>
+        <div class="ft-right" style="justify-content:flex-start;gap:16px;">
+            <p class="demo-label">Custom software — built for any service business</p>
+            <div style="background:var(--surface2);border:1px solid var(--border2);border-radius:4px;padding:24px 28px;display:flex;flex-direction:column;gap:12px;">
+                <div style="font-size:0.8rem;color:var(--muted);line-height:1.7;">This is a working operations tool built for a real septic company. The demo runs in your browser with sample data — every button works, every field saves.</div>
+                <div style="display:flex;flex-direction:column;gap:8px;">
+                    <div style="display:flex;align-items:center;gap:10px;font-size:0.85rem;">
+                        <span style="color:var(--brand-lit);font-size:1rem;">✓</span>
+                        <span style="color:var(--muted);">Call note capture with voice dictation</span>
+                    </div>
+                    <div style="display:flex;align-items:center;gap:10px;font-size:0.85rem;">
+                        <span style="color:var(--brand-lit);font-size:1rem;">✓</span>
+                        <span style="color:var(--muted);">Daily job board with driver assignment</span>
+                    </div>
+                    <div style="display:flex;align-items:center;gap:10px;font-size:0.85rem;">
+                        <span style="color:var(--brand-lit);font-size:1rem;">✓</span>
+                        <span style="color:var(--muted);">Print-ready job lists for each driver</span>
+                    </div>
+                    <div style="display:flex;align-items:center;gap:10px;font-size:0.85rem;">
+                        <span style="color:var(--brand-lit);font-size:1rem;">✓</span>
+                        <span style="color:var(--muted);">Portable toilet fleet tracker</span>
+                    </div>
+                    <div style="display:flex;align-items:center;gap:10px;font-size:0.85rem;">
+                        <span style="color:var(--brand-lit);font-size:1rem;">✓</span>
+                        <span style="color:var(--muted);">Works offline. One file. You own it.</span>
+                    </div>
+                </div>
+                <a href="/dispatch.html" target="_blank" style="margin-top:4px;display:inline-block;background:var(--brand-lit);color:var(--bg);font-weight:700;font-size:0.82rem;letter-spacing:0.5px;padding:10px 20px;text-decoration:none;transition:box-shadow 0.1s,transform 0.1s;box-shadow:3px 3px 0 var(--brand);width:fit-content;" onmouseover="this.style.boxShadow='none';this.style.transform='translate(3px,3px)'" onmouseout="this.style.boxShadow='3px 3px 0 var(--brand)';this.style.transform=''">Open the demo →</a>
+                <div style="font-size:0.72rem;color:var(--muted);margin-top:4px;">Septic company? Any service business running on paper? <a href="mailto:hello@beforeitbreaks.ca" style="color:var(--brand-lit);">Let's talk.</a></div>
+            </div>
+        </div>
+    </div>
+
+<!-- ── ALL TOOLS ── -->
+<div class="all-tools">
+    <p class="section-label">Everything else</p>
+    <h2>All fifteen tools, free at nofnway.ca</h2>
+    <div class="tools-grid">
+        <a href="https://nofnway.ca/one_thing" target="_blank" class="tool-cell">
+            <div class="tool-cell-name">One Thing</div>
+            <div class="tool-cell-desc">The one task you need to do today. Fills the screen. That's the plan.</div>
+        </a>
+        <a href="https://nofnway.ca/dial_in" target="_blank" class="tool-cell">
+            <div class="tool-cell-name">Dial In</div>
+            <div class="tool-cell-desc">A live call checklist from your details. Phone anxiety, addressed.</div>
+        </a>
+        <a href="https://nofnway.ca/copy_that" target="_blank" class="tool-cell">
+            <div class="tool-cell-name">Copy That</div>
+            <div class="tool-cell-desc">Store your name, address, phone. One tap to copy any of them.</div>
+        </a>
+        <a href="https://nofnway.ca/fidget" target="_blank" class="tool-cell">
+            <div class="tool-cell-name">Fidget</div>
+            <div class="tool-cell-desc">Pop bubbles, tap a counter, paint a grid. Zero stakes waiting-room tool.</div>
+        </a>
+        <a href="https://nofnway.ca/magnet" target="_blank" class="tool-cell">
+            <div class="tool-cell-name">Magnet Studio</div>
+            <div class="tool-cell-desc">Design and print custom picture tiles for visual schedules and PECS boards.</div>
+        </a>
+        <a href="https://nofnway.ca/jpeger" target="_blank" class="tool-cell">
+            <div class="tool-cell-name">JPEGer</div>
+            <div class="tool-cell-desc">PDF to JPEG, one image per page, in your browser. Nothing uploaded.</div>
+        </a>
+        <a href="https://nofnway.ca/pdfer" target="_blank" class="tool-cell">
+            <div class="tool-cell-name">PDFer</div>
+            <div class="tool-cell-desc">Photos to a ready-to-send PDF. Nothing uploaded, nothing stored.</div>
+        </a>
+        <a href="https://nofnway.ca/how_much" target="_blank" class="tool-cell">
+            <div class="tool-cell-name">How Much?</div>
+            <div class="tool-cell-desc">Instant conversions for the whole category. Works offline.</div>
+        </a>
+        <a href="https://nofnway.ca/how_long" target="_blank" class="tool-cell">
+            <div class="tool-cell-name">How Long?</div>
+            <div class="tool-cell-desc">Record your measurements once. Stop going back to re-measure.</div>
+        </a>
+        <a href="https://nofnway.ca/duly_noted" target="_blank" class="tool-cell">
+            <div class="tool-cell-name">Duly Noted</div>
+            <div class="tool-cell-desc">Quick capture and structured notes, saved locally, yours to export.</div>
+        </a>
+        <a href="https://nofnway.ca/i_knew_that" target="_blank" class="tool-cell">
+            <div class="tool-cell-name">I Knew That</div>
+            <div class="tool-cell-desc">Turns your notes into a quiz game. Screen or printable card deck.</div>
+        </a>
+        <a href="https://nofnway.ca/this_works_at_school" target="_blank" class="tool-cell">
+            <div class="tool-cell-name">This Works at School</div>
+            <div class="tool-cell-desc">Tools for teachers and parents helping kids learn without added friction.</div>
+        </a>
+        <a href="https://nofnway.ca/get_lost" target="_blank" class="tool-cell">
+            <div class="tool-cell-name">Get Lost</div>
+            <div class="tool-cell-desc">Random jogging route generator. For when you need to run away, just for a bit.</div>
+        </a>
+    </div>
+</div>
+
+<!-- ── HOW IT WORKS ── -->
+<div class="how-section" id="how">
+    <div class="how-inner">
+        <div class="how-left">
+            <p class="section-label">How it works</p>
+            <h2>The human part is<br>the hard part.</h2>
+            <p>I'm not a developer. I'm someone who understands problems precisely — which turns out to be most of the work.</p>
+            <p>I use AI to build solutions. What I provide is <em>knowing what the problem actually is</em>, whether the solution solves it, and whether it does anything it shouldn't. I've rejected plenty of outputs that ran fine but were wrong. Running fine and being right are different things.</p>
+            <p>Everything built this way is fully inspectable. Single HTML files. No minified bundles. No hidden behaviour. <em>View Source is the receipt.</em></p>
+        </div>
+        <div class="how-right">
+            <div class="how-steps">
+                <div class="how-step">
+                    <div class="how-num">1</div>
+                    <div class="how-step-body">
+                        <h3>Understand the problem</h3>
+                        <p>I build for problems I or someone I know actually has. That means I know what working looks like before anything is written.</p>
+                    </div>
+                </div>
+                <div class="how-step">
+                    <div class="how-num">2</div>
+                    <div class="how-step-body">
+                        <h3>AI handles the implementation</h3>
+                        <p>I describe the problem precisely. AI builds the solution. This is fast. That speed passes through to you.</p>
+                    </div>
+                </div>
+                <div class="how-step">
+                    <div class="how-num">3</div>
+                    <div class="how-step-body">
+                        <h3>Test until it breaks, then fix it</h3>
+                        <p>I use these tools. If something is wrong, I find it. Nothing ships until it solves the problem it was built for.</p>
+                    </div>
+                </div>
+                <div class="how-step">
+                    <div class="how-num">4</div>
+                    <div class="how-step-body">
+                        <h3>You get something you own</h3>
+                        <p>A file, or a folder. Runs in a browser. No subscriptions, no dependencies, no infrastructure to maintain. Yours completely.</p>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- ── PITCH ── -->
+<div class="pitch-section">
+    <div class="pitch-inner">
+        <h2>Big companies<br>have teams.<br><span>You have me.</span></h2>
+        <div class="pitch-copy">
+            <p>A development team. A QA team. A budget line for software. A project manager to keep all of it moving. That's what a large organization has when something needs building.</p>
+            <p>Small businesses, nonprofits, and individuals have a problem and no one to solve it. That's the gap I work in.</p>
+            <p>One person. Building exactly what you need and nothing extra. <em>No agency overhead. No six-week discovery phase. No invoice that assumes you have an enterprise budget.</em></p>
+            <p>If you have a problem that needs solving, I'm the right size for the job.</p>
+        </div>
+    </div>
+</div>
+
+<!-- ── FAQ ── -->
+<div class="faq-section" id="faq">
+    <p class="section-label">Fair Questions</p>
+    <h2>On building software with AI.</h2>
+    <div class="faq-list">
+        <div class="faq-item">
+            <p class="faq-q">Is AI-generated code reliable?</p>
+            <p class="faq-a">The tools on this page are. Open one. Use it. Every one was built for a specific problem, tested against that problem, and only shipped when it worked. The demos above are running right now, in your browser, without a server. That's the answer.</p>
+        </div>
+        <div class="faq-item">
+            <p class="faq-q">How do I know the code is safe?</p>
+            <p class="faq-a">Right-click any tool on <a href="https://nofnway.ca" target="_blank">nofnway.ca</a> and view the source. No data leaves your browser. No accounts, no tracking, no third-party scripts handling your information. Tools that handle user input use DOM methods — an explicit choice that prevents a class of injection attacks. Nothing is hidden because there's nothing to hide.</p>
+        </div>
+        <div class="faq-item">
+            <p class="faq-q">What happens when AI gets it wrong?</p>
+            <p class="faq-a">I catch it. AI handles the implementation. I handle knowing what the problem is, whether the solution addresses it, and whether it behaves correctly. That's not a small thing — it's the difference between a tool that works and one that appears to work.</p>
+        </div>
+        <div class="faq-item">
+            <p class="faq-q">Doesn't this displace workers?</p>
+            <p class="faq-a">Every tool here either didn't exist before, or existed behind a subscription. I'm not replacing anyone — I'm building things that weren't getting built. When I work with organizations, I work alongside their teams, not instead of them. The goal is always to make someone's job easier, not redundant.</p>
+        </div>
+        <div class="faq-item">
+            <p class="faq-q">Can you build something for my organization?</p>
+            <p class="faq-a">Probably. I build tools, adapt existing ones for specific contexts, and hand them off completely — you own the code, you control the data. I don't want your users' information and I won't build anything that collects it without a clear reason. If cost is a concern, say so. I'd rather help than not.</p>
+        </div>
+    </div>
+</div>
+
+<!-- ── CONTACT ── -->
+<div class="contact-section" id="contact">
+    <div class="contact-inner">
+        <div class="contact-left">
+            <h2>Have a problem?<br>Tell me<br>about it.</h2>
+            <p>No pitch, no discovery call, no proposal template. Just tell me what's broken or what's missing.</p>
+        </div>
+        <div class="contact-right">
+            <a href="mailto:hello@beforeitbreaks.ca" class="contact-email-link">hello@beforeitbreaks.ca</a>
+            <p class="contact-note">I work with individuals, small businesses, schools, and organizations. If cost is a barrier, say so — I'd rather help than not. If it's outside what I can do, I'll tell you that honestly.</p>
+        </div>
+    </div>
+</div>
+
+<!-- ── FOOTER ── -->
+<footer>
+    <p>Before It Breaks &mdash; Gerry &copy; 2026</p>
+    <p>Tools built and maintained at <a href="https://nofnway.ca" target="_blank">nofnway.ca</a></p>
+</footer>
+
+</body>
+</html>

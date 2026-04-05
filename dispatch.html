@@ -1,0 +1,1505 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Septic Dispatch — beforeitbreaks.ca</title>
+<link href="https://fonts.googleapis.com/css2?family=Oswald:wght@400;600;700&family=Source+Sans+3:wght@400;600;700&display=swap" rel="stylesheet">
+<style>
+*,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
+:root{
+  --navy:#0d1e3d;--blue:#1a3f7a;--bright:#1e5fc2;--red:#c8102e;
+  --bg:#f2f4f8;--border:#cdd4e0;--muted:#5a6b80;
+  --success:#1a6634;--warn:#b35c00;--surface:#fff;
+  --danger:#c8102e;--danger-bg:#fde8eb;
+}
+body{font-family:'Source Sans 3',sans-serif;background:var(--bg);color:var(--navy);font-size:14px;min-height:100vh}
+
+/* ── SPLASH SCREEN ── */
+#splash-screen{position:fixed;inset:0;background:var(--navy);z-index:9000;display:flex;flex-direction:column;align-items:center;justify-content:center;padding:32px 20px;text-align:center;}
+#splash-screen.hidden{display:none}
+.splash-eyebrow{font-family:'Oswald',sans-serif;font-size:11px;font-weight:600;letter-spacing:.2em;text-transform:uppercase;color:rgba(255,255,255,.4);margin-bottom:20px}
+.splash-wordmark{font-family:'Oswald',sans-serif;font-weight:700;font-size:clamp(28px,6vw,52px);color:#fff;letter-spacing:.04em;line-height:1}
+.splash-wordmark span{color:var(--red)}
+.splash-tagline{font-family:'Source Sans 3',sans-serif;font-size:clamp(14px,2.5vw,18px);color:rgba(255,255,255,.65);margin-top:12px;max-width:520px;line-height:1.5}
+.splash-divider{width:48px;height:2px;background:var(--red);margin:28px auto}
+.splash-desc{font-size:clamp(13px,2vw,15px);color:rgba(255,255,255,.55);max-width:560px;line-height:1.7;margin-bottom:8px}
+.splash-desc strong{color:rgba(255,255,255,.85);font-weight:600}
+.splash-demo-note{display:inline-flex;align-items:center;gap:6px;background:rgba(255,255,255,.07);border:1px solid rgba(255,255,255,.12);border-radius:20px;padding:5px 14px;font-size:12px;color:rgba(255,255,255,.45);margin-top:4px}
+.splash-demo-note::before{content:'';display:inline-block;width:7px;height:7px;border-radius:50%;background:#4ade80;flex-shrink:0}
+.splash-cta{margin-top:32px;display:flex;flex-direction:column;align-items:center;gap:14px}
+.splash-enter-btn{background:var(--red);color:#fff;border:none;font-family:'Oswald',sans-serif;font-size:16px;font-weight:600;letter-spacing:.08em;text-transform:uppercase;padding:14px 40px;border-radius:4px;cursor:pointer;transition:background .15s}
+.splash-enter-btn:hover{background:#a50d25}
+.splash-back-link{color:rgba(255,255,255,.3);font-size:12px;background:none;border:none;cursor:pointer;font-family:'Source Sans 3',sans-serif;transition:color .12s}
+.splash-back-link:hover{color:rgba(255,255,255,.6)}
+
+/* ── HOME BUTTON ── */
+.home-btn{background:none;border:1px solid rgba(255,255,255,.18);color:rgba(255,255,255,.45);font-family:'Source Sans 3',sans-serif;font-size:11px;font-weight:600;letter-spacing:.06em;padding:5px 10px;border-radius:3px;cursor:pointer;transition:all .12s;white-space:nowrap;text-decoration:none;display:inline-flex;align-items:center;gap:5px}
+.home-btn:hover{border-color:rgba(255,255,255,.45);color:#fff}
+
+/* ── HEADER ── */
+header{background:var(--navy);border-bottom:3px solid var(--red);padding:0 16px;height:56px;display:flex;align-items:center;justify-content:space-between;position:sticky;top:0;z-index:200}
+.wordmark{display:flex;flex-direction:column;line-height:1.1}
+.wordmark-main{font-family:'Oswald',sans-serif;font-weight:700;font-size:18px;color:#fff;letter-spacing:.05em}
+.wordmark-sub{font-family:'Oswald',sans-serif;font-weight:400;font-size:11px;color:rgba(255,255,255,.6);letter-spacing:.1em;text-transform:uppercase}
+.header-right{display:flex;align-items:center;gap:4px}
+.nav{display:flex;gap:2px}
+.nav-btn{background:none;border:none;color:rgba(255,255,255,.6);font-family:'Source Sans 3',sans-serif;font-size:13px;font-weight:600;padding:8px 12px;cursor:pointer;border-bottom:3px solid transparent;transition:color .12s;white-space:nowrap}
+.nav-btn:hover{color:#fff}
+.nav-btn.active{color:#fff;border-bottom-color:var(--red)}
+.gear-btn{background:none;border:none;color:rgba(255,255,255,.45);font-size:20px;width:36px;height:36px;display:flex;align-items:center;justify-content:center;cursor:pointer;border-radius:4px;margin-left:6px;transition:color .12s,background .12s}
+.gear-btn:hover,.gear-btn.sa{color:#fff;background:rgba(255,255,255,.1)}
+
+/* ── PAGES ── */
+.page{display:none}.page.active{display:block}
+.container{max-width:1100px;margin:0 auto;padding:20px 16px}
+
+/* ── CARDS ── */
+.card{background:var(--surface);border:1px solid var(--border);border-radius:6px;padding:16px;margin-bottom:16px}
+.card-title{font-family:'Oswald',sans-serif;font-size:16px;font-weight:600;color:var(--navy);margin-bottom:12px;display:flex;align-items:center;gap:8px}
+
+/* ── STATS ── */
+.stats-row{display:flex;gap:10px;flex-wrap:wrap;margin-bottom:16px}
+.stat-card{background:var(--surface);border:1px solid var(--border);border-radius:6px;padding:12px 16px;min-width:110px;flex:1}
+.stat-label{font-family:'Oswald',sans-serif;font-size:10px;font-weight:600;letter-spacing:.1em;text-transform:uppercase;color:var(--muted);margin-bottom:4px}
+.stat-value{font-family:'Oswald',sans-serif;font-size:28px;font-weight:700;color:var(--navy);line-height:1}
+.stat-card.accent .stat-value{color:var(--bright)}
+.stat-card.success .stat-value{color:var(--success)}
+.stat-card.warn .stat-value{color:var(--warn)}
+
+/* ── TABLES ── */
+.tbl-wrap{overflow-x:auto}
+table{width:100%;border-collapse:collapse;font-size:13px}
+thead th{background:var(--navy);color:#fff;font-family:'Oswald',sans-serif;font-weight:600;font-size:12px;letter-spacing:.05em;padding:8px 10px;text-align:left;white-space:nowrap}
+td{padding:7px 10px;border-bottom:1px solid var(--border);vertical-align:middle}
+tr:last-child td{border-bottom:none}
+tr:hover td{background:#f7f9fc}
+
+/* ── BUTTONS ── */
+.btn{border:none;border-radius:4px;padding:7px 14px;font-family:'Source Sans 3',sans-serif;font-size:13px;font-weight:600;cursor:pointer;transition:background .12s;display:inline-flex;align-items:center;gap:5px;white-space:nowrap}
+.btn-primary{background:var(--bright);color:#fff}.btn-primary:hover{background:var(--blue)}
+.btn-navy{background:var(--navy);color:#fff}.btn-navy:hover{background:var(--blue)}
+.btn-ghost{background:transparent;color:var(--navy);border:1px solid var(--border)}.btn-ghost:hover{border-color:var(--bright);color:var(--bright)}
+.btn-danger{background:var(--danger-bg);color:var(--danger)}.btn-danger:hover{background:#f8c3cc}
+.btn-success{background:#d4edda;color:var(--success)}.btn-success:hover{background:#b8dfc5}
+.btn-promote{background:#e8f0fb;color:var(--bright)}.btn-promote:hover{background:#d0e2f7}
+.btn-sm{padding:4px 8px;font-size:12px}
+.btn-lg{padding:10px 20px;font-size:15px}
+
+/* ── FORMS ── */
+select,input[type=text],input[type=tel],input[type=date],input[type=number],textarea{border:1px solid var(--border);border-radius:4px;padding:7px 10px;font-family:'Source Sans 3',sans-serif;font-size:14px;color:var(--navy);background:var(--surface);width:100%;outline:none;transition:border-color .12s}
+select:focus,input:focus,textarea:focus{border-color:var(--bright)}
+textarea{resize:vertical;min-height:70px}
+.form-row{display:grid;grid-template-columns:1fr 1fr;gap:12px;margin-bottom:12px}
+.form-row.single{grid-template-columns:1fr}
+.form-row.triple{grid-template-columns:1fr 1fr 1fr}
+.form-group{display:flex;flex-direction:column;gap:4px}
+.form-group label{font-size:12px;font-weight:600;color:var(--muted);text-transform:uppercase;letter-spacing:.05em}
+.form-group label .req{color:var(--red);margin-left:2px}
+.checkbox-wrap{display:flex;align-items:center;gap:8px;font-size:14px;margin-bottom:12px}
+.checkbox-wrap input[type=checkbox]{width:18px;height:18px;cursor:pointer;flex-shrink:0}
+
+/* ── ACTION BAR ── */
+.action-bar{display:flex;align-items:center;gap:8px;margin-bottom:12px;flex-wrap:wrap}
+.filter-group{display:flex;align-items:center;gap:6px}
+.filter-group label{font-size:12px;font-weight:600;color:var(--muted);white-space:nowrap}
+
+/* ── MODALS ── */
+.overlay{display:none;position:fixed;inset:0;background:rgba(0,0,0,.5);z-index:500;align-items:center;justify-content:center;padding:16px}
+.overlay.open{display:flex}
+.modal{background:var(--surface);border-radius:8px;padding:20px;max-width:560px;width:100%;max-height:90vh;overflow-y:auto}
+.modal-wide{max-width:720px}
+.modal-header{display:flex;align-items:center;justify-content:space-between;margin-bottom:16px}
+.modal-title{font-family:'Oswald',sans-serif;font-size:18px;font-weight:600;color:var(--navy)}
+.modal-close{background:none;border:none;font-size:22px;color:var(--muted);cursor:pointer;line-height:1;padding:0 4px}
+.modal-footer{display:flex;justify-content:flex-end;gap:8px;margin-top:16px;padding-top:12px;border-top:1px solid var(--border)}
+
+/* ── BADGES ── */
+.badge{display:inline-block;font-size:11px;font-weight:700;padding:2px 7px;border-radius:3px;letter-spacing:.03em;white-space:nowrap}
+.badge-scheduled{background:#dbeafe;color:#1d4ed8}
+.badge-done{background:#dcfce7;color:var(--success)}
+.badge-cancelled{background:#f3f4f6;color:var(--muted)}
+.badge-unscheduled{background:#fff3cd;color:#856404}
+.badge-urgent{background:var(--danger-bg);color:var(--danger)}
+.badge-soon{background:#fff3cd;color:#856404}
+.badge-routine{background:#e8f4fd;color:var(--blue)}
+.badge-available{background:#dcfce7;color:var(--success)}
+.badge-deployed{background:#dbeafe;color:#1d4ed8}
+.badge-needs-service{background:var(--danger-bg);color:var(--danger)}
+.badge-cash{background:#fff3cd;color:#856404}
+.badge-overdue{background:var(--danger-bg);color:var(--danger);font-size:10px}
+
+/* ── SECTION TITLE ── */
+.section-title{font-family:'Oswald',sans-serif;font-size:13px;font-weight:600;text-transform:uppercase;letter-spacing:.08em;color:var(--muted);padding-bottom:8px;border-bottom:1px solid var(--border);margin-bottom:12px;display:flex;align-items:center;gap:8px}
+
+/* ── QUICK CAPTURE ── */
+.quick-capture{background:linear-gradient(135deg,#0d1e3d 0%,#1a3f7a 100%);border-radius:6px;padding:16px;margin-bottom:16px}
+.quick-capture .form-group label{color:rgba(255,255,255,.7)}
+.quick-capture select,.quick-capture input,.quick-capture textarea{background:rgba(255,255,255,.95)}
+.qc-title{font-family:'Oswald',sans-serif;font-size:17px;font-weight:600;color:#fff;margin-bottom:12px;display:flex;align-items:center;gap:10px}
+
+/* ── MIC BUTTON ── */
+.mic-btn{width:40px;height:40px;border-radius:50%;background:rgba(255,255,255,.2);border:2px solid rgba(255,255,255,.35);color:#fff;font-size:18px;cursor:pointer;display:flex;align-items:center;justify-content:center;transition:all .15s;flex-shrink:0;padding:0}
+.mic-btn:hover{background:rgba(255,255,255,.3)}
+.mic-btn.listening{background:var(--red);border-color:var(--red);animation:pulse-mic 1.2s ease-in-out infinite}
+@keyframes pulse-mic{0%,100%{box-shadow:0 0 0 0 rgba(200,16,46,.5)}50%{box-shadow:0 0 0 8px rgba(200,16,46,0)}}
+.mic-status{font-size:12px;color:rgba(255,255,255,.6)}
+.mic-status.hot{color:#ff9999}
+.voice-area{background:rgba(0,0,0,.2);border-radius:4px;padding:10px;margin-bottom:10px}
+.voice-area .form-group label{color:rgba(255,255,255,.6)}
+.voice-area textarea{background:rgba(255,255,255,.9);min-height:56px}
+.voice-actions{display:flex;gap:6px;margin-top:8px;flex-wrap:wrap}
+
+/* ── CALL NOTE CARDS ── */
+.call-note-card{background:var(--surface);border:1px solid var(--border);border-left:4px solid var(--warn);border-radius:6px;padding:12px 14px;margin-bottom:8px;display:flex;align-items:flex-start;gap:10px}
+.call-note-card.urgent{border-left-color:var(--danger)}
+.call-note-card.routine{border-left-color:var(--bright)}
+.call-note-body{flex:1;min-width:0}
+.call-note-name{font-weight:700;font-size:14px}
+.call-note-meta{font-size:12px;color:var(--muted);margin-top:2px}
+.call-note-actions{display:flex;gap:4px;flex-shrink:0;flex-wrap:wrap;align-items:flex-start}
+
+/* ── DRIVER GROUPS ── */
+.driver-group{margin-bottom:20px}
+.driver-group-header{font-family:'Oswald',sans-serif;font-size:14px;font-weight:600;color:#fff;padding:6px 12px;border-radius:4px 4px 0 0;display:flex;align-items:center}
+.dgh-count{margin-left:auto;opacity:.8;font-size:12px}
+.group-table-wrap{background:var(--surface);border:1px solid var(--border);border-top:none;border-radius:0 0 4px 4px;overflow-x:auto}
+
+/* ── INLINE TABLE INPUTS ── */
+.inline-input{width:72px;padding:3px 6px;font-size:13px;border:1px solid var(--border);border-radius:3px;font-family:'Source Sans 3',sans-serif;color:var(--navy);background:var(--surface)}
+.inline-input:focus{outline:none;border-color:var(--bright)}
+
+/* ── SETTINGS LIST ── */
+.list-item{display:flex;align-items:center;gap:8px;padding:7px 0;border-bottom:1px solid var(--border);font-size:13px}
+.list-item:last-child{border-bottom:none}
+.list-item-name{flex:1}
+.color-dot{display:inline-block;width:12px;height:12px;border-radius:50%;flex-shrink:0}
+
+/* ── NOTICE ── */
+.notice-box{background:#fff3cd;border:1px solid #ffc107;border-radius:4px;padding:8px 12px;font-size:13px;margin-bottom:12px}
+
+/* ── TOAST ── */
+#toast{position:fixed;bottom:24px;left:50%;transform:translateX(-50%) translateY(12px);background:var(--navy);color:#fff;font-family:'Source Sans 3',sans-serif;font-size:13px;font-weight:600;padding:8px 20px;border-radius:20px;opacity:0;transition:all .2s;pointer-events:none;z-index:9999;white-space:nowrap}
+#toast.show{opacity:1;transform:translateX(-50%) translateY(0)}
+
+/* ── EMPTY STATE ── */
+.empty{text-align:center;padding:32px 20px;color:var(--muted);font-size:13px}
+
+/* ── RESPONSIVE ── */
+@media(max-width:600px){
+  .form-row{grid-template-columns:1fr}
+  .form-row.triple{grid-template-columns:1fr 1fr}
+  .stats-row{flex-direction:column}
+  .wordmark-main{font-size:15px}
+  .nav-btn{padding:8px 8px;font-size:12px}
+  .call-note-actions{flex-direction:column}
+}
+
+/* ── PRINT ── */
+#print-content{display:none}
+@media print{
+  body>*{display:none!important}
+  #print-content{display:block!important;font-family:'Source Sans 3',Georgia,serif;color:#000;padding:20px}
+  .ph{border-bottom:2px solid #000;padding-bottom:10px;margin-bottom:18px}
+  .ph h1{font-family:'Oswald',sans-serif;font-size:20pt;letter-spacing:.02em}
+  .ph-sub{font-size:11pt;margin-top:4px}
+  .pd-section{margin-bottom:28px;page-break-inside:avoid}
+  .pd-driver{font-family:'Oswald',sans-serif;font-size:14pt;font-weight:700;border-bottom:1.5px solid #000;padding-bottom:4px;margin-bottom:10px;text-transform:uppercase}
+  .pd-job{display:flex;gap:10px;margin-bottom:10px;padding-bottom:8px;border-bottom:1px dotted #ccc}
+  .pd-job:last-child{border-bottom:none}
+  .pd-num{font-size:12pt;font-weight:700;width:22px;flex-shrink:0;padding-top:1px}
+  .pd-info{flex:1}
+  .pd-name{font-size:12pt;font-weight:700}
+  .pd-addr{font-size:11pt}
+  .pd-notes{font-size:10pt;font-style:italic;color:#444;margin-top:2px}
+  .pd-done{opacity:.5}
+}
+</style>
+</head>
+<body>
+
+<div id="splash-screen">
+  <div class="splash-eyebrow">beforeitbreaks.ca — live demo</div>
+  <div class="splash-wordmark">SEPTIC<span>DISPATCH</span></div>
+  <div class="splash-tagline">A working operations tool for septic pumping and portable toilet companies. Built to replace the notebook.</div>
+  <div class="splash-divider"></div>
+  <div class="splash-desc">
+    <strong>This is real software.</strong> Every button works. Every field saves. The data is sample data — nothing is connected to a real business.<br><br>
+    It handles call capture, daily job scheduling, driver assignment, print-ready job lists, and a full portable toilet fleet tracker. No invoicing, no routing — just the front half of the day, organized.
+  </div>
+  <div class="splash-demo-note">Sample data loaded &mdash; safe to explore and edit</div>
+  <div class="splash-cta">
+    <button class="splash-enter-btn" onclick="enterDemo()">Explore the Demo &rarr;</button>
+    <button class="splash-back-link" onclick="window.location.href='https://beforeitbreaks.ca'">&#8592; Back to beforeitbreaks.ca</button>
+  </div>
+</div>
+
+<header>
+  <div class="wordmark">
+    <span class="wordmark-main">SEPTIC DISPATCH</span>
+    <span class="wordmark-sub">Demo &mdash; beforeitbreaks.ca</span>
+  </div>
+  <div class="header-right">
+    <nav class="nav">
+      <button class="nav-btn active" data-page="schedule" onclick="showPage('schedule',this)">Schedule</button>
+      <button class="nav-btn" data-page="pt" onclick="showPage('pt',this)">PT Tracker</button>
+    </nav>
+    <a class="home-btn" href="https://beforeitbreaks.ca" title="Back to beforeitbreaks.ca">&#8592; beforeitbreaks.ca</a>
+    <button class="gear-btn" id="gear-btn" onclick="toggleSettings()" title="Settings">&#9881;</button>
+  </div>
+</header>
+
+<div id="toast"></div>
+<div id="print-content"></div>
+
+<!-- ══ SCHEDULE ══ -->
+<div id="page-schedule" class="page active">
+  <div class="container">
+
+    <!-- Quick Capture -->
+    <div class="quick-capture">
+      <div class="qc-title">
+        &#128222; New Call Note
+        <button id="mic-btn" class="mic-btn" onclick="toggleMic()" title="Dictate" style="display:none;">&#127908;</button>
+        <span id="mic-status" class="mic-status" style="display:none;">Tap to dictate</span>
+      </div>
+      <div id="voice-area" class="voice-area" style="display:none;">
+        <div class="form-group" style="margin-bottom:6px;">
+          <label>Voice transcript</label>
+          <textarea id="voice-transcript" rows="3" placeholder="Transcript will appear here..."></textarea>
+        </div>
+        <div class="voice-actions">
+          <button class="btn btn-danger btn-sm" onclick="stopMic()">Stop</button>
+          <button class="btn btn-ghost btn-sm" onclick="fillFromTranscript()">Fill fields from transcript</button>
+          <button class="btn btn-ghost btn-sm" onclick="clearTranscript()">Clear</button>
+        </div>
+      </div>
+      <div class="form-row">
+        <div class="form-group">
+          <label>Customer Name <span class="req">*</span></label>
+          <input type="text" id="cn-name" placeholder="Smith" autocomplete="off">
+        </div>
+        <div class="form-group">
+          <label>Phone</label>
+          <input type="tel" id="cn-phone" placeholder="204-555-0000">
+        </div>
+      </div>
+      <div class="form-row">
+        <div class="form-group">
+          <label>Address / Location <span class="req">*</span></label>
+          <input type="text" id="cn-address" placeholder="123 Main St or rural description">
+        </div>
+        <div class="form-group">
+          <label>Municipality <span class="req">*</span></label>
+          <select id="cn-municipality"></select>
+        </div>
+      </div>
+      <div class="form-row triple">
+        <div class="form-group">
+          <label>Tank Size</label>
+          <select id="cn-tank">
+            <option value="">Unknown</option>
+            <option>500 gal</option><option>750 gal</option>
+            <option>1000 gal</option><option>1250 gal</option><option>1500 gal</option>
+          </select>
+        </div>
+        <div class="form-group">
+          <label>Urgency <span class="req">*</span></label>
+          <select id="cn-urgency">
+            <option value="Routine">Routine</option>
+            <option value="Soon">Soon</option>
+            <option value="Urgent">Urgent</option>
+          </select>
+        </div>
+        <div class="form-group">
+          <label>Date Called</label>
+          <input type="date" id="cn-date">
+        </div>
+      </div>
+      <div class="form-row single">
+        <div class="form-group">
+          <label>Notes (gate codes, dogs, access issues...)</label>
+          <textarea id="cn-notes" rows="2" placeholder="Side gate, dog in yard..."></textarea>
+        </div>
+      </div>
+      <button class="btn btn-primary btn-lg" onclick="saveCallNote()">Save Call Note</button>
+    </div>
+
+    <div class="section-title">Unpromoted Call Notes</div>
+    <div id="call-notes-list"></div>
+
+    <div class="section-title" style="margin-top:24px;flex-wrap:wrap;row-gap:8px;">
+      Job Board
+      <span style="margin-left:auto;display:flex;align-items:center;gap:8px;flex-wrap:wrap;">
+        <span class="filter-group">
+          <label for="job-filter-date">Date</label>
+          <input type="date" id="job-filter-date" style="width:auto;" onchange="renderJobBoard()">
+        </span>
+        <span class="filter-group">
+          <label for="job-filter-driver">Driver</label>
+          <select id="job-filter-driver" style="width:auto;" onchange="renderJobBoard()"></select>
+        </span>
+        <button class="btn btn-ghost btn-sm" onclick="clearJobFilters()">Clear</button>
+        <button class="btn btn-navy btn-sm" onclick="printDayList()">&#128438; Print Day</button>
+      </span>
+    </div>
+    <div id="job-board"></div>
+
+  </div>
+</div>
+
+<!-- ══ PT TRACKER ══ -->
+<div id="page-pt" class="page">
+  <div class="container">
+
+    <div class="stats-row">
+      <div class="stat-card"><div class="stat-label">Total Units</div><div class="stat-value" id="pt-total">0</div></div>
+      <div class="stat-card accent"><div class="stat-label">Deployed</div><div class="stat-value" id="pt-deployed">0</div></div>
+      <div class="stat-card success"><div class="stat-label">Available</div><div class="stat-value" id="pt-available">0</div></div>
+      <div class="stat-card warn"><div class="stat-label">Needs Service</div><div class="stat-value" id="pt-service">0</div></div>
+    </div>
+
+    <div class="card">
+      <div class="card-title">Type Inventory <span style="font-size:11px;font-weight:400;color:var(--muted);margin-left:4px;">Total and Needs Service are editable</span></div>
+      <div class="tbl-wrap">
+        <table>
+          <thead><tr><th>Type</th><th>Total Owned</th><th>Deployed</th><th>Available</th><th>Needs Service</th></tr></thead>
+          <tbody id="pt-type-tbody"></tbody>
+        </table>
+      </div>
+    </div>
+
+    <div class="card">
+      <div class="card-title" style="justify-content:space-between;">
+        Individual Units
+        <button class="btn btn-ghost btn-sm" onclick="openUnitModal(null)">+ Add Unit</button>
+      </div>
+      <div class="tbl-wrap">
+        <table>
+          <thead><tr><th>Unit ID</th><th>Type</th><th>Status</th><th>Tarp</th><th>Customer</th><th>Physical Notes</th><th class="no-print"></th></tr></thead>
+          <tbody id="pt-units-tbody"></tbody>
+        </table>
+      </div>
+    </div>
+
+    <div class="card">
+      <div class="card-title" style="justify-content:space-between;">
+        Active Deployments
+        <button class="btn btn-primary btn-sm" onclick="openDeployModal()">+ New Deployment</button>
+      </div>
+      <div class="tbl-wrap">
+        <table>
+          <thead><tr><th>Unit / Qty</th><th>Customer</th><th>Deploy Date</th><th>Expected Return</th><th>Customer Type</th><th class="no-print"></th></tr></thead>
+          <tbody id="pt-deploy-tbody"></tbody>
+        </table>
+      </div>
+    </div>
+
+  </div>
+</div>
+
+<!-- ══ SETTINGS ══ -->
+<div id="page-settings" class="page">
+  <div class="container">
+    <h2 style="font-family:'Oswald',sans-serif;font-size:22px;margin-bottom:16px;">Settings</h2>
+
+    <div class="card">
+      <div class="card-title">Rates</div>
+      <div class="form-row" style="max-width:380px;">
+        <div class="form-group"><label>Base Service Rate ($)</label><input type="number" id="s-base-rate" min="0" step="1"></div>
+        <div class="form-group"><label>Dump Fee per Load ($)</label><input type="number" id="s-dump-fee" min="0" step="1"></div>
+      </div>
+      <button class="btn btn-navy btn-sm" onclick="saveRates()">Save Rates</button>
+    </div>
+
+    <div class="card">
+      <div class="card-title" style="justify-content:space-between;">Drivers<button class="btn btn-ghost btn-sm" onclick="openDriverModal(null)">+ Add</button></div>
+      <div id="s-driver-list"></div>
+    </div>
+
+    <div class="card">
+      <div class="card-title" style="justify-content:space-between;">Municipalities<button class="btn btn-ghost btn-sm" onclick="openMuniModal(null)">+ Add</button></div>
+      <div id="s-muni-list"></div>
+    </div>
+
+    <div class="card">
+      <div class="card-title" style="justify-content:space-between;">
+        PT Types
+        <span style="font-size:11px;font-weight:400;color:var(--muted);margin-left:4px;margin-right:auto;">Quantities edited in PT Tracker</span>
+        <button class="btn btn-ghost btn-sm" onclick="openPTTypeModal(null)">+ Add</button>
+      </div>
+      <div id="s-pttype-list"></div>
+    </div>
+
+    <div class="card">
+      <div class="card-title" style="justify-content:space-between;">
+        Trucks <span style="font-size:11px;font-weight:400;color:var(--muted);margin-left:4px;margin-right:auto;">Reference only</span>
+        <button class="btn btn-ghost btn-sm" onclick="openTruckModal(null)">+ Add</button>
+      </div>
+      <div id="s-truck-list"></div>
+    </div>
+
+  </div>
+</div>
+
+<!-- ══════════ MODALS ══════════ -->
+
+<!-- Promote to Job -->
+<div class="overlay" id="modal-promote">
+  <div class="modal">
+    <div class="modal-header">
+      <span class="modal-title">Schedule Job</span>
+      <button class="modal-close" onclick="closeModal('modal-promote')">&#215;</button>
+    </div>
+    <input type="hidden" id="promote-note-id">
+    <div id="promote-summary" style="background:var(--bg);border-radius:4px;padding:10px 12px;margin-bottom:16px;font-size:13px;"></div>
+    <div class="form-row">
+      <div class="form-group"><label>Assign Driver <span class="req">*</span></label><select id="promote-driver"></select></div>
+      <div class="form-group"><label>Scheduled Date <span class="req">*</span></label><input type="date" id="promote-date"></div>
+    </div>
+    <div class="form-row">
+      <div class="form-group"><label>Rate ($)</label><input type="number" id="promote-rate" min="0" step="1"></div>
+      <div class="form-group">
+        <label>Status</label>
+        <select id="promote-status"><option value="Scheduled">Scheduled</option><option value="Unscheduled">Unscheduled</option></select>
+      </div>
+    </div>
+    <div class="modal-footer">
+      <button class="btn btn-ghost" onclick="closeModal('modal-promote')">Cancel</button>
+      <button class="btn btn-primary" onclick="promoteToJob()">Schedule Job</button>
+    </div>
+  </div>
+</div>
+
+<!-- Edit Call Note -->
+<div class="overlay" id="modal-edit-cn">
+  <div class="modal">
+    <div class="modal-header">
+      <span class="modal-title">Edit Call Note</span>
+      <button class="modal-close" onclick="closeModal('modal-edit-cn')">&#215;</button>
+    </div>
+    <input type="hidden" id="ecn-id">
+    <div class="form-row">
+      <div class="form-group"><label>Customer Name <span class="req">*</span></label><input type="text" id="ecn-name"></div>
+      <div class="form-group"><label>Phone</label><input type="tel" id="ecn-phone"></div>
+    </div>
+    <div class="form-row">
+      <div class="form-group"><label>Address <span class="req">*</span></label><input type="text" id="ecn-address"></div>
+      <div class="form-group"><label>Municipality</label><select id="ecn-municipality"></select></div>
+    </div>
+    <div class="form-row triple">
+      <div class="form-group">
+        <label>Tank Size</label>
+        <select id="ecn-tank"><option value="">Unknown</option><option>500 gal</option><option>750 gal</option><option>1000 gal</option><option>1250 gal</option><option>1500 gal</option></select>
+      </div>
+      <div class="form-group"><label>Urgency</label><select id="ecn-urgency"><option value="Routine">Routine</option><option value="Soon">Soon</option><option value="Urgent">Urgent</option></select></div>
+      <div class="form-group"><label>Date Called</label><input type="date" id="ecn-date"></div>
+    </div>
+    <div class="form-row single"><div class="form-group"><label>Notes</label><textarea id="ecn-notes" rows="2"></textarea></div></div>
+    <div class="modal-footer">
+      <button class="btn btn-ghost" onclick="closeModal('modal-edit-cn')">Cancel</button>
+      <button class="btn btn-primary" onclick="saveEditCallNote()">Save</button>
+    </div>
+  </div>
+</div>
+
+<!-- Edit Job -->
+<div class="overlay" id="modal-edit-job">
+  <div class="modal">
+    <div class="modal-header">
+      <span class="modal-title">Edit Job</span>
+      <button class="modal-close" onclick="closeModal('modal-edit-job')">&#215;</button>
+    </div>
+    <input type="hidden" id="ej-id">
+    <div id="ej-summary" style="background:var(--bg);border-radius:4px;padding:10px 12px;margin-bottom:16px;font-size:13px;color:var(--muted);"></div>
+    <div class="form-row">
+      <div class="form-group"><label>Driver</label><select id="ej-driver"></select></div>
+      <div class="form-group"><label>Scheduled Date</label><input type="date" id="ej-date"></div>
+    </div>
+    <div class="form-row">
+      <div class="form-group"><label>Rate ($)</label><input type="number" id="ej-rate" min="0" step="1"></div>
+      <div class="form-group">
+        <label>Status</label>
+        <select id="ej-status"><option value="Unscheduled">Unscheduled</option><option value="Scheduled">Scheduled</option><option value="Done">Done</option><option value="Cancelled">Cancelled</option></select>
+      </div>
+    </div>
+    <div class="form-row single"><div class="form-group"><label>Notes</label><textarea id="ej-notes" rows="2"></textarea></div></div>
+    <div class="modal-footer">
+      <button class="btn btn-ghost" onclick="closeModal('modal-edit-job')">Cancel</button>
+      <button class="btn btn-primary" onclick="saveEditJob()">Save</button>
+    </div>
+  </div>
+</div>
+
+<!-- Add/Edit PT Unit -->
+<div class="overlay" id="modal-unit">
+  <div class="modal">
+    <div class="modal-header">
+      <span class="modal-title" id="unit-modal-title">Add Individual Unit</span>
+      <button class="modal-close" onclick="closeModal('modal-unit')">&#215;</button>
+    </div>
+    <input type="hidden" id="unit-id">
+    <div class="form-row">
+      <div class="form-group"><label>Unit ID <span class="req">*</span></label><input type="text" id="unit-uid" placeholder="A1, Blue-03, Heritage-5"></div>
+      <div class="form-group"><label>Type <span class="req">*</span></label><select id="unit-type"></select></div>
+    </div>
+    <div class="form-row">
+      <div class="form-group"><label>Tarp ID</label><input type="text" id="unit-tarp" placeholder="T-A1"></div>
+      <div class="form-group"><label>Status</label><select id="unit-status"><option value="Available">Available</option><option value="Deployed">Deployed</option><option value="Needs Service">Needs Service</option></select></div>
+    </div>
+    <div class="form-row single"><div class="form-group"><label>Physical Notes (colour, insulation, etc.)</label><textarea id="unit-notes" rows="2" placeholder="Blue, insulated, metal-clad..."></textarea></div></div>
+    <div class="modal-footer">
+      <button class="btn btn-ghost" onclick="closeModal('modal-unit')">Cancel</button>
+      <button class="btn btn-primary" onclick="saveUnit()">Save Unit</button>
+    </div>
+  </div>
+</div>
+
+<!-- New Deployment -->
+<div class="overlay" id="modal-deploy">
+  <div class="modal modal-wide">
+    <div class="modal-header">
+      <span class="modal-title">New Deployment</span>
+      <button class="modal-close" onclick="closeModal('modal-deploy')">&#215;</button>
+    </div>
+    <div class="form-row">
+      <div class="form-group">
+        <label>Deployment Type</label>
+        <select id="dep-kind" onchange="toggleDepKind()"><option value="count">Count-Based (type + quantity)</option><option value="individual">Individual Unit</option></select>
+      </div>
+      <div id="dep-type-field" class="form-group">
+        <label>PT Type <span class="req">*</span></label>
+        <select id="dep-pttype"></select>
+      </div>
+    </div>
+    <div id="dep-qty-row" class="form-row">
+      <div class="form-group"><label>Quantity <span class="req">*</span></label><input type="number" id="dep-qty" min="1" value="1"></div>
+      <div class="form-group"></div>
+    </div>
+    <div id="dep-unit-row" class="form-row single" style="display:none;">
+      <div class="form-group"><label>Individual Unit <span class="req">*</span></label><select id="dep-unit-id"></select></div>
+    </div>
+    <div class="form-row">
+      <div class="form-group"><label>Customer Name <span class="req">*</span></label><input type="text" id="dep-customer"></div>
+      <div class="form-group">
+        <label>Customer Type <span class="req">*</span></label>
+        <select id="dep-cust-type" onchange="handleCustType()"><option>Construction</option><option>Event</option><option>Residential</option><option>Municipal</option><option>Cash Rental</option></select>
+      </div>
+    </div>
+    <div class="form-row single"><div class="form-group"><label>Address <span class="req">*</span></label><input type="text" id="dep-address"></div></div>
+    <div class="form-row">
+      <div class="form-group"><label>Deploy Date <span class="req">*</span></label><input type="date" id="dep-date"></div>
+      <div class="form-group"><label>Expected Return</label><input type="date" id="dep-return"></div>
+    </div>
+    <div id="cash-notice" class="notice-box" style="display:none;"><strong>Cash Rental</strong> &#8212; tracked for unit tracking only. No invoice or dollar amount recorded.</div>
+    <div class="form-row single"><div class="form-group"><label>Notes</label><input type="text" id="dep-notes" placeholder="Optional"></div></div>
+    <div class="modal-footer">
+      <button class="btn btn-ghost" onclick="closeModal('modal-deploy')">Cancel</button>
+      <button class="btn btn-primary" onclick="saveDeployment()">Record Deployment</button>
+    </div>
+  </div>
+</div>
+
+<!-- Return PT -->
+<div class="overlay" id="modal-return">
+  <div class="modal" style="max-width:420px;">
+    <div class="modal-header">
+      <span class="modal-title">Mark Returned</span>
+      <button class="modal-close" onclick="closeModal('modal-return')">&#215;</button>
+    </div>
+    <input type="hidden" id="ret-dep-id">
+    <div id="ret-summary" style="margin-bottom:12px;font-size:13px;"></div>
+    <div class="form-group"><label>Return Date</label><input type="date" id="ret-date"></div>
+    <div class="modal-footer">
+      <button class="btn btn-ghost" onclick="closeModal('modal-return')">Cancel</button>
+      <button class="btn btn-success" onclick="confirmReturn()">Confirm Return</button>
+    </div>
+  </div>
+</div>
+
+<!-- Settings: Driver -->
+<div class="overlay" id="modal-driver">
+  <div class="modal" style="max-width:400px;">
+    <div class="modal-header">
+      <span class="modal-title" id="driver-modal-title">Add Driver</span>
+      <button class="modal-close" onclick="closeModal('modal-driver')">&#215;</button>
+    </div>
+    <input type="hidden" id="drv-id">
+    <div class="form-group" style="margin-bottom:12px;"><label>Name <span class="req">*</span></label><input type="text" id="drv-name" placeholder="Driver A"></div>
+    <div class="form-group" style="margin-bottom:12px;">
+      <label>Display Color</label>
+      <input type="color" id="drv-color" value="#1a3f7a" style="width:60px;height:34px;padding:2px;border-radius:4px;border:1px solid var(--border);cursor:pointer;">
+    </div>
+    <div class="modal-footer">
+      <button class="btn btn-ghost" onclick="closeModal('modal-driver')">Cancel</button>
+      <button class="btn btn-primary" onclick="saveDriver()">Save</button>
+    </div>
+  </div>
+</div>
+
+<!-- Settings: Municipality -->
+<div class="overlay" id="modal-muni">
+  <div class="modal" style="max-width:380px;">
+    <div class="modal-header">
+      <span class="modal-title" id="muni-modal-title">Add Municipality</span>
+      <button class="modal-close" onclick="closeModal('modal-muni')">&#215;</button>
+    </div>
+    <input type="hidden" id="muni-id">
+    <div class="form-group" style="margin-bottom:12px;"><label>Name <span class="req">*</span></label><input type="text" id="muni-name" placeholder="R.M. of Cornwallis"></div>
+    <div class="checkbox-wrap"><input type="checkbox" id="muni-exempt"><label for="muni-exempt">Dump fee exempt</label></div>
+    <div class="modal-footer">
+      <button class="btn btn-ghost" onclick="closeModal('modal-muni')">Cancel</button>
+      <button class="btn btn-primary" onclick="saveMuni()">Save</button>
+    </div>
+  </div>
+</div>
+
+<!-- Settings: PT Type -->
+<div class="overlay" id="modal-pttype">
+  <div class="modal" style="max-width:360px;">
+    <div class="modal-header">
+      <span class="modal-title" id="pttype-modal-title">Add PT Type</span>
+      <button class="modal-close" onclick="closeModal('modal-pttype')">&#215;</button>
+    </div>
+    <input type="hidden" id="ptt-id">
+    <div class="form-group" style="margin-bottom:12px;"><label>Type Name <span class="req">*</span></label><input type="text" id="ptt-name" placeholder="Standard"></div>
+    <div class="modal-footer">
+      <button class="btn btn-ghost" onclick="closeModal('modal-pttype')">Cancel</button>
+      <button class="btn btn-primary" onclick="savePTType()">Save</button>
+    </div>
+  </div>
+</div>
+
+<!-- Settings: Truck -->
+<div class="overlay" id="modal-truck">
+  <div class="modal" style="max-width:360px;">
+    <div class="modal-header">
+      <span class="modal-title" id="truck-modal-title">Add Truck</span>
+      <button class="modal-close" onclick="closeModal('modal-truck')">&#215;</button>
+    </div>
+    <input type="hidden" id="trk-id">
+    <div class="form-group" style="margin-bottom:12px;"><label>Truck Name / Number <span class="req">*</span></label><input type="text" id="trk-name" placeholder="Truck 1"></div>
+    <div class="modal-footer">
+      <button class="btn btn-ghost" onclick="closeModal('modal-truck')">Cancel</button>
+      <button class="btn btn-primary" onclick="saveTruck()">Save</button>
+    </div>
+  </div>
+</div>
+
+<script>
+// ── KEYS ──
+const K={settings:'rss_settings',callnotes:'rss_callnotes',jobs:'rss_jobs',ptunits:'rss_ptunits',deployments:'rss_deployments'};
+
+// ── DEFAULTS ──
+function defaultSettings(){
+  return{
+    municipalities:[
+      {id:'m1',name:'City of Brandon',dumpFeeExempt:false},
+      {id:'m2',name:'Town of Portage la Prairie',dumpFeeExempt:false},
+      {id:'m3',name:'R.M. of Cornwallis',dumpFeeExempt:false},
+      {id:'m4',name:'R.M. of Portage la Prairie',dumpFeeExempt:false},
+    ],
+    drivers:[
+      {id:'d1',name:'Driver A',color:'#1a3f7a'},
+      {id:'d2',name:'Driver B',color:'#1e5fc2'},
+      {id:'d3',name:'Driver C (PT)',color:'#1a6634'},
+      {id:'d4',name:'Driver D (Floating)',color:'#b35c00'},
+    ],
+    trucks:[{id:'t1',name:'Truck 1'},{id:'t2',name:'Truck 2'},{id:'t3',name:'Truck 3'}],
+    ptTypes:[
+      {id:'pt1',name:'Standard',total:80,needsService:2},
+      {id:'pt2',name:'Deluxe',total:40,needsService:0},
+      {id:'pt3',name:'Accessible',total:20,needsService:1},
+      {id:'pt4',name:'Heated',total:15,needsService:0},
+    ],
+    baseRate:125,dumpFee:15,
+  };
+}
+
+// ── DATE HELPERS ──
+function pad(n){return String(n).padStart(2,'0')}
+function today(){const d=new Date();return d.getFullYear()+'-'+pad(d.getMonth()+1)+'-'+pad(d.getDate())}
+function dateOffset(n){const d=new Date();d.setDate(d.getDate()+n);return d.getFullYear()+'-'+pad(d.getMonth()+1)+'-'+pad(d.getDate())}
+function uid(){return Date.now().toString(36)+Math.random().toString(36).slice(2,7)}
+
+// ── STORAGE ──
+function ls(key,def){const r=localStorage.getItem(key);return r?JSON.parse(r):(def!==undefined?def:[])}
+function ss(key,val){localStorage.setItem(key,JSON.stringify(val))}
+function loadS(){return ls(K.settings,defaultSettings())}
+function saveS(s){ss(K.settings,s)}
+
+// ── SEED ──
+function seedData(){
+  const t=today();
+  if(!localStorage.getItem(K.callnotes)){
+    ss(K.callnotes,[
+      {id:uid(),customerName:'Kowalski',phone:'204-555-0181',address:'47 Dufferin Ave, Brandon',muniId:'m1',tankSize:'1000 gal',notes:'Dog in yard, latch on side gate',urgency:'Routine',dateCalled:t},
+      {id:uid(),customerName:'Chartrand',phone:'204-555-0234',address:'Rural Rte 3, Portage la Prairie',muniId:'m4',tankSize:'750 gal',notes:'',urgency:'Soon',dateCalled:t},
+      {id:uid(),customerName:'Unknown',phone:'204-555-0099',address:'224 PTH 26, Oakville area',muniId:'m4',tankSize:'',notes:'Backing up, needs ASAP',urgency:'Urgent',dateCalled:t},
+    ]);
+  }
+  if(!localStorage.getItem(K.jobs)){
+    ss(K.jobs,[
+      {id:uid(),customerName:'McKinnon Farm',phone:'',address:'Rural Rte 7, Carberry area',muniId:'m3',tankSize:'1500 gal',notes:'',urgency:'Routine',driverId:'d1',scheduledDate:t,rate:125,status:'Scheduled'},
+      {id:uid(),customerName:'Lavallee',phone:'',address:'19 Crocus Cres, Brandon',muniId:'m1',tankSize:'1000 gal',notes:'',urgency:'Routine',driverId:'d1',scheduledDate:t,rate:125,status:'Scheduled'},
+      {id:uid(),customerName:'Thiessen',phone:'',address:'PTH 26 North, Oakville',muniId:'m4',tankSize:'750 gal',notes:'',urgency:'Routine',driverId:'d2',scheduledDate:t,rate:125,status:'Scheduled'},
+      {id:uid(),customerName:'Derksen Acreage',phone:'',address:'Rural Rte 2, Portage la Prairie',muniId:'m4',tankSize:'1000 gal',notes:'',urgency:'Routine',driverId:'d2',scheduledDate:t,rate:125,status:'Done'},
+      {id:uid(),customerName:'Westoba Construction',phone:'',address:'Industrial Cres, Brandon',muniId:'m1',tankSize:'',notes:'PT service call',urgency:'Routine',driverId:'d3',scheduledDate:t,rate:125,status:'Scheduled'},
+    ]);
+  }
+  if(!localStorage.getItem(K.ptunits)){
+    ss(K.ptunits,[
+      {id:uid(),unitId:'A1',typeId:'pt2',physicalNotes:'Blue, insulated, metal-clad',tarpId:'T-A1',status:'Deployed',currentCustomer:'Westoba Construction, Industrial Cres',deployDate:dateOffset(-14),expectedReturn:''},
+      {id:uid(),unitId:'A2',typeId:'pt2',physicalNotes:'Blue, insulated, metal-clad',tarpId:'T-A2',status:'Available',currentCustomer:'',deployDate:'',expectedReturn:''},
+      {id:uid(),unitId:'H1',typeId:'pt4',physicalNotes:'White, heated unit',tarpId:'T-H1',status:'Deployed',currentCustomer:'Brandon Winter Fair',deployDate:dateOffset(-21),expectedReturn:today()},
+      {id:uid(),unitId:'H2',typeId:'pt4',physicalNotes:'White, heated unit',tarpId:'T-H2',status:'Needs Service',currentCustomer:'',deployDate:'',expectedReturn:''},
+    ]);
+  }
+  if(!localStorage.getItem(K.deployments)){
+    const a14=dateOffset(-14),a21=dateOffset(-21),a30=dateOffset(-30),yes=dateOffset(-1),tom=dateOffset(1);
+    ss(K.deployments,[
+      {id:uid(),kind:'individual',unitId:'A1',typeId:'pt2',qty:1,customerName:'Westoba Construction',address:'Industrial Cres, Brandon',customerType:'Construction',deployDate:a14,expectedReturn:'',cashRental:false,notes:'',returned:false,returnDate:null},
+      {id:uid(),kind:'individual',unitId:'H1',typeId:'pt4',qty:1,customerName:'Brandon Winter Fair',address:'Keystone Centre, Brandon',customerType:'Event',deployDate:a21,expectedReturn:today(),cashRental:false,notes:'',returned:false,returnDate:null},
+      {id:uid(),kind:'count',unitId:null,typeId:'pt1',qty:8,customerName:'Westoba Construction',address:'Industrial Cres, Brandon',customerType:'Construction',deployDate:a21,expectedReturn:'',cashRental:false,notes:'',returned:false,returnDate:null},
+      {id:uid(),kind:'count',unitId:null,typeId:'pt2',qty:4,customerName:'Lavallee Wedding',address:'Rural Rte 5, Portage la Prairie',customerType:'Event',deployDate:yes,expectedReturn:tom,cashRental:false,notes:'',returned:false,returnDate:null},
+      {id:uid(),kind:'count',unitId:null,typeId:'pt3',qty:3,customerName:'City of Brandon Parks',address:'Brandon, MB',customerType:'Municipal',deployDate:a30,expectedReturn:'',cashRental:false,notes:'',returned:false,returnDate:null},
+      {id:uid(),kind:'count',unitId:null,typeId:'pt1',qty:2,customerName:'Kowalski',address:'Brandon, MB',customerType:'Cash Rental',deployDate:today(),expectedReturn:tom,cashRental:true,notes:'Weekend rental',returned:false,returnDate:null},
+    ]);
+  }
+}
+
+// ── TOAST ──
+let _tt;
+function toast(msg){
+  const el=document.getElementById('toast');
+  el.textContent=msg;el.classList.add('show');
+  clearTimeout(_tt);_tt=setTimeout(()=>el.classList.remove('show'),2600);
+}
+
+// ── NAVIGATION ──
+let _curPage='schedule';
+function showPage(name,btn){
+  document.querySelectorAll('.page').forEach(p=>p.classList.remove('active'));
+  document.querySelectorAll('.nav-btn').forEach(b=>b.classList.remove('active'));
+  document.getElementById('gear-btn').classList.remove('sa');
+  document.getElementById('page-'+name).classList.add('active');
+  if(btn&&btn.classList.contains('nav-btn'))btn.classList.add('active');
+  _curPage=name;
+  if(name==='schedule'){fillMuniSels();fillDriverSels();renderCallNotes();renderJobBoard()}
+  else if(name==='pt'){renderPT()}
+  else if(name==='settings'){renderSettings()}
+}
+function toggleSettings(){
+  if(_curPage==='settings'){
+    showPage('schedule',document.querySelector('.nav-btn[data-page="schedule"]'));
+  } else {
+    showPage('settings',null);
+    document.getElementById('gear-btn').classList.add('sa');
+  }
+}
+
+// ── MODALS ──
+function openModal(id){document.getElementById(id).classList.add('open')}
+function closeModal(id){document.getElementById(id).classList.remove('open')}
+document.querySelectorAll('.overlay').forEach(o=>{
+  o.addEventListener('click',function(e){if(e.target===this)this.classList.remove('open')});
+});
+
+// ── SELECT HELPERS ──
+function fillSel(id,items,valKey,labelFn,emptyLabel){
+  const el=document.getElementById(id);if(!el)return;
+  const prev=el.value;el.innerHTML='';
+  if(emptyLabel){const o=document.createElement('option');o.value='';o.textContent=emptyLabel;el.appendChild(o)}
+  items.forEach(item=>{
+    const o=document.createElement('option');o.value=item[valKey];
+    o.textContent=typeof labelFn==='function'?labelFn(item):item[labelFn];el.appendChild(o);
+  });
+  if(prev)el.value=prev;
+}
+function fillMuniSels(){
+  const s=loadS();
+  ['cn-municipality','ecn-municipality'].forEach(id=>fillSel(id,s.municipalities,'id',i=>i.name));
+}
+function fillDriverSels(){
+  const s=loadS();
+  fillSel('job-filter-driver',s.drivers,'id',i=>i.name,'All Drivers');
+  fillSel('promote-driver',s.drivers,'id',i=>i.name);
+  fillSel('ej-driver',s.drivers,'id',i=>i.name);
+}
+function fillDeploySels(){
+  const s=loadS();
+  fillSel('dep-pttype',s.ptTypes,'id',i=>i.name);
+  const avail=ls(K.ptunits).filter(u=>u.status==='Available');
+  fillSel('dep-unit-id',avail,'unitId',i=>{
+    const t=s.ptTypes.find(t=>t.id===i.typeId);return i.unitId+(t?' ('+t.name+')':'');
+  },'-- Select Unit --');
+  fillSel('unit-type',s.ptTypes,'id',i=>i.name);
+}
+
+// ── VOICE CAPTURE ──
+let _recognition=null,_listening=false,_fullTranscript='';
+function initSpeech(){
+  const SR=window.SpeechRecognition||window.webkitSpeechRecognition;
+  if(!SR)return;
+  document.getElementById('mic-btn').style.display='';
+  document.getElementById('mic-status').style.display='';
+  _recognition=new SR();
+  _recognition.continuous=true;
+  _recognition.interimResults=true;
+  _recognition.lang='en-CA';
+  _recognition.onresult=function(e){
+    let interim='';
+    for(let i=e.resultIndex;i<e.results.length;i++){
+      if(e.results[i].isFinal)_fullTranscript+=e.results[i][0].transcript+' ';
+      else interim+=e.results[i][0].transcript;
+    }
+    document.getElementById('voice-transcript').value=_fullTranscript+interim;
+  };
+  _recognition.onend=function(){if(_listening)try{_recognition.start()}catch(e){}};
+  _recognition.onerror=function(e){if(e.error!=='no-speech')stopMic()};
+}
+function toggleMic(){_listening?stopMic():startMic()}
+function startMic(){
+  if(!_recognition)return;
+  _fullTranscript='';
+  document.getElementById('voice-transcript').value='';
+  document.getElementById('voice-area').style.display='';
+  _listening=true;
+  try{_recognition.start()}catch(e){}
+  document.getElementById('mic-btn').classList.add('listening');
+  const st=document.getElementById('mic-status');st.textContent='Listening\u2026';st.classList.add('hot');
+}
+function stopMic(){
+  if(!_recognition)return;
+  _listening=false;
+  try{_recognition.stop()}catch(e){}
+  document.getElementById('mic-btn').classList.remove('listening');
+  const st=document.getElementById('mic-status');st.textContent='Tap to dictate';st.classList.remove('hot');
+}
+function fillFromTranscript(){
+  const t=document.getElementById('voice-transcript').value.trim();
+  if(!t)return;
+  const notesEl=document.getElementById('cn-notes');
+  notesEl.value=notesEl.value?notesEl.value+'\n'+t:t;
+  stopMic();
+  document.getElementById('cn-name').focus();
+  toast('Transcript added to Notes. Fill in the other fields manually.');
+}
+function clearTranscript(){
+  _fullTranscript='';document.getElementById('voice-transcript').value='';
+}
+
+// ── CALL NOTES ──
+function renderCallNotes(){
+  const s=loadS();const notes=ls(K.callnotes);
+  const list=document.getElementById('call-notes-list');list.innerHTML='';
+  if(!notes.length){
+    const d=document.createElement('div');d.className='empty';d.textContent='No unpromoted call notes.';list.appendChild(d);return;
+  }
+  notes.forEach(n=>{
+    const card=document.createElement('div');
+    card.className='call-note-card '+(n.urgency==='Urgent'?'urgent':n.urgency==='Routine'?'routine':'');
+    const body=document.createElement('div');body.className='call-note-body';
+    const nm=document.createElement('div');nm.className='call-note-name';nm.textContent=n.customerName;body.appendChild(nm);
+    const muni=s.municipalities.find(m=>m.id===n.muniId);
+    const m1=document.createElement('div');m1.className='call-note-meta';
+    m1.textContent=n.address+(muni?' \u00b7 '+muni.name:'')+(n.tankSize?' \u00b7 '+n.tankSize:'');body.appendChild(m1);
+    if(n.phone||n.dateCalled){
+      const m2=document.createElement('div');m2.className='call-note-meta';
+      m2.textContent=(n.phone||'')+(n.phone&&n.dateCalled?' \u00b7 ':'')+( n.dateCalled?'Called '+n.dateCalled:'');body.appendChild(m2);
+    }
+    if(n.notes){const m3=document.createElement('div');m3.className='call-note-meta';m3.textContent='\u26a0 '+n.notes;body.appendChild(m3)}
+    const bdg=document.createElement('span');bdg.className='badge badge-'+n.urgency.toLowerCase();bdg.textContent=n.urgency;body.appendChild(bdg);
+    const acts=document.createElement('div');acts.className='call-note-actions';
+    function mkBtn(cls,txt,fn){const b=document.createElement('button');b.className='btn '+cls+' btn-sm';b.textContent=txt;b.onclick=fn;acts.appendChild(b)}
+    mkBtn('btn-promote','Schedule',()=>openPromoteModal(n.id));
+    mkBtn('btn-ghost','Edit',()=>openEditCNModal(n.id));
+    mkBtn('btn-danger','\u00d7',()=>deleteCallNote(n.id));
+    card.appendChild(body);card.appendChild(acts);list.appendChild(card);
+  });
+}
+
+function saveCallNote(){
+  const name=document.getElementById('cn-name').value.trim();
+  const addr=document.getElementById('cn-address').value.trim();
+  const muniId=document.getElementById('cn-municipality').value;
+  if(!name){toast('Name required.');return}
+  if(!addr){toast('Address required.');return}
+  if(!muniId){toast('Municipality required.');return}
+  const n={id:uid(),customerName:name,phone:document.getElementById('cn-phone').value.trim(),
+    address:addr,muniId,tankSize:document.getElementById('cn-tank').value,
+    notes:document.getElementById('cn-notes').value.trim(),
+    urgency:document.getElementById('cn-urgency').value,
+    dateCalled:document.getElementById('cn-date').value||today()};
+  const notes=ls(K.callnotes);notes.unshift(n);ss(K.callnotes,notes);
+  ['cn-name','cn-phone','cn-address','cn-notes'].forEach(id=>document.getElementById(id).value='');
+  document.getElementById('cn-tank').value='';
+  document.getElementById('cn-urgency').value='Routine';
+  document.getElementById('cn-date').value=today();
+  // Reset voice
+  _fullTranscript='';
+  if(document.getElementById('voice-transcript'))document.getElementById('voice-transcript').value='';
+  document.getElementById('voice-area').style.display='none';
+  renderCallNotes();toast('Call note saved.');
+}
+
+function deleteCallNote(id){ss(K.callnotes,ls(K.callnotes).filter(n=>n.id!==id));renderCallNotes();toast('Deleted.')}
+
+function openEditCNModal(id){
+  const n=ls(K.callnotes).find(n=>n.id===id);if(!n)return;
+  fillMuniSels();
+  document.getElementById('ecn-id').value=n.id;
+  document.getElementById('ecn-name').value=n.customerName;
+  document.getElementById('ecn-phone').value=n.phone||'';
+  document.getElementById('ecn-address').value=n.address;
+  document.getElementById('ecn-municipality').value=n.muniId;
+  document.getElementById('ecn-tank').value=n.tankSize||'';
+  document.getElementById('ecn-urgency').value=n.urgency;
+  document.getElementById('ecn-date').value=n.dateCalled;
+  document.getElementById('ecn-notes').value=n.notes||'';
+  openModal('modal-edit-cn');
+}
+function saveEditCallNote(){
+  const id=document.getElementById('ecn-id').value;
+  const notes=ls(K.callnotes);const idx=notes.findIndex(n=>n.id===id);if(idx<0)return;
+  const name=document.getElementById('ecn-name').value.trim();
+  const addr=document.getElementById('ecn-address').value.trim();
+  if(!name){toast('Name required.');return}if(!addr){toast('Address required.');return}
+  notes[idx]={...notes[idx],customerName:name,phone:document.getElementById('ecn-phone').value.trim(),
+    address:addr,muniId:document.getElementById('ecn-municipality').value,
+    tankSize:document.getElementById('ecn-tank').value,urgency:document.getElementById('ecn-urgency').value,
+    dateCalled:document.getElementById('ecn-date').value,notes:document.getElementById('ecn-notes').value.trim()};
+  ss(K.callnotes,notes);closeModal('modal-edit-cn');renderCallNotes();toast('Updated.');
+}
+
+function openPromoteModal(id){
+  const n=ls(K.callnotes).find(n=>n.id===id);if(!n)return;
+  const s=loadS();
+  fillSel('promote-driver',s.drivers,'id',i=>i.name);
+  document.getElementById('promote-note-id').value=id;
+  document.getElementById('promote-date').value=today();
+  document.getElementById('promote-rate').value=s.baseRate;
+  document.getElementById('promote-status').value='Scheduled';
+  const sum=document.getElementById('promote-summary');sum.innerHTML='';
+  const l1=document.createElement('div');l1.style.fontWeight='700';l1.textContent=n.customerName;
+  const muni=s.municipalities.find(m=>m.id===n.muniId);
+  const l2=document.createElement('div');l2.style.cssText='color:var(--muted);font-size:12px';
+  l2.textContent=n.address+(muni?' \u00b7 '+muni.name:'')+(n.tankSize?' \u00b7 '+n.tankSize:'');
+  sum.appendChild(l1);sum.appendChild(l2);openModal('modal-promote');
+}
+function promoteToJob(){
+  const noteId=document.getElementById('promote-note-id').value;
+  const driverId=document.getElementById('promote-driver').value;
+  const date=document.getElementById('promote-date').value;
+  if(!driverId){toast('Select a driver.');return}if(!date){toast('Select a date.');return}
+  const notes=ls(K.callnotes);const n=notes.find(n=>n.id===noteId);if(!n)return;
+  const s=loadS();
+  const job={id:uid(),customerName:n.customerName,phone:n.phone,address:n.address,
+    muniId:n.muniId,tankSize:n.tankSize,notes:n.notes,urgency:n.urgency,driverId,scheduledDate:date,
+    rate:parseFloat(document.getElementById('promote-rate').value)||s.baseRate,
+    status:document.getElementById('promote-status').value};
+  const jobs=ls(K.jobs);jobs.push(job);ss(K.jobs,jobs);
+  ss(K.callnotes,notes.filter(n=>n.id!==noteId));
+  closeModal('modal-promote');renderCallNotes();renderJobBoard();toast('Job scheduled for '+date+'.');
+}
+
+// ── JOB BOARD ──
+function clearJobFilters(){
+  document.getElementById('job-filter-date').value='';
+  document.getElementById('job-filter-driver').value='';
+  renderJobBoard();
+}
+function renderJobBoard(){
+  const s=loadS();
+  const dateF=document.getElementById('job-filter-date').value;
+  const drvF=document.getElementById('job-filter-driver').value;
+  let jobs=ls(K.jobs);
+  if(dateF)jobs=jobs.filter(j=>j.scheduledDate===dateF);
+  if(drvF)jobs=jobs.filter(j=>j.driverId===drvF);
+  const board=document.getElementById('job-board');board.innerHTML='';
+  if(!jobs.length){
+    const d=document.createElement('div');d.className='empty';d.textContent='No jobs match the current filters.';board.appendChild(d);return;
+  }
+  const grps={};
+  jobs.forEach(j=>{if(!grps[j.driverId])grps[j.driverId]=[];grps[j.driverId].push(j)});
+  Object.keys(grps).forEach(did=>{
+    const drv=s.drivers.find(d=>d.id===did)||{name:'Unknown',color:'#555'};
+    const gjobs=grps[did];
+    const g=document.createElement('div');g.className='driver-group';
+    const hdr=document.createElement('div');hdr.className='driver-group-header';hdr.style.background=drv.color;
+    const ht=document.createElement('span');ht.textContent=drv.name;
+    const hc=document.createElement('span');hc.className='dgh-count';hc.textContent=gjobs.length+' job'+(gjobs.length!==1?'s':'');
+    hdr.appendChild(ht);hdr.appendChild(hc);g.appendChild(hdr);
+    const wrap=document.createElement('div');wrap.className='group-table-wrap';
+    const tbl=document.createElement('table');
+    const th=document.createElement('thead');
+    th.innerHTML='<tr><th>Customer</th><th>Address</th><th>Municipality</th><th>Tank</th><th>Date</th><th>Status</th><th class="no-print"></th></tr>';
+    tbl.appendChild(th);
+    const tb=document.createElement('tbody');
+    gjobs.forEach(j=>tb.appendChild(buildJobRow(j,s)));
+    tbl.appendChild(tb);wrap.appendChild(tbl);g.appendChild(wrap);board.appendChild(g);
+  });
+}
+function buildJobRow(job,s){
+  const tr=document.createElement('tr');
+  const muni=s.municipalities.find(m=>m.id===job.muniId);
+  [[job.customerName,true],[job.address],[muni?muni.name:'—'],[job.tankSize||'—'],[job.scheduledDate]].forEach(([v,bold])=>{
+    const td=document.createElement('td');td.textContent=v;if(bold)td.style.fontWeight='600';tr.appendChild(td);
+  });
+  const std=document.createElement('td');
+  const bdg=document.createElement('span');bdg.className='badge badge-'+job.status.toLowerCase().replace(' ','-');bdg.textContent=job.status;std.appendChild(bdg);
+  tr.appendChild(std);
+  const atd=document.createElement('td');atd.className='no-print';atd.style.whiteSpace='nowrap';
+  if(job.status!=='Done'&&job.status!=='Cancelled'){
+    const db=document.createElement('button');db.className='btn btn-success btn-sm';db.textContent='Done';
+    db.onclick=()=>quickMarkDone(job.id);atd.appendChild(db);atd.append(' ');
+  }
+  const eb=document.createElement('button');eb.className='btn btn-ghost btn-sm';eb.textContent='Edit';eb.onclick=()=>openEditJobModal(job.id);atd.appendChild(eb);
+  tr.appendChild(atd);return tr;
+}
+function quickMarkDone(id){
+  const jobs=ls(K.jobs);const j=jobs.find(j=>j.id===id);if(!j)return;
+  j.status='Done';ss(K.jobs,jobs);renderJobBoard();toast('Marked done.');
+}
+function openEditJobModal(id){
+  const job=ls(K.jobs).find(j=>j.id===id);if(!job)return;
+  const s=loadS();
+  fillSel('ej-driver',s.drivers,'id',i=>i.name);
+  document.getElementById('ej-id').value=job.id;
+  document.getElementById('ej-driver').value=job.driverId;
+  document.getElementById('ej-date').value=job.scheduledDate;
+  document.getElementById('ej-rate').value=job.rate||'';
+  document.getElementById('ej-status').value=job.status;
+  document.getElementById('ej-notes').value=job.notes||'';
+  const sum=document.getElementById('ej-summary');sum.innerHTML='';
+  const b=document.createElement('strong');b.textContent=job.customerName+' \u00b7 ';
+  sum.appendChild(b);sum.appendChild(document.createTextNode(job.address));
+  openModal('modal-edit-job');
+}
+function saveEditJob(){
+  const id=document.getElementById('ej-id').value;
+  const jobs=ls(K.jobs);const idx=jobs.findIndex(j=>j.id===id);if(idx<0)return;
+  jobs[idx]={...jobs[idx],driverId:document.getElementById('ej-driver').value,
+    scheduledDate:document.getElementById('ej-date').value,
+    rate:parseFloat(document.getElementById('ej-rate').value)||jobs[idx].rate,
+    status:document.getElementById('ej-status').value,
+    notes:document.getElementById('ej-notes').value.trim()};
+  ss(K.jobs,jobs);closeModal('modal-edit-job');renderJobBoard();toast('Job updated.');
+}
+
+// ── PRINT ──
+function printDayList(){
+  const date=document.getElementById('job-filter-date').value||today();
+  const s=loadS();
+  const jobs=ls(K.jobs).filter(j=>j.scheduledDate===date&&j.status!=='Cancelled');
+  const pc=document.getElementById('print-content');pc.innerHTML='';
+
+  // Header
+  const hdr=document.createElement('div');hdr.className='ph';
+  const h1=document.createElement('h1');h1.textContent="Rene's Septic Services \u2014 Daily Job List";
+  const sub=document.createElement('div');sub.className='ph-sub';sub.textContent='Date: '+date+'     Printed: '+new Date().toLocaleString('en-CA',{dateStyle:'medium',timeStyle:'short'});
+  hdr.appendChild(h1);hdr.appendChild(sub);pc.appendChild(hdr);
+
+  if(!jobs.length){
+    const p=document.createElement('p');p.style.marginTop='16px';p.textContent='No jobs scheduled for this date.';pc.appendChild(p);
+    window.print();return;
+  }
+
+  // Group by driver
+  const grps={};
+  jobs.forEach(j=>{if(!grps[j.driverId])grps[j.driverId]=[];grps[j.driverId].push(j)});
+
+  Object.keys(grps).forEach(did=>{
+    const drv=s.drivers.find(d=>d.id===did)||{name:'Unknown'};
+    const gjobs=grps[did];
+    const sec=document.createElement('div');sec.className='pd-section';
+    const dh=document.createElement('div');dh.className='pd-driver';
+    dh.textContent=drv.name+' \u2014 '+gjobs.length+' job'+(gjobs.length!==1?'s':'');
+    sec.appendChild(dh);
+    gjobs.forEach((job,i)=>{
+      const muni=s.municipalities.find(m=>m.id===job.muniId);
+      const block=document.createElement('div');
+      block.className='pd-job'+(job.status==='Done'?' pd-done':'');
+      const num=document.createElement('div');num.className='pd-num';num.textContent=(i+1)+'.';
+      const info=document.createElement('div');info.className='pd-info';
+      const nm=document.createElement('div');nm.className='pd-name';
+      nm.textContent=job.customerName+(job.status==='Done'?' \u2714':' ___');
+      const addr=document.createElement('div');addr.className='pd-addr';
+      addr.textContent=job.address+(muni?' \u2014 '+muni.name:'')+(job.tankSize?' \u2014 '+job.tankSize:'');
+      info.appendChild(nm);info.appendChild(addr);
+      if(job.notes){const nt=document.createElement('div');nt.className='pd-notes';nt.textContent='Note: '+job.notes;info.appendChild(nt)}
+      block.appendChild(num);block.appendChild(info);sec.appendChild(block);
+    });
+    pc.appendChild(sec);
+  });
+
+  window.print();
+}
+
+// ── PT TRACKER ──
+function renderPT(){fillDeploySels();renderPTStats();renderPTTypes();renderPTUnits();renderDeployments()}
+function getPTCounts(){
+  const s=loadS();const units=ls(K.ptunits);
+  const deps=ls(K.deployments).filter(d=>!d.returned);
+  let total=0,deployed=0,needsService=0;
+  s.ptTypes.forEach(type=>{
+    total+=type.total;
+    const cd=deps.filter(d=>d.kind==='count'&&d.typeId===type.id).reduce((a,d)=>a+(d.qty||0),0);
+    const id2=units.filter(u=>u.typeId===type.id&&u.status==='Deployed').length;
+    deployed+=cd+id2;
+    const is=units.filter(u=>u.typeId===type.id&&u.status==='Needs Service').length;
+    needsService+=type.needsService+is;
+  });
+  return{total,deployed,available:Math.max(0,total-deployed-needsService),needsService};
+}
+function renderPTStats(){
+  const c=getPTCounts();
+  document.getElementById('pt-total').textContent=c.total;
+  document.getElementById('pt-deployed').textContent=c.deployed;
+  document.getElementById('pt-available').textContent=c.available;
+  document.getElementById('pt-service').textContent=c.needsService;
+}
+function renderPTTypes(){
+  const s=loadS();const units=ls(K.ptunits);
+  const deps=ls(K.deployments).filter(d=>!d.returned);
+  const tb=document.getElementById('pt-type-tbody');tb.innerHTML='';
+  s.ptTypes.forEach(type=>{
+    const cd=deps.filter(d=>d.kind==='count'&&d.typeId===type.id).reduce((a,d)=>a+(d.qty||0),0);
+    const id2=units.filter(u=>u.typeId===type.id&&u.status==='Deployed').length;
+    const td2=cd+id2;
+    const is=units.filter(u=>u.typeId===type.id&&u.status==='Needs Service').length;
+    const ts=type.needsService+is;
+    const av=Math.max(0,type.total-td2-ts);
+    const tr=document.createElement('tr');
+
+    // Name
+    const ntd=document.createElement('td');ntd.style.fontWeight='600';ntd.textContent=type.name;tr.appendChild(ntd);
+
+    // Total owned — inline edit
+    const totTd=document.createElement('td');
+    const totIn=document.createElement('input');totIn.type='number';totIn.className='inline-input';
+    totIn.value=type.total;totIn.min='0';
+    totIn.onchange=()=>{
+      const s2=loadS();const t=s2.ptTypes.find(t=>t.id===type.id);
+      if(t){t.total=Math.max(0,parseInt(totIn.value)||0);saveS(s2);renderPTStats();renderPTTypes()}
+    };
+    totTd.appendChild(totIn);tr.appendChild(totTd);
+
+    // Deployed — calculated
+    const depTd=document.createElement('td');depTd.textContent=td2;tr.appendChild(depTd);
+
+    // Available — calculated
+    const avTd=document.createElement('td');avTd.textContent=av;tr.appendChild(avTd);
+
+    // Needs service — inline edit (count-based portion)
+    const svcTd=document.createElement('td');
+    const svcIn=document.createElement('input');svcIn.type='number';svcIn.className='inline-input';
+    svcIn.value=type.needsService;svcIn.min='0';
+    svcIn.title='Count-based units needing service. Individual units tracked separately.';
+    svcIn.onchange=()=>{
+      const s2=loadS();const t=s2.ptTypes.find(t=>t.id===type.id);
+      if(t){t.needsService=Math.max(0,parseInt(svcIn.value)||0);saveS(s2);renderPTStats();renderPTTypes()}
+    };
+    svcTd.appendChild(svcIn);
+    if(is>0){const note=document.createElement('span');note.style.cssText='font-size:11px;color:var(--muted);margin-left:4px';note.textContent='+'+is+' indiv.';svcTd.appendChild(note)}
+    tr.appendChild(svcTd);
+
+    tb.appendChild(tr);
+  });
+}
+function renderPTUnits(){
+  const s=loadS();const units=ls(K.ptunits);
+  const tb=document.getElementById('pt-units-tbody');tb.innerHTML='';
+  if(!units.length){
+    const tr=document.createElement('tr');const td=document.createElement('td');
+    td.colSpan=7;td.className='empty';td.textContent='No individual units.';tr.appendChild(td);tb.appendChild(tr);return;
+  }
+  units.forEach(u=>{
+    const tr=document.createElement('tr');
+    const type=s.ptTypes.find(t=>t.id===u.typeId);
+    const sc=u.status==='Available'?'badge-available':u.status==='Deployed'?'badge-deployed':'badge-needs-service';
+    const uid_td=document.createElement('td');uid_td.style.fontWeight='700';uid_td.textContent=u.unitId;
+    const tytd=document.createElement('td');tytd.textContent=type?type.name:'—';
+    const std=document.createElement('td');const bdg=document.createElement('span');bdg.className='badge '+sc;bdg.textContent=u.status;std.appendChild(bdg);
+    const tarp=document.createElement('td');tarp.textContent=u.tarpId||'—';
+    const cust=document.createElement('td');cust.textContent=u.currentCustomer||'—';cust.style.cssText='font-size:12px';
+    const notes=document.createElement('td');notes.textContent=u.physicalNotes||'';notes.style.cssText='font-size:12px;color:var(--muted)';
+    const atd=document.createElement('td');atd.className='no-print';
+    const eb=document.createElement('button');eb.className='btn btn-ghost btn-sm';eb.textContent='Edit';eb.onclick=()=>openUnitModal(u.id);atd.appendChild(eb);
+    [uid_td,tytd,std,tarp,cust,notes,atd].forEach(td=>tr.appendChild(td));tb.appendChild(tr);
+  });
+}
+function renderDeployments(){
+  const s=loadS();const t=today();
+  const deps=ls(K.deployments).filter(d=>!d.returned);
+  const tb=document.getElementById('pt-deploy-tbody');tb.innerHTML='';
+  if(!deps.length){
+    const tr=document.createElement('tr');const td=document.createElement('td');
+    td.colSpan=6;td.className='empty';td.textContent='No active deployments.';tr.appendChild(td);tb.appendChild(tr);return;
+  }
+  deps.forEach(dep=>{
+    const tr=document.createElement('tr');
+    const type=s.ptTypes.find(t=>t.id===dep.typeId);
+    // Unit/qty
+    const utd=document.createElement('td');
+    if(dep.kind==='individual'){const b=document.createElement('strong');b.textContent=dep.unitId;utd.appendChild(b)}
+    else{const b=document.createElement('strong');b.textContent=dep.qty+'x ';utd.appendChild(b);utd.append(type?type.name:dep.typeId)}
+    if(dep.cashRental){const p=document.createElement('span');p.className='badge badge-cash';p.style.marginLeft='4px';p.textContent='CASH';utd.appendChild(p)}
+    tr.appendChild(utd);
+    // Customer
+    const ctd=document.createElement('td');ctd.textContent=dep.customerName;tr.appendChild(ctd);
+    // Deploy date
+    const dtd=document.createElement('td');dtd.textContent=dep.deployDate;tr.appendChild(dtd);
+    // Expected return
+    const rtd=document.createElement('td');
+    if(dep.expectedReturn){
+      rtd.textContent=dep.expectedReturn;
+      const overdue=dep.expectedReturn<t;
+      if(overdue){const fl=document.createElement('span');fl.className='badge badge-overdue';fl.style.marginLeft='4px';fl.textContent='OVERDUE';rtd.appendChild(fl)}
+    } else {rtd.textContent='—';rtd.style.color='var(--muted)'}
+    tr.appendChild(rtd);
+    // Customer type
+    const kttd=document.createElement('td');kttd.textContent=dep.customerType;kttd.style.fontSize='12px';tr.appendChild(kttd);
+    // Actions
+    const atd=document.createElement('td');atd.className='no-print';
+    const rb=document.createElement('button');rb.className='btn btn-ghost btn-sm';rb.textContent='Return';rb.onclick=()=>openReturnModal(dep.id);atd.appendChild(rb);
+    tr.appendChild(atd);tb.appendChild(tr);
+  });
+}
+
+function openUnitModal(id){
+  const s=loadS();fillSel('unit-type',s.ptTypes,'id',i=>i.name);
+  if(id){
+    const u=ls(K.ptunits).find(u=>u.id===id);if(!u)return;
+    document.getElementById('unit-modal-title').textContent='Edit Unit';
+    document.getElementById('unit-id').value=u.id;document.getElementById('unit-uid').value=u.unitId;
+    document.getElementById('unit-type').value=u.typeId;document.getElementById('unit-tarp').value=u.tarpId||'';
+    document.getElementById('unit-status').value=u.status;document.getElementById('unit-notes').value=u.physicalNotes||'';
+  } else {
+    document.getElementById('unit-modal-title').textContent='Add Individual Unit';
+    ['unit-id','unit-uid','unit-tarp','unit-notes'].forEach(i=>document.getElementById(i).value='');
+    document.getElementById('unit-status').value='Available';
+  }
+  openModal('modal-unit');
+}
+function saveUnit(){
+  const uidVal=document.getElementById('unit-uid').value.trim();
+  const typeId=document.getElementById('unit-type').value;
+  if(!uidVal){toast('Unit ID required.');return}if(!typeId){toast('Type required.');return}
+  const units=ls(K.ptunits);const id=document.getElementById('unit-id').value;
+  const data={unitId:uidVal,typeId,tarpId:document.getElementById('unit-tarp').value.trim(),
+    status:document.getElementById('unit-status').value,physicalNotes:document.getElementById('unit-notes').value.trim()};
+  if(id){const idx=units.findIndex(u=>u.id===id);if(idx>=0)units[idx]={...units[idx],...data}}
+  else units.push({id:uid(),...data,currentCustomer:'',deployDate:'',expectedReturn:''});
+  ss(K.ptunits,units);closeModal('modal-unit');renderPT();toast('Unit saved.');
+}
+
+function openDeployModal(){
+  fillDeploySels();
+  document.getElementById('dep-kind').value='count';document.getElementById('dep-qty').value='1';
+  document.getElementById('dep-customer').value='';document.getElementById('dep-cust-type').value='Construction';
+  document.getElementById('dep-address').value='';document.getElementById('dep-date').value=today();
+  document.getElementById('dep-return').value='';document.getElementById('dep-notes').value='';
+  document.getElementById('cash-notice').style.display='none';toggleDepKind();openModal('modal-deploy');
+}
+function toggleDepKind(){
+  const v=document.getElementById('dep-kind').value;
+  document.getElementById('dep-type-field').style.display=v==='individual'?'none':'';
+  document.getElementById('dep-qty-row').style.display=v==='individual'?'none':'';
+  document.getElementById('dep-unit-row').style.display=v==='individual'?'':'none';
+}
+function handleCustType(){
+  document.getElementById('cash-notice').style.display=document.getElementById('dep-cust-type').value==='Cash Rental'?'':'none';
+}
+function saveDeployment(){
+  const kind=document.getElementById('dep-kind').value;
+  const cust=document.getElementById('dep-customer').value.trim();
+  const addr=document.getElementById('dep-address').value.trim();
+  const custType=document.getElementById('dep-cust-type').value;
+  const depDate=document.getElementById('dep-date').value;
+  if(!cust){toast('Customer name required.');return}if(!addr){toast('Address required.');return}if(!depDate){toast('Deploy date required.');return}
+  const dep={id:uid(),kind,customerName:cust,address:addr,customerType:custType,deployDate:depDate,
+    expectedReturn:document.getElementById('dep-return').value,cashRental:custType==='Cash Rental',
+    notes:document.getElementById('dep-notes').value.trim(),returned:false,returnDate:null,createdAt:Date.now()};
+  if(kind==='individual'){
+    const unitIdVal=document.getElementById('dep-unit-id').value;
+    if(!unitIdVal){toast('Select a unit.');return}
+    dep.unitId=unitIdVal;dep.qty=1;
+    const units=ls(K.ptunits);const u=units.find(u=>u.unitId===unitIdVal);
+    if(!u){toast('Unit not found.');return}
+    dep.typeId=u.typeId;
+    u.status='Deployed';u.currentCustomer=cust;u.deployDate=depDate;u.expectedReturn=dep.expectedReturn;
+    ss(K.ptunits,units);
+  } else {
+    const typeId=document.getElementById('dep-pttype').value;
+    if(!typeId){toast('Select a PT type.');return}
+    dep.typeId=typeId;dep.unitId=null;dep.qty=parseInt(document.getElementById('dep-qty').value)||1;
+  }
+  const deps=ls(K.deployments);deps.push(dep);ss(K.deployments,deps);
+  closeModal('modal-deploy');renderPT();toast('Deployment recorded.');
+}
+
+function openReturnModal(depId){
+  const dep=ls(K.deployments).find(d=>d.id===depId);if(!dep)return;
+  document.getElementById('ret-dep-id').value=depId;document.getElementById('ret-date').value=today();
+  const s=loadS();const type=s.ptTypes.find(t=>t.id===dep.typeId);
+  const sum=document.getElementById('ret-summary');sum.innerHTML='';
+  const l1=document.createElement('div');l1.style.fontWeight='700';
+  l1.textContent=(dep.kind==='individual'?'Unit '+dep.unitId:dep.qty+'x '+(type?type.name:''))+' \u2014 '+dep.customerName;
+  const l2=document.createElement('div');l2.style.cssText='color:var(--muted);font-size:12px';l2.textContent=dep.address;
+  sum.appendChild(l1);sum.appendChild(l2);openModal('modal-return');
+}
+function confirmReturn(){
+  const depId=document.getElementById('ret-dep-id').value;
+  const retDate=document.getElementById('ret-date').value||today();
+  const deps=ls(K.deployments);const dep=deps.find(d=>d.id===depId);if(!dep)return;
+  dep.returned=true;dep.returnDate=retDate;ss(K.deployments,deps);
+  if(dep.kind==='individual'&&dep.unitId){
+    const units=ls(K.ptunits);const u=units.find(u=>u.unitId===dep.unitId);
+    if(u){u.status='Available';u.currentCustomer='';u.deployDate='';u.expectedReturn='';ss(K.ptunits,units)}
+  }
+  closeModal('modal-return');renderPT();toast('Return recorded.');
+}
+
+// ── SETTINGS ──
+function renderSettings(){
+  const s=loadS();
+  document.getElementById('s-base-rate').value=s.baseRate;
+  document.getElementById('s-dump-fee').value=s.dumpFee;
+  renderDriverList(s);renderMuniList(s);renderPTTypeList(s);renderTruckList(s);
+}
+function saveRates(){
+  const s=loadS();s.baseRate=parseFloat(document.getElementById('s-base-rate').value)||125;
+  s.dumpFee=parseFloat(document.getElementById('s-dump-fee').value)||15;saveS(s);toast('Rates saved.');
+}
+function mkItem(label,editFn,delFn,prefix){
+  const item=document.createElement('div');item.className='list-item';
+  if(prefix)item.appendChild(prefix);
+  const nm=document.createElement('span');nm.className='list-item-name';nm.textContent=label;item.appendChild(nm);
+  const eb=document.createElement('button');eb.className='btn btn-ghost btn-sm';eb.textContent='Edit';eb.onclick=editFn;item.appendChild(eb);
+  const db=document.createElement('button');db.className='btn btn-danger btn-sm';db.textContent='\u00d7';db.onclick=delFn;item.appendChild(db);
+  return item;
+}
+function renderDriverList(s){
+  const list=document.getElementById('s-driver-list');list.innerHTML='';
+  s.drivers.forEach(d=>{
+    const dot=document.createElement('span');dot.className='color-dot';dot.style.background=d.color;
+    list.appendChild(mkItem(d.name,()=>openDriverModal(d.id),()=>delSetting('drivers',d.id),dot));
+  });
+}
+function renderMuniList(s){
+  const list=document.getElementById('s-muni-list');list.innerHTML='';
+  s.municipalities.forEach(m=>{
+    const item=mkItem(m.name,()=>openMuniModal(m.id),()=>delSetting('municipalities',m.id));
+    if(m.dumpFeeExempt){
+      const p=document.createElement('span');p.className='badge';
+      p.style.cssText='background:#dcfce7;color:var(--success);margin-left:6px';p.textContent='Fee exempt';
+      item.querySelector('.list-item-name').appendChild(p);
+    }
+    list.appendChild(item);
+  });
+}
+function renderPTTypeList(s){
+  const list=document.getElementById('s-pttype-list');list.innerHTML='';
+  s.ptTypes.forEach(t=>list.appendChild(mkItem(t.name,()=>openPTTypeModal(t.id),()=>delSetting('ptTypes',t.id))));
+}
+function renderTruckList(s){
+  const list=document.getElementById('s-truck-list');list.innerHTML='';
+  s.trucks.forEach(t=>list.appendChild(mkItem(t.name,()=>openTruckModal(t.id),()=>delSetting('trucks',t.id))));
+}
+function delSetting(listKey,id){
+  const s=loadS();s[listKey]=s[listKey].filter(i=>i.id!==id);saveS(s);renderSettings();toast('Deleted.');
+}
+
+function openDriverModal(id){
+  const s=loadS();document.getElementById('drv-id').value=id||'';
+  if(id){const d=s.drivers.find(d=>d.id===id);if(!d)return;
+    document.getElementById('driver-modal-title').textContent='Edit Driver';
+    document.getElementById('drv-name').value=d.name;document.getElementById('drv-color').value=d.color||'#1a3f7a';
+  } else {
+    document.getElementById('driver-modal-title').textContent='Add Driver';
+    document.getElementById('drv-name').value='';document.getElementById('drv-color').value='#1a3f7a';
+  }
+  openModal('modal-driver');
+}
+function saveDriver(){
+  const name=document.getElementById('drv-name').value.trim();if(!name){toast('Name required.');return}
+  const s=loadS();const id=document.getElementById('drv-id').value;
+  const d={id:id||uid(),name,color:document.getElementById('drv-color').value};
+  if(id){const idx=s.drivers.findIndex(d=>d.id===id);if(idx>=0)s.drivers[idx]=d}else s.drivers.push(d);
+  saveS(s);closeModal('modal-driver');renderSettings();toast('Driver saved.');
+}
+
+function openMuniModal(id){
+  const s=loadS();document.getElementById('muni-id').value=id||'';
+  if(id){const m=s.municipalities.find(m=>m.id===id);if(!m)return;
+    document.getElementById('muni-modal-title').textContent='Edit Municipality';
+    document.getElementById('muni-name').value=m.name;document.getElementById('muni-exempt').checked=m.dumpFeeExempt;
+  } else {
+    document.getElementById('muni-modal-title').textContent='Add Municipality';
+    document.getElementById('muni-name').value='';document.getElementById('muni-exempt').checked=false;
+  }
+  openModal('modal-muni');
+}
+function saveMuni(){
+  const name=document.getElementById('muni-name').value.trim();if(!name){toast('Name required.');return}
+  const s=loadS();const id=document.getElementById('muni-id').value;
+  const m={id:id||uid(),name,dumpFeeExempt:document.getElementById('muni-exempt').checked};
+  if(id){const idx=s.municipalities.findIndex(m=>m.id===id);if(idx>=0)s.municipalities[idx]=m}else s.municipalities.push(m);
+  saveS(s);closeModal('modal-muni');renderSettings();toast('Municipality saved.');
+}
+
+function openPTTypeModal(id){
+  const s=loadS();document.getElementById('ptt-id').value=id||'';
+  if(id){const t=s.ptTypes.find(t=>t.id===id);if(!t)return;
+    document.getElementById('pttype-modal-title').textContent='Edit PT Type';
+    document.getElementById('ptt-name').value=t.name;
+  } else {
+    document.getElementById('pttype-modal-title').textContent='Add PT Type';
+    document.getElementById('ptt-name').value='';
+  }
+  openModal('modal-pttype');
+}
+function savePTType(){
+  const name=document.getElementById('ptt-name').value.trim();if(!name){toast('Name required.');return}
+  const s=loadS();const id=document.getElementById('ptt-id').value;
+  // Preserve total/needsService if editing
+  const existing=id?s.ptTypes.find(t=>t.id===id):null;
+  const t={id:id||uid(),name,total:existing?existing.total:0,needsService:existing?existing.needsService:0};
+  if(id){const idx=s.ptTypes.findIndex(t=>t.id===id);if(idx>=0)s.ptTypes[idx]=t}else s.ptTypes.push(t);
+  saveS(s);closeModal('modal-pttype');renderSettings();toast('PT type saved.');
+}
+
+function openTruckModal(id){
+  const s=loadS();document.getElementById('trk-id').value=id||'';
+  if(id){const t=s.trucks.find(t=>t.id===id);if(!t)return;
+    document.getElementById('truck-modal-title').textContent='Edit Truck';document.getElementById('trk-name').value=t.name;
+  } else {document.getElementById('truck-modal-title').textContent='Add Truck';document.getElementById('trk-name').value=''}
+  openModal('modal-truck');
+}
+function saveTruck(){
+  const name=document.getElementById('trk-name').value.trim();if(!name){toast('Name required.');return}
+  const s=loadS();const id=document.getElementById('trk-id').value;
+  const t={id:id||uid(),name};
+  if(id){const idx=s.trucks.findIndex(t=>t.id===id);if(idx>=0)s.trucks[idx]=t}else s.trucks.push(t);
+  saveS(s);closeModal('modal-truck');renderSettings();toast('Truck saved.');
+}
+
+// ── SPLASH ──
+function enterDemo(){
+  document.getElementById('splash-screen').classList.add('hidden');
+}
+
+// ── INIT ──
+(function(){
+  if(!localStorage.getItem(K.settings))saveS(defaultSettings());
+  seedData();
+  document.getElementById('cn-date').value=today();
+  document.getElementById('job-filter-date').value=today();
+  fillMuniSels();fillDriverSels();
+  renderCallNotes();renderJobBoard();
+  initSpeech();
+})();
+</script>
+</body>
+</html>
