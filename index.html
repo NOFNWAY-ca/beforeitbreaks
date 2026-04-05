@@ -5,32 +5,46 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Before It Breaks — Gerry</title>
     <meta name="description" content="Tools built to work. By Gerry, with AI. Fast, affordable, and nothing you don't need.">
-    <link rel="preconnect" href="https://fonts.googleapis.com">
-    <link href="https://fonts.googleapis.com/css2?family=Bangers&family=Roboto:ital,wght@0,400;0,700;0,900;1,400&display=swap" rel="stylesheet">
     <style>
         *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
 
         :root {
-            --bg:           #0c0c12;
-            --surface:      #13131c;
-            --surface2:     #1c1c28;
-            --border:       #252535;
-            --border2:      #32324a;
-            --text:         #e4e4f0;
-            --muted:        #7070a0;
-            --brand:        #0057B8;
-            --brand-lit:    #4a8fe8;
-            --gold:         #F9A825;
-            --accent:       #C62828;
+            --bg:       #1a1812;
+            --surface:  #242018;
+            --surface2: #1e1b14;
+            --border:   #333028;
+            --border2:  #4a4232;
+            --text:     #ede8df;
+            --muted:    #8c8478;
+            --brand:    #2d5fa0;
+            --brand-lit:#4a7fc1;
+            --gold:     #c9a84c;
+            --accent:   #C62828;
+            --nav-bg:   rgba(26,24,18,0.94);
+        }
+        .light {
+            --bg:       #f2ede4;
+            --surface:  #fffdf8;
+            --surface2: #f5f0e8;
+            --border:   #ddd8ce;
+            --border2:  #c8c2b8;
+            --text:     #1a1812;
+            --muted:    #6b6357;
+            --brand:    #1a4f8a;
+            --brand-lit:#2d6abf;
+            --gold:     #9a6f1e;
+            --accent:   #C62828;
+            --nav-bg:   rgba(242,237,228,0.96);
         }
 
         html { scroll-behavior: smooth; }
 
         body {
-            font-family: 'Roboto', sans-serif;
+            font-family: system-ui, -apple-system, sans-serif;
             background: var(--bg);
             color: var(--text);
             line-height: 1.6;
+            transition: background 0.2s, color 0.2s;
         }
 
         a { color: var(--brand-lit); text-decoration: none; }
@@ -41,17 +55,19 @@
         ═══════════════════════════════ */
         nav {
             position: sticky; top: 0; z-index: 100;
-            background: rgba(12,12,18,0.92);
+            background: var(--nav-bg);
             backdrop-filter: blur(12px);
             border-bottom: 1px solid var(--border);
             padding: 0 40px;
             height: 60px;
             display: flex; align-items: center; justify-content: space-between;
+            transition: background 0.2s, border-color 0.2s;
         }
         .nav-logo {
-            font-family: 'Bangers', cursive;
-            font-size: 1.4rem;
-            letter-spacing: 1px;
+            font-family: 'Gill Sans', 'Gill Sans MT', Calibri, sans-serif;
+            font-size: 1.3rem;
+            font-weight: 900;
+            letter-spacing: -0.5px;
             color: var(--text);
         }
         .nav-logo span { color: var(--brand-lit); }
@@ -65,10 +81,24 @@
             transition: color 0.15s;
         }
         .nav-link:hover { color: var(--text); text-decoration: none; }
+        .nav-mode-toggle {
+            background: none;
+            border: 1px solid var(--border2);
+            color: var(--muted);
+            font-size: 0.8rem;
+            font-weight: 700;
+            letter-spacing: 0.5px;
+            padding: 5px 12px;
+            cursor: pointer;
+            font-family: system-ui, -apple-system, sans-serif;
+            transition: color 0.15s, border-color 0.15s;
+            line-height: 1;
+        }
+        .nav-mode-toggle:hover { color: var(--text); border-color: var(--muted); }
         .nav-cta {
             font-size: 0.8rem;
             font-weight: 700;
-            color: var(--bg);
+            color: #fff;
             background: var(--brand-lit);
             padding: 8px 18px;
             box-shadow: 3px 3px 0 var(--brand);
@@ -77,7 +107,7 @@
         .nav-cta:hover {
             box-shadow: none;
             transform: translate(3px,3px);
-            color: var(--bg);
+            color: #fff;
             text-decoration: none;
         }
 
@@ -107,10 +137,11 @@
             margin-bottom: 24px;
         }
         .hero h1 {
-            font-family: 'Bangers', cursive;
+            font-family: 'Gill Sans', 'Gill Sans MT', Calibri, sans-serif;
             font-size: clamp(3.5rem, 6vw, 5.5rem);
+            font-weight: 900;
             line-height: 1.0;
-            letter-spacing: 1px;
+            letter-spacing: -2px;
             color: var(--text);
             margin-bottom: 24px;
         }
@@ -133,12 +164,12 @@
         }
         .btn-primary {
             background: var(--brand-lit);
-            color: var(--bg);
+            color: #fff;
             box-shadow: 4px 4px 0 var(--brand);
         }
         .btn-primary:hover {
             box-shadow: none; transform: translate(4px,4px);
-            color: var(--bg); text-decoration: none;
+            color: #fff; text-decoration: none;
         }
         .btn-ghost {
             color: var(--muted);
@@ -230,10 +261,11 @@
             margin-bottom: 16px;
         }
         .tools-header h2 {
-            font-family: 'Bangers', cursive;
+            font-family: 'Gill Sans', 'Gill Sans MT', Calibri, sans-serif;
             font-size: clamp(2.2rem, 4vw, 3.5rem);
-            letter-spacing: 1px;
-            line-height: 1.1;
+            font-weight: 900;
+            letter-spacing: -1.5px;
+            line-height: 1.05;
             margin-bottom: 12px;
         }
         .tools-header p {
@@ -274,9 +306,10 @@
             margin-bottom: 12px;
         }
         .ft-name {
-            font-family: 'Bangers', cursive;
+            font-family: 'Gill Sans', 'Gill Sans MT', Calibri, sans-serif;
             font-size: 2.4rem;
-            letter-spacing: 1px;
+            font-weight: 900;
+            letter-spacing: -1px;
             color: var(--text);
             margin-bottom: 16px;
             line-height: 1;
@@ -313,9 +346,10 @@
             border-top: 1px solid var(--border);
         }
         .all-tools h2 {
-            font-family: 'Bangers', cursive;
+            font-family: 'Gill Sans', 'Gill Sans MT', Calibri, sans-serif;
             font-size: 2rem;
-            letter-spacing: 1px;
+            font-weight: 900;
+            letter-spacing: -1px;
             margin-bottom: 40px;
         }
         .tools-grid {
@@ -370,10 +404,11 @@
             align-items: start;
         }
         .how-left h2 {
-            font-family: 'Bangers', cursive;
+            font-family: 'Gill Sans', 'Gill Sans MT', Calibri, sans-serif;
             font-size: clamp(2rem, 4vw, 3rem);
-            letter-spacing: 1px;
-            line-height: 1.1;
+            font-weight: 900;
+            letter-spacing: -1.5px;
+            line-height: 1.05;
             margin-bottom: 20px;
         }
         .how-left p {
@@ -386,8 +421,10 @@
         .how-steps { display: flex; flex-direction: column; gap: 28px; }
         .how-step { display: flex; gap: 20px; align-items: flex-start; }
         .how-num {
-            font-family: 'Bangers', cursive;
+            font-family: 'Gill Sans', 'Gill Sans MT', Calibri, sans-serif;
             font-size: 2.2rem;
+            font-weight: 900;
+            letter-spacing: -1px;
             color: var(--brand-lit);
             line-height: 1;
             min-width: 36px;
@@ -414,9 +451,10 @@
             padding: 80px 60px;
         }
         .faq-section h2 {
-            font-family: 'Bangers', cursive;
+            font-family: 'Gill Sans', 'Gill Sans MT', Calibri, sans-serif;
             font-size: clamp(2rem, 4vw, 3rem);
-            letter-spacing: 1px;
+            font-weight: 900;
+            letter-spacing: -1.5px;
             margin-bottom: 48px;
         }
         .faq-list { display: flex; flex-direction: column; }
@@ -455,10 +493,11 @@
             align-items: start;
         }
         .pitch-inner h2 {
-            font-family: 'Bangers', cursive;
+            font-family: 'Gill Sans', 'Gill Sans MT', Calibri, sans-serif;
             font-size: clamp(2rem, 4vw, 3rem);
-            letter-spacing: 1px;
-            line-height: 1.1;
+            font-weight: 900;
+            letter-spacing: -1.5px;
+            line-height: 1.05;
         }
         .pitch-inner h2 span { color: var(--brand-lit); }
         .pitch-copy { display: flex; flex-direction: column; gap: 16px; }
@@ -486,9 +525,10 @@
             align-items: center;
         }
         .contact-left h2 {
-            font-family: 'Bangers', cursive;
+            font-family: 'Gill Sans', 'Gill Sans MT', Calibri, sans-serif;
             font-size: clamp(2.5rem, 5vw, 4rem);
-            letter-spacing: 1px;
+            font-weight: 900;
+            letter-spacing: -2px;
             line-height: 1.0;
             color: #fff;
             margin-bottom: 20px;
@@ -571,6 +611,7 @@
         <a href="#work" class="nav-link">Work</a>
         <a href="#how" class="nav-link">How</a>
         <a href="#faq" class="nav-link">FAQ</a>
+        <button class="nav-mode-toggle" id="modeToggle" aria-label="Toggle light/dark mode">Light</button>
         <a href="mailto:hello@beforeitbreaks.ca" class="nav-cta">Get in touch</a>
     </div>
 </nav>
@@ -581,8 +622,7 @@
         <p class="hero-kicker">Built by Gerry</p>
         <h1>Tools built<br>to work.</h1>
         <p class="hero-sub">
-            Real problems. Practical solutions. Made with AI, by someone who needed them — then tested until they actually worked.
-            <em>Everything here is free and runs in your browser.</em>
+            Free tools for everyone. Custom builds for anyone who needs something specific — businesses, farms, nonprofits, schools, clubs.
         </p>
         <div class="hero-actions">
             <a href="#work" class="btn btn-primary">See the work</a>
@@ -614,14 +654,13 @@
     <!-- Sleep Math -->
     <div class="featured-tool">
         <div class="ft-left">
-            <p class="ft-problem">The problem</p>
-            <div class="ft-name">Sleep Math</div>
+            <div class="ft-name">[FN] SLEEP MATH</div>
             <p class="ft-desc">
                 You're exhausted but you don't know when to go to bed. Sleep happens in 90-minute cycles.
                 Go to bed at the wrong time and you wake up mid-cycle — groggy, wrecked.
                 This calculates the rest.
             </p>
-            <a href="https://nofnway.ca/sleep_math" target="_blank" class="ft-link">Full tool at nofnway.ca</a>
+            <a href="https://nofnway.ca/sleep_math" target="_blank" class="ft-link">See this at nofnway.ca</a>
         </div>
         <div class="ft-right">
             <p class="demo-label">Live — [FN] SLEEP MATH</p>
@@ -640,14 +679,11 @@
     <!-- Just Pick -->
     <div class="featured-tool">
         <div class="ft-left">
-            <p class="ft-problem">The problem</p>
-            <div class="ft-name">Just Pick</div>
+            <div class="ft-name">[FN] JUST PICK</div>
             <p class="ft-desc">
-                Decision paralysis is real. When every option feels equally impossible —
-                or equally fine — spending ten minutes choosing is a tax on attention you can't afford.
-                Add your options. Get a choice.
+                Decision paralysis is real. When every option feels equally impossible (or equally fine), spending ten minutes choosing is a tax on attention you can't afford. Add your options, get a choice.
             </p>
-            <a href="https://nofnway.ca/just_pick" target="_blank" class="ft-link">Full tool at nofnway.ca</a>
+            <a href="https://nofnway.ca/just_pick" target="_blank" class="ft-link">See this at nofnway.ca</a>
         </div>
         <div class="ft-right">
             <p class="demo-label">Live — [FN] JUST PICK</p>
@@ -667,16 +703,14 @@
     <!-- Septic Dispatch -->
     <div class="featured-tool">
         <div class="ft-left">
-            <p class="ft-problem">The problem</p>
             <div class="ft-name">Septic Dispatch</div>
             <p class="ft-desc">
-                A septic pumping company runs on paper. Calls in a notebook. Job lists handwritten every morning. A portable toilet fleet tracked in someone's head. When the notebook walks out the door, the day goes sideways.
-                This replaces the notebook — call capture, job scheduling, driver assignment, print-ready daily lists, and a full PT fleet tracker. Nothing more.
+                A septic pumping company runs on paper (not that kind). Calls in a notebook. Job lists handwritten every morning. A portable toilet fleet tracked in someone's head. When the notebook gets lost, the day goes sideways. This replaces the notebook; call capture, job scheduling, driver assignment, print-ready daily lists, and a full PT fleet tracker. Stuff you'd actually use, nothing more.
             </p>
             <a href="/dispatch.html" target="_blank" class="ft-link">Explore the live demo</a>
         </div>
         <div class="ft-right" style="justify-content:flex-start;gap:16px;">
-            <p class="demo-label">Custom software — built for any service business</p>
+            <p class="demo-label">Custom software built to solve your problems, not everyone else's</p>
             <div style="background:var(--surface2);border:1px solid var(--border2);border-radius:4px;padding:24px 28px;display:flex;flex-direction:column;gap:12px;">
                 <div style="font-size:0.8rem;color:var(--muted);line-height:1.7;">This is a working operations tool built for a real septic company. The demo runs in your browser with sample data — every button works, every field saves.</div>
                 <div style="display:flex;flex-direction:column;gap:8px;">
@@ -713,55 +747,55 @@
     <h2>All fifteen tools, free at nofnway.ca</h2>
     <div class="tools-grid">
         <a href="https://nofnway.ca/one_thing" target="_blank" class="tool-cell">
-            <div class="tool-cell-name">One Thing</div>
+            <div class="tool-cell-name">[FN] ONE THING</div>
             <div class="tool-cell-desc">The one task you need to do today. Fills the screen. That's the plan.</div>
         </a>
         <a href="https://nofnway.ca/dial_in" target="_blank" class="tool-cell">
-            <div class="tool-cell-name">Dial In</div>
+            <div class="tool-cell-name">[FN] DIAL IN</div>
             <div class="tool-cell-desc">A live call checklist from your details. Phone anxiety, addressed.</div>
         </a>
         <a href="https://nofnway.ca/copy_that" target="_blank" class="tool-cell">
-            <div class="tool-cell-name">Copy That</div>
+            <div class="tool-cell-name">[FN] COPY THAT</div>
             <div class="tool-cell-desc">Store your name, address, phone. One tap to copy any of them.</div>
         </a>
         <a href="https://nofnway.ca/fidget" target="_blank" class="tool-cell">
-            <div class="tool-cell-name">Fidget</div>
+            <div class="tool-cell-name">[FN] FIDGET</div>
             <div class="tool-cell-desc">Pop bubbles, tap a counter, paint a grid. Zero stakes waiting-room tool.</div>
         </a>
         <a href="https://nofnway.ca/magnet" target="_blank" class="tool-cell">
-            <div class="tool-cell-name">Magnet Studio</div>
+            <div class="tool-cell-name">[FN] MAGNET STUDIO</div>
             <div class="tool-cell-desc">Design and print custom picture tiles for visual schedules and PECS boards.</div>
         </a>
         <a href="https://nofnway.ca/jpeger" target="_blank" class="tool-cell">
-            <div class="tool-cell-name">JPEGer</div>
+            <div class="tool-cell-name">[FN] JPEGer</div>
             <div class="tool-cell-desc">PDF to JPEG, one image per page, in your browser. Nothing uploaded.</div>
         </a>
         <a href="https://nofnway.ca/pdfer" target="_blank" class="tool-cell">
-            <div class="tool-cell-name">PDFer</div>
+            <div class="tool-cell-name">[FN] PDFer</div>
             <div class="tool-cell-desc">Photos to a ready-to-send PDF. Nothing uploaded, nothing stored.</div>
         </a>
         <a href="https://nofnway.ca/how_much" target="_blank" class="tool-cell">
-            <div class="tool-cell-name">How Much?</div>
+            <div class="tool-cell-name">[FN] HOW MUCH?</div>
             <div class="tool-cell-desc">Instant conversions for the whole category. Works offline.</div>
         </a>
         <a href="https://nofnway.ca/how_long" target="_blank" class="tool-cell">
-            <div class="tool-cell-name">How Long?</div>
+            <div class="tool-cell-name">[FN] HOW LONG?</div>
             <div class="tool-cell-desc">Record your measurements once. Stop going back to re-measure.</div>
         </a>
         <a href="https://nofnway.ca/duly_noted" target="_blank" class="tool-cell">
-            <div class="tool-cell-name">Duly Noted</div>
+            <div class="tool-cell-name">[FN] DULY NOTED</div>
             <div class="tool-cell-desc">Quick capture and structured notes, saved locally, yours to export.</div>
         </a>
         <a href="https://nofnway.ca/i_knew_that" target="_blank" class="tool-cell">
-            <div class="tool-cell-name">I Knew That</div>
+            <div class="tool-cell-name">[FN] I KNEW THAT</div>
             <div class="tool-cell-desc">Turns your notes into a quiz game. Screen or printable card deck.</div>
         </a>
         <a href="https://nofnway.ca/this_works_at_school" target="_blank" class="tool-cell">
-            <div class="tool-cell-name">This Works at School</div>
+            <div class="tool-cell-name">[FN] THIS WORKS AT SCHOOL</div>
             <div class="tool-cell-desc">Tools for teachers and parents helping kids learn without added friction.</div>
         </a>
         <a href="https://nofnway.ca/get_lost" target="_blank" class="tool-cell">
-            <div class="tool-cell-name">Get Lost</div>
+            <div class="tool-cell-name">[FN] GET LOST</div>
             <div class="tool-cell-desc">Random jogging route generator. For when you need to run away, just for a bit.</div>
         </a>
     </div>
@@ -775,7 +809,7 @@
             <h2>The human part is<br>the hard part.</h2>
             <p>I'm not a developer. I'm someone who understands problems precisely — which turns out to be most of the work.</p>
             <p>I use AI to build solutions. What I provide is <em>knowing what the problem actually is</em>, whether the solution solves it, and whether it does anything it shouldn't. I've rejected plenty of outputs that ran fine but were wrong. Running fine and being right are different things.</p>
-            <p>Everything built this way is fully inspectable. Single HTML files. No minified bundles. No hidden behaviour. <em>View Source is the receipt.</em></p>
+            <p>Everything built this way is fully open. One file, nothing hidden, no moving parts you can't see. View Source is the receipt, and the receipt is readable.</p>
         </div>
         <div class="how-right">
             <div class="how-steps">
@@ -783,28 +817,28 @@
                     <div class="how-num">1</div>
                     <div class="how-step-body">
                         <h3>Understand the problem</h3>
-                        <p>I build for problems I or someone I know actually has. That means I know what working looks like before anything is written.</p>
+                        <p>Recognizing potential problems is the first step to avoiding them altogether.</p>
                     </div>
                 </div>
                 <div class="how-step">
                     <div class="how-num">2</div>
                     <div class="how-step-body">
                         <h3>AI handles the implementation</h3>
-                        <p>I describe the problem precisely. AI builds the solution. This is fast. That speed passes through to you.</p>
+                        <p>I describe the problem precisely. AI builds the solution. This is fast. Like, really fast.</p>
                     </div>
                 </div>
                 <div class="how-step">
                     <div class="how-num">3</div>
                     <div class="how-step-body">
-                        <h3>Test until it breaks, then fix it</h3>
-                        <p>I use these tools. If something is wrong, I find it. Nothing ships until it solves the problem it was built for.</p>
+                        <h3>Guaranteed</h3>
+                        <p>If I made it and it doesn't work, it gets fixed.</p>
                     </div>
                 </div>
                 <div class="how-step">
                     <div class="how-num">4</div>
                     <div class="how-step-body">
-                        <h3>You get something you own</h3>
-                        <p>A file, or a folder. Runs in a browser. No subscriptions, no dependencies, no infrastructure to maintain. Yours completely.</p>
+                        <h3>You get something you own outright</h3>
+                        <p>A file. Runs in any browser. No subscriptions, no dependencies, nothing to maintain. If I disappeared tomorrow, the tool would still work — and any web developer could open it and keep going. The code is yours with no strings attached.</p>
                     </div>
                 </div>
             </div>
@@ -819,7 +853,7 @@
         <div class="pitch-copy">
             <p>A development team. A QA team. A budget line for software. A project manager to keep all of it moving. That's what a large organization has when something needs building.</p>
             <p>Small businesses, nonprofits, and individuals have a problem and no one to solve it. That's the gap I work in.</p>
-            <p>One person. Building exactly what you need and nothing extra. <em>No agency overhead. No six-week discovery phase. No invoice that assumes you have an enterprise budget.</em></p>
+            <p>One person. Building exactly what you need and nothing extra. Turnaround is days, not weeks.</p>
             <p>If you have a problem that needs solving, I'm the right size for the job.</p>
         </div>
     </div>
@@ -832,11 +866,11 @@
     <div class="faq-list">
         <div class="faq-item">
             <p class="faq-q">Is AI-generated code reliable?</p>
-            <p class="faq-a">The tools on this page are. Open one. Use it. Every one was built for a specific problem, tested against that problem, and only shipped when it worked. The demos above are running right now, in your browser, without a server. That's the answer.</p>
+            <p class="faq-a">The tools on this page are. Open one, use it. Every one was built for a specific problem, tested against that problem, and only shipped when it worked. Sometimes things break or just stop working, but as long as I'm able I will keep fixing until it works again.</p>
         </div>
         <div class="faq-item">
             <p class="faq-q">How do I know the code is safe?</p>
-            <p class="faq-a">Right-click any tool on <a href="https://nofnway.ca" target="_blank">nofnway.ca</a> and view the source. No data leaves your browser. No accounts, no tracking, no third-party scripts handling your information. Tools that handle user input use DOM methods — an explicit choice that prevents a class of injection attacks. Nothing is hidden because there's nothing to hide.</p>
+            <p class="faq-a">Right-click any tool on <a href="https://nofnway.ca" target="_blank">nofnway.ca</a> and view the source. There is no "call home" function — no data leaves your browser, ever. No accounts, no tracking, no third-party scripts handling your information. These tools are built on standard HTML5, which is designed to last decades and work offline. Nothing is hidden because there's nothing to hide. Note: this applies to the free tools at nofnway.ca. Custom builds are scoped case by case — data handling is always discussed and agreed on upfront.</p>
         </div>
         <div class="faq-item">
             <p class="faq-q">What happens when AI gets it wrong?</p>
@@ -844,11 +878,19 @@
         </div>
         <div class="faq-item">
             <p class="faq-q">Doesn't this displace workers?</p>
-            <p class="faq-a">Every tool here either didn't exist before, or existed behind a subscription. I'm not replacing anyone — I'm building things that weren't getting built. When I work with organizations, I work alongside their teams, not instead of them. The goal is always to make someone's job easier, not redundant.</p>
+            <p class="faq-a">I make things for people who can't afford a whole development team, because now they don't have to. I'm not replacing anyone — I'm building things that weren't getting built. When I work with organizations, I work alongside their teams, not instead of them. The goal is always to make someone's job easier, not redundant.</p>
+        </div>
+        <div class="faq-item">
+            <p class="faq-q">What if something breaks after you've built it?</p>
+            <p class="faq-a">Bugs are fixed for free. If something stops working — a broken button, a logic error, a browser update that breaks core functionality — that's on me to fix. What's billable is new features: adding columns, changing workflows, redesigning something that was working fine. The line is fix vs. feature, and I'll always be clear about which side something falls on.</p>
+        </div>
+        <div class="faq-item">
+            <p class="faq-q">What does custom work cost?</p>
+            <p class="faq-a">I'm still formalizing how I structure pricing. The honest answer right now: tell me what you need and I'll tell you what it would take. No obligation, no pitch. If it's more than you can manage, say so — I'd rather find a way than not.</p>
         </div>
         <div class="faq-item">
             <p class="faq-q">Can you build something for my organization?</p>
-            <p class="faq-a">Probably. I build tools, adapt existing ones for specific contexts, and hand them off completely — you own the code, you control the data. I don't want your users' information and I won't build anything that collects it without a clear reason. If cost is a concern, say so. I'd rather help than not.</p>
+            <p class="faq-a">Probably. I build tools, adapt existing ones for specific contexts, and hand them off completely — you own the code, you control the data. I don't want your users' information and I won't build anything that collects it without a clear reason. If cost is a concern, please say so. I'd rather help than not.</p>
         </div>
     </div>
 </div>
@@ -858,11 +900,11 @@
     <div class="contact-inner">
         <div class="contact-left">
             <h2>Have a problem?<br>Tell me<br>about it.</h2>
-            <p>No pitch, no discovery call, no proposal template. Just tell me what's broken or what's missing.</p>
+            <p>No pitch, no discovery call, no proposal template. Just tell me what's broken or what's missing, and I'll tell you if and how I can help.</p>
         </div>
         <div class="contact-right">
             <a href="mailto:hello@beforeitbreaks.ca" class="contact-email-link">hello@beforeitbreaks.ca</a>
-            <p class="contact-note">I work with individuals, small businesses, schools, and organizations. If cost is a barrier, say so — I'd rather help than not. If it's outside what I can do, I'll tell you that honestly.</p>
+            <p class="contact-note">Turnaround is typically days, not weeks. You own the code completely when we're done — no licence, no lock-in. If cost is a concern, please say so. If it's outside what I can do, I'll tell you that honestly.</p>
         </div>
     </div>
 </div>
@@ -873,5 +915,25 @@
     <p>Tools built and maintained at <a href="https://nofnway.ca" target="_blank">nofnway.ca</a></p>
 </footer>
 
+<script>
+    (function() {
+        var btn = document.getElementById('modeToggle');
+        var saved = localStorage.getItem('bib-mode');
+        var isLight = saved === 'light';
+
+        function apply(light) {
+            document.documentElement.classList.toggle('light', light);
+            btn.textContent = light ? 'Dark' : 'Light';
+        }
+
+        apply(isLight);
+
+        btn.addEventListener('click', function() {
+            isLight = !isLight;
+            apply(isLight);
+            localStorage.setItem('bib-mode', isLight ? 'light' : 'dark');
+        });
+    })();
+</script>
 </body>
 </html>
