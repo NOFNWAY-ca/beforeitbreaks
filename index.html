@@ -547,21 +547,56 @@
             line-height: 1.8;
         }
         .contact-right { display: flex; flex-direction: column; gap: 20px; }
-        .contact-email-link {
-            font-size: 1.4rem;
-            font-weight: 900;
-            color: #fff;
-            border-bottom: 3px solid rgba(255,255,255,0.3);
-            padding-bottom: 4px;
-            transition: border-color 0.15s;
-            width: fit-content;
-        }
-        .contact-email-link:hover { border-color: #fff; text-decoration: none; }
         .contact-note {
-            font-size: 0.85rem;
-            color: rgba(255,255,255,0.5);
-            line-height: 1.7;
-            font-style: italic;
+            font-size: 0.9rem;
+            color: rgba(255,255,255,0.6);
+            line-height: 1.75;
+            margin-top: 16px;
+        }
+        form { display: flex; flex-direction: column; gap: 16px; }
+        .form-row { display: grid; grid-template-columns: 1fr 1fr; gap: 16px; }
+        .form-group { display: flex; flex-direction: column; gap: 6px; }
+        .form-group label { font-size: 0.82rem; font-weight: 700; color: rgba(255,255,255,0.7); letter-spacing: .02em; }
+        .form-optional { font-weight: 400; opacity: 0.6; }
+        .form-group input,
+        .form-group textarea {
+            background: rgba(255,255,255,0.08);
+            border: 1px solid rgba(255,255,255,0.15);
+            padding: 10px 12px;
+            font-size: 0.95rem;
+            color: #fff;
+            font-family: inherit;
+            transition: border-color 0.15s, background 0.15s;
+            width: 100%;
+        }
+        .form-group input::placeholder,
+        .form-group textarea::placeholder { color: rgba(255,255,255,0.25); }
+        .form-group input:focus,
+        .form-group textarea:focus {
+            outline: none;
+            border-color: rgba(255,255,255,0.4);
+            background: rgba(255,255,255,0.12);
+        }
+        .form-group textarea { resize: vertical; min-height: 120px; }
+        .form-submit {
+            background: #fff;
+            color: var(--brand);
+            border: none;
+            padding: 12px 28px;
+            font-size: 0.95rem;
+            font-weight: 700;
+            cursor: pointer;
+            align-self: flex-start;
+            font-family: inherit;
+            transition: opacity 0.15s;
+        }
+        .form-submit:hover { opacity: 0.9; }
+        .form-submit:disabled { opacity: 0.5; cursor: not-allowed; }
+        .form-status { font-size: 0.88rem; color: rgba(255,255,255,0.7); min-height: 1.2em; }
+        .form-status.success { color: #4ade80; }
+        .form-status.error { color: #fca5a5; }
+        @media (max-width: 900px) {
+            .form-row { grid-template-columns: 1fr; }
         }
 
         /* ═══════════════════════════════
@@ -929,10 +964,35 @@
         <div class="contact-left">
             <h2>Have a problem?<br>Tell me<br>about it.</h2>
             <p>No pitch, no discovery call, no proposal template. Just tell me what's broken or what's missing, and I'll tell you if and how I can help.</p>
+            <p class="contact-note">Turnaround is typically days, not weeks. You own the code completely when we're done — no licence, no lock-in. If cost is a concern, please say so. If it's outside what I can do, I'll tell you that honestly.</p>
         </div>
         <div class="contact-right">
-            <a href="mailto:hello@beforeitbreaks.ca" class="contact-email-link">hello@beforeitbreaks.ca</a>
-            <p class="contact-note">Turnaround is typically days, not weeks. You own the code completely when we're done — no licence, no lock-in. If cost is a concern, please say so. If it's outside what I can do, I'll tell you that honestly.</p>
+            <form id="contact-form" action="https://api.web3forms.com/submit" method="POST">
+                <input type="hidden" name="access_key" value="99644fbe-75fa-4063-919f-e5209d69de79">
+                <input type="hidden" name="subject" value="New inquiry — Before It Breaks">
+                <input type="hidden" name="redirect" value="false">
+                <input type="checkbox" name="botcheck" style="display:none">
+                <div class="form-row">
+                    <div class="form-group">
+                        <label for="f-name">Your name</label>
+                        <input type="text" id="f-name" name="name" required autocomplete="name">
+                    </div>
+                    <div class="form-group">
+                        <label for="f-email">Email address</label>
+                        <input type="email" id="f-email" name="email" required autocomplete="email">
+                    </div>
+                </div>
+                <div class="form-group">
+                    <label for="f-org">Organization <span class="form-optional">(optional)</span></label>
+                    <input type="text" id="f-org" name="organization" autocomplete="organization">
+                </div>
+                <div class="form-group">
+                    <label for="f-message">What do you need?</label>
+                    <textarea id="f-message" name="message" rows="5" required placeholder="Tell me about the problem. The messier the better — that's where I start."></textarea>
+                </div>
+                <button type="submit" class="form-submit" id="form-submit-btn">Send it</button>
+                <p class="form-status" id="form-status"></p>
+            </form>
         </div>
     </div>
 </div>
@@ -944,6 +1004,40 @@
 </footer>
 
 <script>
+    (function() {
+        var form = document.getElementById('contact-form');
+        if (form) {
+            form.addEventListener('submit', async function(e) {
+                e.preventDefault();
+                var btn = document.getElementById('form-submit-btn');
+                var status = document.getElementById('form-status');
+                btn.disabled = true;
+                btn.textContent = 'Sending...';
+                status.textContent = '';
+                status.className = 'form-status';
+                try {
+                    var res = await fetch('https://api.web3forms.com/submit', {
+                        method: 'POST',
+                        body: new FormData(form)
+                    });
+                    var data = await res.json();
+                    if (data.success) {
+                        status.textContent = "Got it — I'll be in touch.";
+                        status.className = 'form-status success';
+                        form.reset();
+                    } else {
+                        throw new Error('failed');
+                    }
+                } catch(err) {
+                    status.textContent = "Something went wrong. Try emailing me directly.";
+                    status.className = 'form-status error';
+                }
+                btn.disabled = false;
+                btn.textContent = 'Send it';
+            });
+        }
+    })();
+
     (function() {
         var btn = document.getElementById('modeToggle');
         var saved = localStorage.getItem('bib-mode');
