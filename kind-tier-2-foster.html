@@ -1,0 +1,2831 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>KIND: Foster Coordination (Tier 2)</title>
+  <meta name="description" content="KIND foster coordination board for offline rescue workflow tracking.">
+  <meta name="robots" content="noindex, nofollow">
+  <style>
+    :root {
+      --bg: #f3f5f8;
+      --panel: #ffffff;
+      --panel-soft: #f8fafc;
+      --border: #d7dde5;
+      --border-strong: #bac5d2;
+      --text: #1e2937;
+      --muted: #627083;
+      --shadow: rgba(15, 23, 42, 0.08);
+      --brand: #24558a;
+      --brand-deep: #173a5d;
+      --gray: #5f6b7a;
+      --blue: #1f5fa8;
+      --orange: #c36b14;
+      --green: #277a3f;
+      --purple: #7147ad;
+      --danger: #b23a3a;
+      --danger-soft: #fff1f1;
+      --focus: #0d6efd;
+      --mono: "IBM Plex Mono", "SFMono-Regular", Consolas, "Liberation Mono", Menlo, monospace;
+    }
+
+    * {
+      box-sizing: border-box;
+    }
+
+    html, body {
+      margin: 0;
+      min-height: 100%;
+    }
+
+    body {
+      font-family: "Segoe UI", Tahoma, Geneva, Verdana, sans-serif;
+      background: var(--bg);
+      color: var(--text);
+    }
+
+    button,
+    input,
+    select,
+    textarea {
+      font: inherit;
+    }
+
+    button {
+      cursor: pointer;
+    }
+
+    .app-shell {
+      max-width: 1440px;
+      margin: 0 auto;
+      padding: 24px;
+    }
+
+    .page-header {
+      display: flex;
+      justify-content: space-between;
+      align-items: flex-start;
+      gap: 16px;
+      margin-bottom: 20px;
+    }
+
+    .page-title {
+      margin: 0 0 6px;
+      font-size: clamp(1.8rem, 2.8vw, 2.4rem);
+      line-height: 1.1;
+    }
+
+    .page-subtitle {
+      margin: 0;
+      color: var(--muted);
+      max-width: 760px;
+    }
+
+    .header-actions {
+      display: flex;
+      flex-direction: column;
+      gap: 10px;
+      align-items: flex-end;
+      min-width: 280px;
+    }
+
+    .header-action-row {
+      display: flex;
+      gap: 10px;
+      flex-wrap: wrap;
+      justify-content: flex-end;
+    }
+
+    .save-indicator {
+      min-height: 20px;
+      color: var(--muted);
+      font-size: 0.92rem;
+      font-weight: 600;
+      transition: opacity 0.2s ease;
+    }
+
+    .save-indicator.is-faded {
+      opacity: 0.55;
+    }
+
+    .save-indicator.is-error {
+      color: var(--danger);
+      opacity: 1;
+    }
+
+    .tier-badge {
+      position: fixed;
+      top: 10px;
+      right: 10px;
+      z-index: 80;
+      padding: 8px 12px;
+      border: 1px solid var(--border-strong);
+      border-radius: 10px;
+      background: #fff;
+      color: var(--text);
+      font-size: 0.8rem;
+      font-weight: 800;
+      letter-spacing: 0.08em;
+      text-transform: uppercase;
+      box-shadow: 4px 4px 0 rgba(30, 41, 55, 0.12);
+    }
+
+    .btn {
+      border: 1px solid var(--border-strong);
+      border-radius: 8px;
+      min-height: 42px;
+      padding: 10px 16px;
+      font-weight: 600;
+    }
+
+    .btn-primary {
+      background: var(--brand);
+      color: #fff;
+    }
+
+    .btn-primary:hover,
+    .btn-primary:focus-visible {
+      background: var(--brand-deep);
+    }
+
+    .btn-secondary {
+      background: var(--panel);
+      color: var(--text);
+      border-color: var(--border-strong);
+    }
+
+    .btn-secondary:hover,
+    .btn-secondary:focus-visible {
+      background: var(--panel-soft);
+    }
+
+    .btn-locked,
+    .btn[disabled] {
+      background: #e9edf2;
+      color: var(--muted);
+      border-color: var(--border-strong);
+      cursor: not-allowed;
+      opacity: 1;
+    }
+
+    .btn-danger {
+      background: var(--danger-soft);
+      color: var(--danger);
+      border-color: #e6baba;
+    }
+
+    .btn-danger:hover,
+    .btn-danger:focus-visible {
+      background: #ffe5e5;
+      border-color: #d88c8c;
+    }
+
+    .btn-ghost {
+      min-height: 34px;
+      padding: 6px 10px;
+      border-radius: 8px;
+      background: transparent;
+      border: 1px solid var(--border-strong);
+      color: var(--brand-deep);
+      font-size: 0.92rem;
+    }
+
+    .btn-ghost:hover,
+    .btn-ghost:focus-visible {
+      background: #eef4fb;
+      border-color: var(--brand);
+    }
+
+    .panel {
+      background: var(--panel-soft);
+      border: 1px solid var(--border-strong);
+      border-radius: 8px;
+      box-shadow: 0 2px 4px var(--shadow);
+    }
+
+    .summary-grid {
+      display: grid;
+      grid-template-columns: repeat(6, minmax(120px, 1fr));
+      gap: 14px;
+      margin-bottom: 18px;
+    }
+
+    .summary-card {
+      padding: 16px;
+      background: var(--panel);
+      border: 1px solid var(--border-strong);
+      border-radius: 8px;
+    }
+
+    .summary-card strong {
+      display: block;
+      margin-top: 6px;
+      font-size: 1.85rem;
+      line-height: 1;
+      font-family: var(--mono);
+    }
+
+    .summary-card span {
+      color: var(--muted);
+      font-size: 0.95rem;
+      font-weight: 600;
+    }
+
+    .tier-kicker {
+      margin: 0 0 8px;
+      color: var(--orange);
+      font-size: 0.82rem;
+      font-weight: 800;
+      letter-spacing: 0.08em;
+      text-transform: uppercase;
+    }
+
+    .foster-overview {
+      padding: 18px;
+      margin-bottom: 18px;
+    }
+
+    .foster-overview-header {
+      display: flex;
+      justify-content: space-between;
+      align-items: flex-start;
+      gap: 12px;
+      margin-bottom: 16px;
+    }
+
+    .foster-overview-header h2 {
+      margin: 0;
+      font-size: 1.15rem;
+    }
+
+    .foster-overview-header p {
+      margin: 4px 0 0;
+      color: var(--muted);
+      font-size: 0.92rem;
+      max-width: 720px;
+    }
+
+    .foster-overview-grid {
+      display: grid;
+      grid-template-columns: repeat(4, minmax(0, 1fr));
+      gap: 14px;
+    }
+
+    .foster-overview-card {
+      min-height: 120px;
+      padding: 16px;
+      border: 1px solid var(--border-strong);
+      border-radius: 8px;
+      background: #fff;
+      box-shadow: 0 2px 4px var(--shadow);
+    }
+
+    .foster-overview-card h3 {
+      margin: 12px 0 0;
+      color: var(--muted);
+      font-size: 0.8rem;
+      font-weight: 800;
+      letter-spacing: 0.04em;
+      text-transform: uppercase;
+    }
+
+    .foster-overview-value {
+      display: block;
+      margin-top: 0;
+      font-size: 2.35rem;
+      line-height: 1;
+      font-weight: 800;
+      color: var(--text);
+      font-family: var(--mono);
+    }
+
+    .foster-overview-meta {
+      margin-top: 8px;
+      color: var(--muted);
+      font-size: 0.9rem;
+    }
+
+    .foster-overview-card.is-alert {
+      border-color: var(--orange);
+      background: #fff7ef;
+    }
+
+    .foster-overview-card.is-alert .foster-overview-value {
+      color: var(--orange);
+    }
+
+    .foster-overview-card.is-wide {
+      grid-column: 1 / -1;
+      min-height: 0;
+    }
+
+    .foster-load-list {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 10px;
+      margin-top: 12px;
+    }
+
+    .foster-pill {
+      display: inline-flex;
+      align-items: center;
+      gap: 8px;
+      padding: 9px 12px;
+      border: 1px solid var(--border-strong);
+      border-radius: 999px;
+      background: var(--panel-soft);
+      color: var(--text);
+      font-size: 0.9rem;
+      font-weight: 700;
+      line-height: 1;
+    }
+
+    .foster-pill-load {
+      color: var(--muted);
+      font-weight: 800;
+      font-family: var(--mono);
+    }
+
+    .foster-pill-full {
+      border-color: #e8b578;
+      background: #fff1df;
+      color: #8a4d00;
+    }
+
+    .foster-pill-empty {
+      color: var(--muted);
+      font-size: 0.92rem;
+    }
+
+    .filters-panel {
+      padding: 16px;
+      margin-bottom: 18px;
+    }
+
+    .filters-grid {
+      display: grid;
+      grid-template-columns: 200px 200px minmax(220px, 1fr);
+      gap: 14px;
+      align-items: end;
+    }
+
+    .field {
+      display: grid;
+      gap: 6px;
+    }
+
+    .field label {
+      font-size: 0.92rem;
+      font-weight: 600;
+      color: var(--muted);
+    }
+
+    .field input,
+    .field select,
+    .field textarea {
+      width: 100%;
+      border: 1px solid var(--border-strong);
+      border-radius: 8px;
+      padding: 10px 12px;
+      background: #fff;
+      color: var(--text);
+    }
+
+    .field textarea {
+      min-height: 110px;
+      resize: vertical;
+    }
+
+    .field input:focus-visible,
+    .field select:focus-visible,
+    .field textarea:focus-visible,
+    .btn:focus-visible,
+    .btn-ghost:focus-visible,
+    .sort-button:focus-visible,
+    .icon-button:focus-visible {
+      outline: 3px solid rgba(13, 110, 253, 0.18);
+      outline-offset: 2px;
+      border-color: var(--focus);
+    }
+
+    .table-panel {
+      overflow: hidden;
+    }
+
+    .table-header {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      gap: 12px;
+      padding: 16px 18px 10px;
+      border-bottom: 1px solid var(--border);
+    }
+
+    .table-header h2 {
+      margin: 0;
+      font-size: 1.15rem;
+    }
+
+    .table-header p {
+      margin: 4px 0 0;
+      color: var(--muted);
+      font-size: 0.92rem;
+    }
+
+    .table-wrap {
+      max-height: 560px;
+      overflow: auto;
+    }
+
+    table {
+      width: 100%;
+      border-collapse: collapse;
+      min-width: 1160px;
+    }
+
+    thead th {
+      position: sticky;
+      top: 0;
+      z-index: 1;
+      background: var(--panel-soft);
+      border-bottom: 1px solid var(--border-strong);
+      text-align: left;
+      padding: 12px 14px;
+      font-size: 0.86rem;
+      text-transform: uppercase;
+      letter-spacing: 0.04em;
+      color: var(--muted);
+    }
+
+    tbody td {
+      padding: 12px 14px;
+      border-bottom: 1px solid #e7edf4;
+      vertical-align: top;
+      font-size: 0.95rem;
+    }
+
+    tbody tr:hover {
+      background: #eef3f8;
+    }
+
+    .sort-button {
+      display: inline-flex;
+      align-items: center;
+      gap: 6px;
+      border: 0;
+      padding: 0;
+      background: transparent;
+      color: inherit;
+      font: inherit;
+      font-weight: 700;
+    }
+
+    .sort-indicator {
+      color: var(--brand);
+      font-size: 0.85rem;
+      min-width: 14px;
+    }
+
+    .name-cell strong {
+      display: block;
+      font-size: 1rem;
+    }
+
+    .name-stack {
+      display: flex;
+      align-items: flex-start;
+      gap: 12px;
+    }
+
+    .animal-thumb,
+    .animal-thumb-placeholder {
+      width: 48px;
+      height: 48px;
+      border-radius: 6px;
+      flex: 0 0 48px;
+    }
+
+    .animal-thumb {
+      object-fit: cover;
+      border: 1px solid var(--border);
+      background: #fff;
+    }
+
+    .animal-thumb-placeholder {
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      border: 1px solid var(--border);
+      background: var(--panel-soft);
+      font-size: 1.3rem;
+    }
+
+    .name-details {
+      min-width: 0;
+    }
+
+    .name-cell small,
+    .muted {
+      color: var(--muted);
+    }
+
+    .name-cell small,
+    #animalTableMeta,
+    #fosterTableMeta,
+    .save-indicator,
+    .capacity-value,
+    .status-updated {
+      font-family: var(--mono);
+    }
+
+    .badge {
+      display: inline-flex;
+      align-items: center;
+      border-radius: 999px;
+      padding: 6px 10px;
+      font-size: 0.82rem;
+      font-weight: 700;
+      border: 1px solid transparent;
+      white-space: nowrap;
+    }
+
+    .status-stack {
+      display: grid;
+      gap: 8px;
+    }
+
+    .status-updated {
+      color: var(--muted);
+      font-size: 0.8rem;
+      line-height: 1.3;
+    }
+
+    .capacity-value {
+      display: inline-flex;
+      align-items: center;
+      gap: 8px;
+      flex-wrap: wrap;
+    }
+
+    .capacity-full {
+      background: var(--danger-soft);
+      color: var(--danger);
+      border: 1px solid #e1b8b8;
+      border-radius: 999px;
+      padding: 4px 8px;
+      font-size: 0.75rem;
+      font-weight: 700;
+      letter-spacing: 0.03em;
+    }
+
+    .badge-intake {
+      background: #edf1f5;
+      color: var(--gray);
+      border-color: #d3dbe4;
+    }
+
+    .badge-foster {
+      background: #e9f2fd;
+      color: var(--blue);
+      border-color: #bfd4ef;
+    }
+
+    .badge-medical {
+      background: #fff1e1;
+      color: var(--orange);
+      border-color: #f0c89a;
+    }
+
+    .badge-adoption-ready {
+      background: #ebf8ef;
+      color: var(--green);
+      border-color: #b8debf;
+    }
+
+    .badge-adopted {
+      background: #f1ebfb;
+      color: var(--purple);
+      border-color: #d4c0f1;
+    }
+
+    .status-select {
+      width: 100%;
+      min-width: 148px;
+      border: 1px solid var(--border-strong);
+      border-radius: 8px;
+      padding: 7px 9px;
+      background: #fff;
+      font-family: var(--mono);
+    }
+
+    .notes-cell {
+      color: #334155;
+      max-width: 300px;
+      white-space: pre-wrap;
+      word-break: break-word;
+    }
+
+    .empty-state {
+      padding: 32px 20px;
+      text-align: center;
+      color: var(--muted);
+    }
+
+    .table-actions {
+      display: flex;
+      justify-content: flex-end;
+      gap: 10px;
+      align-items: flex-start;
+      white-space: nowrap;
+    }
+
+    .action-divider {
+      width: 1px;
+      align-self: stretch;
+      background: #e0e6ed;
+    }
+
+    .icon-button {
+      border: 1px solid var(--border-strong);
+      background: #fff;
+      color: var(--text);
+      border-radius: 8px;
+      padding: 8px 12px;
+      font-weight: 600;
+    }
+
+    .icon-button:hover,
+    .icon-button:focus-visible {
+      background: var(--panel-soft);
+      border-color: var(--brand);
+    }
+
+    .icon-button-danger {
+      border-color: #e1b8b8;
+      background: var(--danger-soft);
+      color: var(--danger);
+    }
+
+    .icon-button-danger:hover,
+    .icon-button-danger:focus-visible {
+      background: #ffe5e5;
+      border-color: #d88c8c;
+    }
+
+    .modal-backdrop {
+      position: fixed;
+      inset: 0;
+      background: rgba(15, 23, 42, 0.48);
+      display: none;
+      align-items: center;
+      justify-content: center;
+      padding: 24px;
+      z-index: 50;
+    }
+
+    .modal-backdrop.is-open {
+      display: flex;
+    }
+
+    .modal {
+      width: min(760px, 100%);
+      max-height: calc(100vh - 48px);
+      overflow: auto;
+      background: var(--panel);
+      border: 1px solid var(--border-strong);
+      border-radius: 18px;
+      box-shadow: 0 20px 50px rgba(15, 23, 42, 0.2);
+    }
+
+    .modal.modal-compact {
+      width: min(540px, 100%);
+    }
+
+    .modal-header,
+    .modal-footer {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      gap: 12px;
+      padding: 18px 20px;
+    }
+
+    .modal-header {
+      border-bottom: 1px solid var(--border);
+    }
+
+    .modal-header h2 {
+      margin: 0;
+      font-size: 1.25rem;
+    }
+
+    .modal-header p {
+      margin: 6px 0 0;
+      color: var(--muted);
+      font-size: 0.92rem;
+    }
+
+    .modal-footer {
+      border-top: 1px solid var(--border);
+      justify-content: flex-end;
+    }
+
+    .modal-body {
+      padding: 20px;
+    }
+
+    .modal-grid {
+      display: grid;
+      grid-template-columns: repeat(2, minmax(0, 1fr));
+      gap: 16px;
+    }
+
+    .field-span-2 {
+      grid-column: span 2;
+    }
+
+    .dialog-message {
+      margin: 0;
+      white-space: pre-wrap;
+      line-height: 1.55;
+    }
+
+    .dialog-input-wrap {
+      margin-top: 16px;
+    }
+
+    .dialog-input-wrap[hidden] {
+      display: none;
+    }
+
+    .error-text {
+      min-height: 20px;
+      color: var(--danger);
+      font-size: 0.92rem;
+      font-weight: 600;
+      margin-top: 12px;
+    }
+
+    .sr-only {
+      position: absolute;
+      width: 1px;
+      height: 1px;
+      padding: 0;
+      margin: -1px;
+      overflow: hidden;
+      clip: rect(0, 0, 0, 0);
+      white-space: nowrap;
+      border: 0;
+    }
+
+    @media (max-width: 1120px) {
+      .summary-grid {
+        grid-template-columns: repeat(3, minmax(120px, 1fr));
+      }
+
+      .foster-overview-grid {
+        grid-template-columns: repeat(2, minmax(0, 1fr));
+      }
+    }
+
+    @media (max-width: 960px) {
+      .page-header {
+        flex-direction: column;
+        align-items: stretch;
+      }
+
+      .header-actions {
+        align-items: stretch;
+        min-width: 0;
+      }
+
+      .header-action-row {
+        justify-content: flex-start;
+      }
+    }
+
+    @media (max-width: 860px) {
+      .app-shell {
+        padding: 16px;
+      }
+
+      .filters-grid,
+      .modal-grid {
+        grid-template-columns: 1fr;
+      }
+
+      .field-span-2 {
+        grid-column: span 1;
+      }
+    }
+
+    @media (max-width: 640px) {
+      .summary-grid {
+        grid-template-columns: repeat(2, minmax(120px, 1fr));
+      }
+
+      .foster-overview-grid {
+        grid-template-columns: 1fr;
+      }
+
+      .table-header {
+        flex-direction: column;
+        align-items: flex-start;
+      }
+    }
+  </style>
+</head>
+<body>
+  <div class="tier-badge" aria-label="Tier 2">Tier 2</div>
+
+  <main class="app-shell">
+    <header class="page-header">
+      <div>
+        <p class="tier-kicker">Tier 2: Foster Coordination</p>
+        <h1 class="page-title">KIND: Foster Coordination (Tier 2)</h1>
+        <p class="page-subtitle">KIND, short for Key Intake and Data, extends the intake core with foster capacity management, placement oversight, and a structured coordination dashboard.</p>
+      </div>
+      <div class="header-actions">
+        <div class="header-action-row">
+          <button class="btn btn-locked" type="button" disabled aria-disabled="true">Medical Intelligence Locked</button>
+          <button class="btn btn-secondary" id="importDataButton" type="button">Import Data</button>
+          <button class="btn btn-secondary" id="exportDataButton" type="button">Export Data</button>
+          <button class="btn btn-secondary" id="addFosterButton" type="button">Add Foster</button>
+          <button class="btn btn-primary" id="addAnimalButton" type="button">Add Animal</button>
+        </div>
+        <div class="save-indicator" id="saveIndicator" aria-live="polite">Ready</div>
+      </div>
+    </header>
+
+    <section class="panel foster-overview" aria-label="Foster overview">
+      <div class="foster-overview-header">
+        <div>
+          <h2>Foster Overview</h2>
+          <p>Capacity first. This dashboard surfaces how many placements you can still absorb, which homes are maxed out, and where the current pressure is landing.</p>
+        </div>
+      </div>
+      <div class="foster-overview-grid">
+        <article class="foster-overview-card">
+          <strong class="foster-overview-value" id="totalCapacityValue">0</strong>
+          <h3>Total Capacity</h3>
+          <div class="foster-overview-meta">Total foster spots across all active homes.</div>
+        </article>
+        <article class="foster-overview-card">
+          <strong class="foster-overview-value" id="availableSpotsValue">0</strong>
+          <h3>Available Spots</h3>
+          <div class="foster-overview-meta">Open placements before any home is pushed over cap.</div>
+        </article>
+        <article class="foster-overview-card">
+          <strong class="foster-overview-value" id="assignedAnimalsValue">0</strong>
+          <h3>Assigned Animals</h3>
+          <div class="foster-overview-meta">Animals currently mapped to a foster home.</div>
+        </article>
+        <article class="foster-overview-card" id="fullCapacityCard">
+          <strong class="foster-overview-value" id="fullCapacityValue">0</strong>
+          <h3>Full Capacity</h3>
+          <div class="foster-overview-meta">Homes that are currently at or above their stated limit.</div>
+        </article>
+        <article class="foster-overview-card is-wide">
+          <h3>Foster Load</h3>
+          <div class="foster-load-list" id="fosterLoadList"></div>
+        </article>
+      </div>
+    </section>
+
+    <section class="summary-grid" id="summaryBar" aria-label="Animal summary"></section>
+
+    <section class="panel filters-panel" aria-label="Filters">
+      <div class="filters-grid">
+        <div class="field">
+          <label for="statusFilter">Status Filter</label>
+          <select id="statusFilter">
+            <option value="all">All Statuses</option>
+          </select>
+        </div>
+        <div class="field">
+          <label for="speciesFilter">Species Filter</label>
+          <select id="speciesFilter">
+            <option value="all">All Species</option>
+            <option value="Cat">Cat</option>
+            <option value="Dog">Dog</option>
+            <option value="Other">Other</option>
+          </select>
+        </div>
+        <div class="field">
+          <label for="nameSearch">Search by Name</label>
+          <input id="nameSearch" type="search" placeholder="Search animal name">
+        </div>
+      </div>
+    </section>
+
+    <section class="panel table-panel" aria-label="Animal table">
+      <div class="table-header">
+        <div>
+          <h2>Animals</h2>
+          <p id="animalTableMeta">0 animals</p>
+        </div>
+      </div>
+      <div class="table-wrap">
+        <table>
+          <thead>
+            <tr>
+              <th>
+                <button class="sort-button" type="button" data-sort-key="name">
+                  Name
+                  <span class="sort-indicator" data-sort-indicator-for="name"></span>
+                </button>
+              </th>
+              <th>
+                <button class="sort-button" type="button" data-sort-key="species">
+                  Species
+                  <span class="sort-indicator" data-sort-indicator-for="species"></span>
+                </button>
+              </th>
+              <th>
+                <button class="sort-button" type="button" data-sort-key="intakeDate">
+                  Intake Date
+                  <span class="sort-indicator" data-sort-indicator-for="intakeDate"></span>
+                </button>
+              </th>
+              <th>Location</th>
+              <th>
+                <button class="sort-button" type="button" data-sort-key="fosterName">
+                  Foster
+                  <span class="sort-indicator" data-sort-indicator-for="fosterName"></span>
+                </button>
+              </th>
+              <th>
+                <button class="sort-button" type="button" data-sort-key="status">
+                  Status
+                  <span class="sort-indicator" data-sort-indicator-for="status"></span>
+                </button>
+              </th>
+              <th>Notes</th>
+              <th>Edit</th>
+            </tr>
+          </thead>
+          <tbody id="animalTableBody"></tbody>
+        </table>
+        <div class="empty-state" id="animalEmptyState" hidden>No animals match the current filters.</div>
+      </div>
+    </section>
+
+    <section class="panel table-panel" aria-label="Foster table" style="margin-top: 18px;">
+      <div class="table-header">
+        <div>
+          <h2>Fosters</h2>
+          <p id="fosterTableMeta">0 fosters</p>
+        </div>
+      </div>
+      <div class="table-wrap">
+        <table>
+          <thead>
+            <tr>
+              <th>Foster Name</th>
+              <th>Capacity</th>
+              <th>Assigned Animals</th>
+              <th>Notes</th>
+              <th>Actions</th>
+            </tr>
+          </thead>
+          <tbody id="fosterTableBody"></tbody>
+        </table>
+        <div class="empty-state" id="fosterEmptyState" hidden>No fosters have been added yet.</div>
+      </div>
+    </section>
+  </main>
+
+  <input id="importFileInput" type="file" accept="application/json,.json" class="sr-only">
+
+  <div class="modal-backdrop" id="animalModal" aria-hidden="true">
+    <section class="modal" role="dialog" aria-modal="true" aria-labelledby="modalTitle">
+      <div class="modal-header">
+        <div>
+          <h2 id="modalTitle">Add Animal</h2>
+          <p id="modalSubtitle">Create a new intake record.</p>
+        </div>
+        <button class="icon-button" id="closeModalButton" type="button" aria-label="Close dialog">Close</button>
+      </div>
+      <form id="animalForm" novalidate>
+        <div class="modal-body">
+          <div class="modal-grid">
+            <div class="field">
+              <label for="animalName">Name</label>
+              <input id="animalName" name="name" type="text" maxlength="80" required>
+            </div>
+            <div class="field">
+              <label for="animalSpecies">Species</label>
+              <select id="animalSpecies" name="species" required>
+                <option value="Cat">Cat</option>
+                <option value="Dog">Dog</option>
+                <option value="Other">Other</option>
+              </select>
+            </div>
+            <div class="field">
+              <label for="animalIntakeDate">Intake Date</label>
+              <input id="animalIntakeDate" name="intakeDate" type="date" required>
+            </div>
+            <div class="field">
+              <label for="animalLocation">Location</label>
+              <select id="animalLocation" name="location" required>
+                <option value="Shelter">Shelter</option>
+                <option value="Foster">Foster</option>
+                <option value="Vet">Vet</option>
+                <option value="Adopted">Adopted</option>
+                <option value="Hold">Hold</option>
+              </select>
+            </div>
+            <div class="field">
+              <label for="animalFosterName">Assigned Foster</label>
+              <select id="animalFosterName" name="fosterName">
+                <option value="">Unassigned</option>
+              </select>
+            </div>
+            <div class="field">
+              <label for="animalStatus">Status</label>
+              <select id="animalStatus" name="status" required>
+                <option value="Intake">Intake</option>
+                <option value="Foster">Foster</option>
+                <option value="Medical">Medical</option>
+                <option value="Adoption Ready">Adoption Ready</option>
+                <option value="Adopted">Adopted</option>
+              </select>
+            </div>
+            <div class="field field-span-2">
+              <label for="animalNotes">Notes</label>
+              <textarea id="animalNotes" name="notes" maxlength="400" placeholder="Vaccination notes, intake details, behavior notes, adoption prep, or follow-up items."></textarea>
+            </div>
+            <div class="field field-span-2">
+              <label for="animalPhoto">Photo</label>
+              <input
+                id="animalPhoto"
+                type="file"
+                accept="image/*"
+              >
+            </div>
+          </div>
+          <div class="error-text" id="formError" aria-live="polite"></div>
+        </div>
+        <div class="modal-footer">
+          <button class="btn btn-secondary" id="cancelModalButton" type="button">Cancel</button>
+          <button class="btn btn-primary" id="saveAnimalButton" type="submit">Save Animal</button>
+        </div>
+      </form>
+    </section>
+  </div>
+
+  <div class="modal-backdrop" id="dialogModal" aria-hidden="true">
+    <section class="modal modal-compact" role="dialog" aria-modal="true" aria-labelledby="dialogTitle">
+      <div class="modal-header">
+        <div>
+          <h2 id="dialogTitle">Confirm</h2>
+          <p id="dialogSubtitle">Review this action.</p>
+        </div>
+      </div>
+      <div class="modal-body">
+        <p class="dialog-message" id="dialogMessage"></p>
+        <div class="dialog-input-wrap" id="dialogInputWrap" hidden>
+          <div class="field">
+            <label for="dialogInput" id="dialogInputLabel">Optional input</label>
+            <input id="dialogInput" type="text" maxlength="80">
+          </div>
+        </div>
+        <div class="error-text" id="dialogError" aria-live="polite"></div>
+      </div>
+      <div class="modal-footer">
+        <button class="btn btn-secondary" id="dialogCancelButton" type="button">Cancel</button>
+        <button class="btn btn-primary" id="dialogConfirmButton" type="button">Continue</button>
+      </div>
+    </section>
+  </div>
+
+  <div class="modal-backdrop" id="fosterModal" aria-hidden="true">
+    <section class="modal modal-compact" role="dialog" aria-modal="true" aria-labelledby="fosterModalTitle">
+      <div class="modal-header">
+        <div>
+          <h2 id="fosterModalTitle">Add Foster</h2>
+          <p id="fosterModalSubtitle">Create a foster home record.</p>
+        </div>
+        <button class="icon-button" id="closeFosterModalButton" type="button" aria-label="Close dialog">Close</button>
+      </div>
+      <form id="fosterForm" novalidate>
+        <div class="modal-body">
+          <div class="modal-grid">
+            <div class="field">
+              <label for="fosterName">Name</label>
+              <input id="fosterName" name="name" type="text" maxlength="80" required>
+            </div>
+            <div class="field">
+              <label for="fosterCapacity">Capacity</label>
+              <input id="fosterCapacity" name="capacity" type="number" min="0" step="1" required>
+            </div>
+            <div class="field field-span-2">
+              <label for="fosterNotes">Notes</label>
+              <textarea id="fosterNotes" name="notes" maxlength="400" placeholder="Placement preferences, availability notes, transport limits, medication comfort, or follow-up details."></textarea>
+            </div>
+          </div>
+          <div class="error-text" id="fosterFormError" aria-live="polite"></div>
+        </div>
+        <div class="modal-footer">
+          <button class="btn btn-secondary" id="cancelFosterModalButton" type="button">Cancel</button>
+          <button class="btn btn-primary" id="saveFosterButton" type="submit">Save Foster</button>
+        </div>
+      </form>
+    </section>
+  </div>
+
+  <script>
+    const ANIMAL_STORAGE_KEY = "kind_foster_board_animals";
+    const FOSTER_STORAGE_KEY = "kind_foster_board_fosters";
+    const FILTER_STORAGE_KEY = "kind_foster_board_filters";
+    const STATUS_ORDER = ["Intake", "Foster", "Medical", "Adoption Ready", "Adopted"];
+    const STATUS_CLASS_MAP = {
+      "Intake": "badge-intake",
+      "Foster": "badge-foster",
+      "Medical": "badge-medical",
+      "Adoption Ready": "badge-adoption-ready",
+      "Adopted": "badge-adopted"
+    };
+    const LOCATION_OPTIONS = ["Shelter", "Foster", "Vet", "Adopted", "Hold"];
+    const SPECIES_OPTIONS = ["Cat", "Dog", "Other"];
+    const FOCUSABLE_SELECTOR = [
+      "button:not([disabled])",
+      "input:not([disabled])",
+      "select:not([disabled])",
+      "textarea:not([disabled])",
+      "[href]",
+      "[tabindex]:not([tabindex='-1'])"
+    ].join(", ");
+
+    const summaryBar = document.getElementById("summaryBar");
+    const statusFilter = document.getElementById("statusFilter");
+    const speciesFilter = document.getElementById("speciesFilter");
+    const nameSearch = document.getElementById("nameSearch");
+    const animalTableBody = document.getElementById("animalTableBody");
+    const animalTableMeta = document.getElementById("animalTableMeta");
+    const animalEmptyState = document.getElementById("animalEmptyState");
+    const fosterTableBody = document.getElementById("fosterTableBody");
+    const fosterTableMeta = document.getElementById("fosterTableMeta");
+    const fosterEmptyState = document.getElementById("fosterEmptyState");
+    const totalCapacityValue = document.getElementById("totalCapacityValue");
+    const availableSpotsValue = document.getElementById("availableSpotsValue");
+    const assignedAnimalsValue = document.getElementById("assignedAnimalsValue");
+    const fullCapacityValue = document.getElementById("fullCapacityValue");
+    const fullCapacityCard = document.getElementById("fullCapacityCard");
+    const fosterLoadList = document.getElementById("fosterLoadList");
+    const saveIndicator = document.getElementById("saveIndicator");
+    const importFileInput = document.getElementById("importFileInput");
+
+    const animalModal = document.getElementById("animalModal");
+    const animalModalTitle = document.getElementById("modalTitle");
+    const animalModalSubtitle = document.getElementById("modalSubtitle");
+    const animalForm = document.getElementById("animalForm");
+    const animalFormError = document.getElementById("formError");
+    const saveAnimalButton = document.getElementById("saveAnimalButton");
+    const addAnimalButton = document.getElementById("addAnimalButton");
+    const addFosterButton = document.getElementById("addFosterButton");
+    const exportDataButton = document.getElementById("exportDataButton");
+    const importDataButton = document.getElementById("importDataButton");
+    const closeAnimalModalButton = document.getElementById("closeModalButton");
+    const cancelAnimalModalButton = document.getElementById("cancelModalButton");
+
+    const fosterModal = document.getElementById("fosterModal");
+    const fosterModalTitle = document.getElementById("fosterModalTitle");
+    const fosterModalSubtitle = document.getElementById("fosterModalSubtitle");
+    const fosterForm = document.getElementById("fosterForm");
+    const fosterFormError = document.getElementById("fosterFormError");
+    const saveFosterButton = document.getElementById("saveFosterButton");
+    const closeFosterModalButton = document.getElementById("closeFosterModalButton");
+    const cancelFosterModalButton = document.getElementById("cancelFosterModalButton");
+
+    const dialogModal = document.getElementById("dialogModal");
+    const dialogTitle = document.getElementById("dialogTitle");
+    const dialogSubtitle = document.getElementById("dialogSubtitle");
+    const dialogMessage = document.getElementById("dialogMessage");
+    const dialogInputWrap = document.getElementById("dialogInputWrap");
+    const dialogInputLabel = document.getElementById("dialogInputLabel");
+    const dialogInput = document.getElementById("dialogInput");
+    const dialogError = document.getElementById("dialogError");
+    const dialogCancelButton = document.getElementById("dialogCancelButton");
+    const dialogConfirmButton = document.getElementById("dialogConfirmButton");
+
+    const animalFields = {
+      name: document.getElementById("animalName"),
+      species: document.getElementById("animalSpecies"),
+      intakeDate: document.getElementById("animalIntakeDate"),
+      location: document.getElementById("animalLocation"),
+      fosterName: document.getElementById("animalFosterName"),
+      status: document.getElementById("animalStatus"),
+      notes: document.getElementById("animalNotes"),
+      photo: document.getElementById("animalPhoto")
+    };
+
+    const fosterFields = {
+      name: document.getElementById("fosterName"),
+      capacity: document.getElementById("fosterCapacity"),
+      notes: document.getElementById("fosterNotes")
+    };
+
+    let animals = loadAnimals();
+    let fosters = loadFosters();
+    let currentAnimalEditId = null;
+    let currentFosterEditId = null;
+    let currentSort = { key: "intakeDate", direction: "desc" };
+    let activeModalName = null;
+    let lastFocusedElement = null;
+    let dialogState = null;
+    let saveFadeTimer = 0;
+    let pendingPhotoData = "";
+
+    function loadAnimals() {
+      const raw = safeStorageGet(ANIMAL_STORAGE_KEY);
+
+      if (!raw) {
+        return [];
+      }
+
+      try {
+        const parsed = JSON.parse(raw);
+        if (!Array.isArray(parsed)) {
+          return [];
+        }
+
+        return parsed.map(normalizeAnimal).filter(Boolean);
+      } catch (error) {
+        console.warn("Unable to load animals from localStorage.", error);
+        return [];
+      }
+    }
+
+    function loadFosters() {
+      const raw = safeStorageGet(FOSTER_STORAGE_KEY);
+
+      if (!raw) {
+        return [];
+      }
+
+      try {
+        const parsed = JSON.parse(raw);
+        if (!Array.isArray(parsed)) {
+          return [];
+        }
+
+        return parsed.map(normalizeFoster).filter(Boolean);
+      } catch (error) {
+        console.warn("Unable to load fosters from localStorage.", error);
+        return [];
+      }
+    }
+
+    function saveAllData() {
+      const animalsSaved = safeStorageSet(ANIMAL_STORAGE_KEY, JSON.stringify(animals), false);
+      const fostersSaved = safeStorageSet(FOSTER_STORAGE_KEY, JSON.stringify(fosters), false);
+
+      if (animalsSaved && fostersSaved) {
+        updateSaveIndicator("Saved - " + formatTime(new Date()), false);
+        return true;
+      }
+
+      updateSaveIndicator("Save failed", true);
+      return false;
+    }
+
+    function saveFilterState() {
+      const filterState = {
+        status: statusFilter.value,
+        species: speciesFilter.value,
+        search: nameSearch.value
+      };
+
+      safeStorageSet(FILTER_STORAGE_KEY, JSON.stringify(filterState), false);
+    }
+
+    function loadFilterState() {
+      const raw = safeStorageGet(FILTER_STORAGE_KEY);
+
+      if (!raw) {
+        return;
+      }
+
+      try {
+        const parsed = JSON.parse(raw);
+        if (parsed && typeof parsed === "object") {
+          if (parsed.status && (parsed.status === "all" || STATUS_ORDER.includes(parsed.status))) {
+            statusFilter.value = parsed.status;
+          }
+
+          if (parsed.species && (parsed.species === "all" || SPECIES_OPTIONS.includes(parsed.species))) {
+            speciesFilter.value = parsed.species;
+          }
+
+          if (typeof parsed.search === "string") {
+            nameSearch.value = parsed.search;
+          }
+        }
+      } catch (error) {
+        console.warn("Unable to restore saved filters.", error);
+      }
+    }
+
+    function safeStorageGet(key) {
+      try {
+        return localStorage.getItem(key);
+      } catch (error) {
+        console.warn("Storage read failed for key:", key, error);
+        updateSaveIndicator("Storage unavailable", true);
+        return null;
+      }
+    }
+
+    function safeStorageSet(key, value, notifyOnError = true) {
+      try {
+        localStorage.setItem(key, value);
+        return true;
+      } catch (error) {
+        console.warn("Storage write failed for key:", key, error);
+        if (notifyOnError) {
+          updateSaveIndicator("Save failed", true);
+        }
+        return false;
+      }
+    }
+
+    function normalizeAnimal(rawAnimal) {
+      if (!rawAnimal || typeof rawAnimal !== "object") {
+        return null;
+      }
+
+      const normalizedStatus = STATUS_ORDER.includes(rawAnimal.status) ? rawAnimal.status : "Intake";
+      const animal = {
+        id: typeof rawAnimal.id === "string" && rawAnimal.id ? rawAnimal.id : createId(),
+        name: cleanText(rawAnimal.name, 80),
+        species: SPECIES_OPTIONS.includes(rawAnimal.species) ? rawAnimal.species : "Other",
+        intakeDate: isValidDateValue(rawAnimal.intakeDate) ? rawAnimal.intakeDate : "",
+        location: LOCATION_OPTIONS.includes(rawAnimal.location) ? rawAnimal.location : "Shelter",
+        fosterName: cleanText(rawAnimal.fosterName, 80),
+        status: normalizedStatus,
+        notes: cleanText(rawAnimal.notes, 400),
+        photo: typeof rawAnimal.photo === "string" ? rawAnimal.photo : "",
+        statusHistory: Array.isArray(rawAnimal.statusHistory)
+          ? rawAnimal.statusHistory.filter((entry) =>
+              entry &&
+              typeof entry.status === "string" &&
+              typeof entry.date === "string"
+            )
+          : [
+              {
+                status: normalizedStatus,
+                date: new Date().toISOString()
+              }
+            ],
+        statusUpdatedAt: isValidTimestamp(rawAnimal.statusUpdatedAt)
+          ? rawAnimal.statusUpdatedAt
+          : new Date().toISOString()
+      };
+
+      if (!animal.statusHistory.length) {
+        animal.statusHistory = [
+          {
+            status: normalizedStatus,
+            date: new Date().toISOString()
+          }
+        ];
+      }
+
+      return animal.name && animal.intakeDate ? animal : null;
+    }
+
+    function normalizeFoster(rawFoster) {
+      if (!rawFoster || typeof rawFoster !== "object") {
+        return null;
+      }
+
+      const foster = {
+        id: typeof rawFoster.id === "string" && rawFoster.id ? rawFoster.id : createId(),
+        name: cleanText(rawFoster.name, 80),
+        capacity: normalizeCapacity(rawFoster.capacity),
+        notes: cleanText(rawFoster.notes, 400)
+      };
+
+      return foster.name ? foster : null;
+    }
+
+    function cleanText(value, maxLength) {
+      return String(value || "").trim().slice(0, maxLength);
+    }
+
+    function normalizeCapacity(value) {
+      const parsed = Number.parseInt(value, 10);
+      return Number.isFinite(parsed) && parsed >= 0 ? parsed : 0;
+    }
+
+    function createId() {
+      if (window.crypto && typeof window.crypto.randomUUID === "function") {
+        return window.crypto.randomUUID();
+      }
+
+      return "pet-" + Date.now().toString(36) + "-" + Math.random().toString(36).slice(2, 9);
+    }
+
+    function isValidDateValue(value) {
+      if (!/^\d{4}-\d{2}-\d{2}$/.test(String(value || ""))) {
+        return false;
+      }
+
+      const parsed = new Date(value + "T12:00:00");
+      return !Number.isNaN(parsed.getTime());
+    }
+
+    function isValidTimestamp(value) {
+      return typeof value === "string" && !Number.isNaN(new Date(value).getTime());
+    }
+
+    function formatDate(dateString) {
+      if (!isValidDateValue(dateString)) {
+        return "Invalid date";
+      }
+
+      return new Date(dateString + "T12:00:00").toLocaleDateString("en-CA", {
+        year: "numeric",
+        month: "short",
+        day: "numeric"
+      });
+    }
+
+    function formatTime(date) {
+      return date.toLocaleTimeString([], {
+        hour: "numeric",
+        minute: "2-digit"
+      });
+    }
+
+    function formatTimestamp(dateString) {
+      if (!isValidTimestamp(dateString)) {
+        return "Updated: -";
+      }
+
+      return "Updated: " + new Date(dateString).toLocaleString([], {
+        month: "short",
+        day: "numeric",
+        hour: "numeric",
+        minute: "2-digit"
+      });
+    }
+
+    function updateSaveIndicator(message, isError) {
+      window.clearTimeout(saveFadeTimer);
+      saveIndicator.textContent = message;
+      saveIndicator.classList.toggle("is-error", Boolean(isError));
+      saveIndicator.classList.remove("is-faded");
+
+      if (!isError) {
+        saveFadeTimer = window.setTimeout(() => {
+          saveIndicator.classList.add("is-faded");
+        }, 3000);
+      }
+    }
+
+    function getAssignedAnimalsForFoster(fosterName) {
+      return animals.filter((animal) => animal.fosterName === fosterName);
+    }
+
+    function getAssignedCountForFoster(fosterName) {
+      return getAssignedAnimalsForFoster(fosterName).length;
+    }
+
+    function getSummaryData() {
+      let assignedAnimals = 0;
+      let fullFosters = 0;
+      let openSpots = 0;
+
+      for (const foster of fosters) {
+        const assigned = getAssignedCountForFoster(foster.name);
+        assignedAnimals += assigned;
+        openSpots += Math.max(foster.capacity - assigned, 0);
+        if (assigned >= foster.capacity && foster.capacity > 0) {
+          fullFosters += 1;
+        }
+      }
+
+      return {
+        "Total Animals": animals.length,
+        "Total Fosters": fosters.length,
+        "Assigned Animals": assignedAnimals,
+        "Open Spots": openSpots,
+        "Full Fosters": fullFosters,
+        "Adoption Ready": animals.filter((animal) => animal.status === "Adoption Ready").length
+      };
+    }
+
+    function getFilteredAndSortedAnimals() {
+      const statusValue = statusFilter.value;
+      const speciesValue = speciesFilter.value;
+      const searchValue = nameSearch.value.trim().toLowerCase();
+
+      const filtered = animals.filter((animal) => {
+        if (statusValue !== "all" && animal.status !== statusValue) {
+          return false;
+        }
+
+        if (speciesValue !== "all" && animal.species !== speciesValue) {
+          return false;
+        }
+
+        if (searchValue) {
+          const fullId = animal.id.toLowerCase();
+          const shortId = animal.id.slice(0, 8).toLowerCase();
+          const matchesSearch =
+            animal.name.toLowerCase().includes(searchValue) ||
+            animal.species.toLowerCase().includes(searchValue) ||
+            fullId.includes(searchValue) ||
+            shortId.includes(searchValue);
+
+          if (!matchesSearch) {
+            return false;
+          }
+        }
+
+        return true;
+      });
+
+      filtered.sort(compareAnimals);
+      return filtered;
+    }
+
+    function compareAnimals(a, b) {
+      const direction = currentSort.direction === "asc" ? 1 : -1;
+      const key = currentSort.key;
+
+      if (key === "intakeDate") {
+        return a.intakeDate.localeCompare(b.intakeDate) * direction;
+      }
+
+      if (key === "status") {
+        return (STATUS_ORDER.indexOf(a.status) - STATUS_ORDER.indexOf(b.status)) * direction;
+      }
+
+      const aValue = (a[key] || "").toLowerCase();
+      const bValue = (b[key] || "").toLowerCase();
+
+      if (aValue < bValue) {
+        return -1 * direction;
+      }
+
+      if (aValue > bValue) {
+        return 1 * direction;
+      }
+
+      return a.name.toLowerCase().localeCompare(b.name.toLowerCase());
+    }
+
+    function renderApp() {
+      populateFosterOptions();
+      renderFosterOverview();
+      renderSummaryBar();
+      renderAnimalTable();
+      renderFosterTable();
+      renderSortIndicators();
+    }
+
+    function renderFosterOverview() {
+      const summaryData = getSummaryData();
+      const totalCapacity = fosters.reduce((total, foster) => total + foster.capacity, 0);
+      const fullCount = summaryData["Full Fosters"] || 0;
+      const fragment = document.createDocumentFragment();
+      const sortedFosters = fosters.slice().sort((a, b) => a.name.localeCompare(b.name));
+
+      totalCapacityValue.textContent = String(totalCapacity);
+      availableSpotsValue.textContent = String(summaryData["Open Spots"] || 0);
+      assignedAnimalsValue.textContent = String(summaryData["Assigned Animals"] || 0);
+      fullCapacityValue.textContent = String(fullCount);
+      fullCapacityCard.classList.toggle("is-alert", fullCount > 0);
+
+      if (!sortedFosters.length) {
+        const empty = document.createElement("div");
+        empty.className = "foster-pill-empty";
+        empty.textContent = "No foster homes added yet.";
+        fragment.appendChild(empty);
+      } else {
+        for (const foster of sortedFosters) {
+          const assigned = getAssignedCountForFoster(foster.name);
+          const pill = document.createElement("div");
+          pill.className = "foster-pill";
+
+          if (assigned >= foster.capacity && foster.capacity > 0) {
+            pill.classList.add("foster-pill-full");
+          }
+
+          const name = document.createElement("span");
+          name.textContent = foster.name + ":";
+
+          const load = document.createElement("span");
+          load.className = "foster-pill-load";
+          load.textContent = assigned + "/" + foster.capacity;
+
+          pill.append(name, load);
+          fragment.appendChild(pill);
+        }
+      }
+
+      fosterLoadList.replaceChildren(fragment);
+    }
+
+    function renderSummaryBar() {
+      const summaryData = getSummaryData();
+      const fragment = document.createDocumentFragment();
+
+      for (const [label, count] of Object.entries(summaryData)) {
+        const card = document.createElement("article");
+        card.className = "summary-card";
+
+        const labelEl = document.createElement("span");
+        labelEl.textContent = label;
+
+        const countEl = document.createElement("strong");
+        countEl.textContent = String(count);
+
+        card.append(labelEl, countEl);
+        fragment.appendChild(card);
+      }
+
+      summaryBar.replaceChildren(fragment);
+    }
+
+    function renderAnimalTable() {
+      const visibleAnimals = getFilteredAndSortedAnimals();
+      const fragment = document.createDocumentFragment();
+
+      for (const animal of visibleAnimals) {
+        fragment.appendChild(buildAnimalRow(animal));
+      }
+
+      animalTableBody.replaceChildren(fragment);
+
+      const total = animals.length;
+      const visible = visibleAnimals.length;
+      animalTableMeta.textContent = visible === total
+        ? total + (total === 1 ? " animal" : " animals")
+        : visible + " of " + total + " animals";
+
+      animalEmptyState.hidden = visibleAnimals.length !== 0;
+    }
+
+    function renderFosterTable() {
+      const fragment = document.createDocumentFragment();
+      const sortedFosters = fosters.slice().sort((a, b) => a.name.localeCompare(b.name));
+
+      for (const foster of sortedFosters) {
+        fragment.appendChild(buildFosterRow(foster));
+      }
+
+      fosterTableBody.replaceChildren(fragment);
+      fosterTableMeta.textContent = fosters.length + (fosters.length === 1 ? " foster" : " fosters");
+      fosterEmptyState.hidden = fosters.length !== 0;
+    }
+
+    function buildAnimalRow(animal) {
+      const row = document.createElement("tr");
+
+      row.appendChild(createNameCell(animal));
+      row.appendChild(createTextCell(animal.species));
+      row.appendChild(createTextCell(formatDate(animal.intakeDate)));
+      row.appendChild(createTextCell(animal.location));
+      row.appendChild(createTextCell(animal.fosterName || "Unassigned", !animal.fosterName));
+      row.appendChild(createStatusCell(animal));
+      row.appendChild(createNotesCell(animal.notes));
+      row.appendChild(createAnimalActionCell(animal));
+
+      return row;
+    }
+
+    function buildFosterRow(foster) {
+      const row = document.createElement("tr");
+      const assignedCount = getAssignedCountForFoster(foster.name);
+      const assignedNames = getAssignedAnimalsForFoster(foster.name).map((animal) => animal.name).join(", ");
+
+      row.appendChild(createTextCell(foster.name));
+      row.appendChild(createTextCell(String(foster.capacity)));
+
+      const assignedCell = document.createElement("td");
+      const assignedWrap = document.createElement("div");
+      assignedWrap.className = "capacity-value";
+      assignedWrap.textContent = assignedCount + " / " + foster.capacity;
+
+      if (assignedCount >= foster.capacity && foster.capacity > 0) {
+        const fullTag = document.createElement("span");
+        fullTag.className = "capacity-full";
+        fullTag.textContent = "FULL";
+        assignedCell.append(assignedWrap, fullTag);
+      } else {
+        assignedCell.appendChild(assignedWrap);
+      }
+
+      if (assignedNames) {
+        const names = document.createElement("div");
+        names.className = "muted";
+        names.textContent = assignedNames;
+        assignedCell.appendChild(names);
+      }
+
+      row.appendChild(assignedCell);
+      row.appendChild(createNotesCell(foster.notes));
+      row.appendChild(createFosterActionCell(foster));
+      return row;
+    }
+
+    function createNameCell(animal) {
+      const cell = document.createElement("td");
+      cell.className = "name-cell";
+
+      const stack = document.createElement("div");
+      stack.className = "name-stack";
+
+      if (animal.photo) {
+        const thumb = document.createElement("img");
+        thumb.className = "animal-thumb";
+        thumb.src = animal.photo;
+        thumb.alt = animal.name + " photo";
+        thumb.width = 48;
+        thumb.height = 48;
+        stack.appendChild(thumb);
+      } else {
+        const placeholder = document.createElement("div");
+        placeholder.className = "animal-thumb-placeholder";
+        placeholder.setAttribute("aria-hidden", "true");
+        placeholder.textContent = "📷";
+        stack.appendChild(placeholder);
+      }
+
+      const details = document.createElement("div");
+      details.className = "name-details";
+
+      const name = document.createElement("strong");
+      name.textContent = animal.name;
+
+      const idLabel = document.createElement("small");
+      idLabel.textContent = "ID: " + animal.id.slice(0, 8);
+
+      details.append(name, idLabel);
+      stack.appendChild(details);
+      cell.appendChild(stack);
+      return cell;
+    }
+
+    function createTextCell(value, muted = false) {
+      const cell = document.createElement("td");
+      cell.textContent = value;
+
+      if (muted) {
+        cell.className = "muted";
+      }
+
+      return cell;
+    }
+
+    function createStatusCell(animal) {
+      const cell = document.createElement("td");
+      const stack = document.createElement("div");
+      stack.className = "status-stack";
+
+      const badge = document.createElement("span");
+      badge.className = "badge " + STATUS_CLASS_MAP[animal.status];
+      badge.textContent = animal.status;
+
+      const updatedAt = document.createElement("div");
+      updatedAt.className = "status-updated";
+      updatedAt.textContent = formatTimestamp(animal.statusUpdatedAt);
+
+      const label = document.createElement("label");
+      label.className = "sr-only";
+      label.setAttribute("for", "status-" + animal.id);
+      label.textContent = "Change status for " + animal.name;
+
+      const select = document.createElement("select");
+      select.className = "status-select";
+      select.id = "status-" + animal.id;
+      select.setAttribute("aria-label", "Change status for " + animal.name);
+
+      for (const status of STATUS_ORDER) {
+        const option = document.createElement("option");
+        option.value = status;
+        option.textContent = status;
+        option.selected = status === animal.status;
+        select.appendChild(option);
+      }
+
+      select.addEventListener("change", () => {
+        handleRowStatusChange(animal.id, select.value);
+      });
+
+      stack.append(badge, updatedAt, label, select);
+      cell.appendChild(stack);
+      return cell;
+    }
+
+    function createNotesCell(notes) {
+      const cell = document.createElement("td");
+      cell.className = "notes-cell";
+
+      if (notes) {
+        cell.textContent = notes;
+      } else {
+        cell.textContent = "-";
+        cell.classList.add("muted");
+      }
+
+      return cell;
+    }
+
+    function createAnimalActionCell(animal) {
+      const cell = document.createElement("td");
+      cell.className = "table-actions";
+
+      const editButton = document.createElement("button");
+      editButton.type = "button";
+      editButton.className = "icon-button";
+      editButton.textContent = "Edit";
+      editButton.addEventListener("click", () => openAnimalModal(animal.id));
+
+      const printButton = document.createElement("button");
+      printButton.type = "button";
+      printButton.className = "icon-button";
+      printButton.textContent = "Print";
+      printButton.addEventListener("click", () => printAnimalSheet(animal.id));
+
+      const divider = document.createElement("span");
+      divider.className = "action-divider";
+      divider.setAttribute("aria-hidden", "true");
+
+      const deleteButton = document.createElement("button");
+      deleteButton.type = "button";
+      deleteButton.className = "icon-button icon-button-danger";
+      deleteButton.textContent = "Delete";
+      deleteButton.setAttribute("aria-label", "Delete " + animal.name);
+      deleteButton.addEventListener("click", () => confirmDeleteAnimal(animal.id));
+
+      cell.append(editButton, printButton, divider, deleteButton);
+      return cell;
+    }
+
+    function createFosterActionCell(foster) {
+      const cell = document.createElement("td");
+      cell.className = "table-actions";
+
+      const editButton = document.createElement("button");
+      editButton.type = "button";
+      editButton.className = "icon-button";
+      editButton.textContent = "Edit";
+      editButton.addEventListener("click", () => openFosterModal(foster.id));
+
+      const divider = document.createElement("span");
+      divider.className = "action-divider";
+      divider.setAttribute("aria-hidden", "true");
+
+      const deleteButton = document.createElement("button");
+      deleteButton.type = "button";
+      deleteButton.className = "icon-button icon-button-danger";
+      deleteButton.textContent = "Delete";
+      deleteButton.setAttribute("aria-label", "Delete foster " + foster.name);
+      deleteButton.addEventListener("click", () => confirmDeleteFoster(foster.id));
+
+      cell.append(editButton, divider, deleteButton);
+      return cell;
+    }
+
+    function renderSortIndicators() {
+      const indicators = document.querySelectorAll("[data-sort-indicator-for]");
+
+      indicators.forEach((indicator) => {
+        const key = indicator.getAttribute("data-sort-indicator-for");
+        indicator.textContent = key === currentSort.key
+          ? (currentSort.direction === "asc" ? "▲" : "▼")
+          : "";
+      });
+    }
+
+    function populateFosterOptions() {
+      const currentValue = animalFields.fosterName.value;
+      const fragment = document.createDocumentFragment();
+      const emptyOption = document.createElement("option");
+      emptyOption.value = "";
+      emptyOption.textContent = "Unassigned";
+      fragment.appendChild(emptyOption);
+
+      const sortedFosters = fosters.slice().sort((a, b) => a.name.localeCompare(b.name));
+
+      for (const foster of sortedFosters) {
+        const option = document.createElement("option");
+        option.value = foster.name;
+        option.textContent = foster.name;
+        fragment.appendChild(option);
+      }
+
+      animalFields.fosterName.replaceChildren(fragment);
+      animalFields.fosterName.value = sortedFosters.some((foster) => foster.name === currentValue) ? currentValue : "";
+    }
+
+    function openAnimalModal(animalId = null) {
+      currentAnimalEditId = animalId;
+      animalFormError.textContent = "";
+      populateFosterOptions();
+
+      if (animalId) {
+        const animal = animals.find((entry) => entry.id === animalId);
+        if (!animal) {
+          return;
+        }
+
+        animalModalTitle.textContent = "Edit Animal";
+        animalModalSubtitle.textContent = "Update animal details, foster assignment, status, location, or notes.";
+        saveAnimalButton.textContent = "Save Changes";
+        populateAnimalForm(animal);
+      } else {
+        animalModalTitle.textContent = "Add Animal";
+        animalModalSubtitle.textContent = "Create a new animal record.";
+        saveAnimalButton.textContent = "Save Animal";
+        resetAnimalForm();
+      }
+
+      openModal("animal");
+      animalFields.name.focus();
+    }
+
+    function closeAnimalModal() {
+      closeModal("animal");
+      resetAnimalForm();
+      currentAnimalEditId = null;
+    }
+
+    function openFosterModal(fosterId = null) {
+      currentFosterEditId = fosterId;
+      fosterFormError.textContent = "";
+
+      if (fosterId) {
+        const foster = fosters.find((entry) => entry.id === fosterId);
+        if (!foster) {
+          return;
+        }
+
+        fosterModalTitle.textContent = "Edit Foster";
+        fosterModalSubtitle.textContent = "Update capacity or household notes.";
+        saveFosterButton.textContent = "Save Changes";
+        populateFosterForm(foster);
+      } else {
+        fosterModalTitle.textContent = "Add Foster";
+        fosterModalSubtitle.textContent = "Create a foster home record.";
+        saveFosterButton.textContent = "Save Foster";
+        resetFosterForm();
+      }
+
+      openModal("foster");
+      fosterFields.name.focus();
+    }
+
+    function closeFosterModal() {
+      closeModal("foster");
+      resetFosterForm();
+      currentFosterEditId = null;
+    }
+
+    function populateAnimalForm(animal) {
+      animalFields.name.value = animal.name;
+      animalFields.species.value = animal.species;
+      animalFields.intakeDate.value = animal.intakeDate;
+      animalFields.location.value = animal.location;
+      animalFields.fosterName.value = animal.fosterName || "";
+      animalFields.status.value = animal.status;
+      animalFields.notes.value = animal.notes;
+      animalFields.photo.value = "";
+      pendingPhotoData = animal.photo || "";
+    }
+
+    function resetAnimalForm() {
+      animalForm.reset();
+      animalFormError.textContent = "";
+      animalFields.species.value = "Cat";
+      animalFields.intakeDate.value = getTodayDateString();
+      animalFields.location.value = "Shelter";
+      animalFields.status.value = "Intake";
+      animalFields.fosterName.value = "";
+      animalFields.photo.value = "";
+      pendingPhotoData = "";
+    }
+
+    function populateFosterForm(foster) {
+      fosterFields.name.value = foster.name;
+      fosterFields.capacity.value = String(foster.capacity);
+      fosterFields.notes.value = foster.notes;
+    }
+
+    function resetFosterForm() {
+      fosterForm.reset();
+      fosterFormError.textContent = "";
+      fosterFields.capacity.value = "1";
+    }
+
+    function openDialog(config) {
+      dialogState = config;
+      dialogTitle.textContent = config.title || "Confirm";
+      dialogSubtitle.textContent = config.subtitle || "Review this action.";
+      dialogMessage.textContent = config.message || "";
+      dialogError.textContent = "";
+      dialogCancelButton.textContent = config.cancelText || "Cancel";
+      dialogConfirmButton.textContent = config.confirmText || "Continue";
+      dialogConfirmButton.className = config.confirmClassName || "btn btn-primary";
+
+      if (config.input) {
+        dialogInputWrap.hidden = false;
+        dialogInputLabel.textContent = config.input.label || "Optional input";
+        dialogInput.value = config.input.value || "";
+      } else {
+        dialogInputWrap.hidden = true;
+        dialogInput.value = "";
+      }
+
+      openModal("dialog");
+      (config.input ? dialogInput : dialogConfirmButton).focus();
+    }
+
+    function closeDialog() {
+      dialogState = null;
+      dialogError.textContent = "";
+      dialogInput.value = "";
+      dialogInputWrap.hidden = true;
+      closeModal("dialog");
+    }
+
+    function openModal(name) {
+      const target = getModalByName(name);
+
+      if (!target || (activeModalName && activeModalName !== name)) {
+        return;
+      }
+
+      lastFocusedElement = document.activeElement;
+      activeModalName = name;
+      target.classList.add("is-open");
+      target.setAttribute("aria-hidden", "false");
+    }
+
+    function closeModal(name) {
+      const target = getModalByName(name);
+
+      if (!target || activeModalName !== name) {
+        return;
+      }
+
+      target.classList.remove("is-open");
+      target.setAttribute("aria-hidden", "true");
+      activeModalName = null;
+
+      if (lastFocusedElement && typeof lastFocusedElement.focus === "function") {
+        lastFocusedElement.focus();
+      }
+    }
+
+    function getModalByName(name) {
+      if (name === "animal") {
+        return animalModal;
+      }
+
+      if (name === "foster") {
+        return fosterModal;
+      }
+
+      if (name === "dialog") {
+        return dialogModal;
+      }
+
+      return null;
+    }
+
+    function getActiveModalElement() {
+      const modalRoot = getModalByName(activeModalName);
+      return modalRoot ? modalRoot.querySelector(".modal") : null;
+    }
+
+    function trapFocus(event) {
+      const activeElement = getActiveModalElement();
+      if (!activeElement || event.key !== "Tab") {
+        return;
+      }
+
+      const focusable = activeElement.querySelectorAll(FOCUSABLE_SELECTOR);
+      if (!focusable.length) {
+        return;
+      }
+
+      const first = focusable[0];
+      const last = focusable[focusable.length - 1];
+
+      if (event.shiftKey && document.activeElement === first) {
+        event.preventDefault();
+        last.focus();
+      } else if (!event.shiftKey && document.activeElement === last) {
+        event.preventDefault();
+        first.focus();
+      }
+    }
+
+    function collectAnimalFormData() {
+      const existingAnimal = currentAnimalEditId
+        ? animals.find((animal) => animal.id === currentAnimalEditId)
+        : null;
+      const nextStatus = animalFields.status.value;
+
+      return {
+        id: currentAnimalEditId || createId(),
+        name: cleanText(animalFields.name.value, 80),
+        species: animalFields.species.value,
+        intakeDate: animalFields.intakeDate.value,
+        location: animalFields.location.value,
+        fosterName: animalFields.fosterName.value,
+        status: nextStatus,
+        notes: cleanText(animalFields.notes.value, 400),
+        photo: pendingPhotoData || "",
+        statusHistory: existingAnimal
+          ? existingAnimal.statusHistory
+          : [
+              {
+                status: nextStatus,
+                date: new Date().toISOString()
+              }
+            ],
+        statusUpdatedAt: existingAnimal
+          ? (existingAnimal.status === nextStatus
+            ? existingAnimal.statusUpdatedAt
+            : new Date().toISOString())
+          : new Date().toISOString()
+      };
+    }
+
+    function collectFosterFormData() {
+      return {
+        id: currentFosterEditId || createId(),
+        name: cleanText(fosterFields.name.value, 80),
+        capacity: normalizeCapacity(fosterFields.capacity.value),
+        notes: cleanText(fosterFields.notes.value, 400)
+      };
+    }
+
+    function validateAnimal(animal) {
+      if (!animal.name) {
+        return "Name is required.";
+      }
+
+      if (!animal.intakeDate) {
+        return "Intake date is required.";
+      }
+
+      if (!isValidDateValue(animal.intakeDate)) {
+        return "Enter a valid intake date.";
+      }
+
+      if (!SPECIES_OPTIONS.includes(animal.species)) {
+        return "Choose a valid species.";
+      }
+
+      if (!LOCATION_OPTIONS.includes(animal.location)) {
+        return "Choose a valid location.";
+      }
+
+      if (!STATUS_ORDER.includes(animal.status)) {
+        return "Choose a valid status.";
+      }
+
+      return "";
+    }
+
+    function validateFoster(foster) {
+      if (!foster.name) {
+        return "Name is required.";
+      }
+
+      if (!Number.isInteger(foster.capacity) || foster.capacity < 0) {
+        return "Capacity must be 0 or greater.";
+      }
+
+      return "";
+    }
+
+    function readFileAsDataUrl(file) {
+      return new Promise((resolve, reject) => {
+        const reader = new FileReader();
+        reader.onload = () => resolve(reader.result);
+        reader.onerror = () => reject(new Error("The selected image could not be read."));
+        reader.readAsDataURL(file);
+      });
+    }
+
+    function loadImage(source) {
+      return new Promise((resolve, reject) => {
+        const image = new Image();
+        image.onload = () => resolve(image);
+        image.onerror = () => reject(new Error("The selected image could not be opened."));
+        image.src = source;
+      });
+    }
+
+    async function resizeImageDataUrl(dataUrl) {
+      const image = await loadImage(dataUrl);
+      const maxWidth = 512;
+      const scale = image.width > maxWidth ? maxWidth / image.width : 1;
+      const width = Math.round(image.width * scale);
+      const height = Math.round(image.height * scale);
+      const canvas = document.createElement("canvas");
+      const context = canvas.getContext("2d");
+
+      if (!context) {
+        throw new Error("Image processing is not available in this browser.");
+      }
+
+      canvas.width = width;
+      canvas.height = height;
+      context.drawImage(image, 0, 0, width, height);
+      return canvas.toDataURL("image/jpeg", 0.85);
+    }
+
+    async function handlePhotoSelection(event) {
+      const file = event.target.files && event.target.files[0];
+
+      if (!file) {
+        return;
+      }
+
+      if (file.size > 1024 * 1024) {
+        animalFields.photo.value = "";
+        showAlertDialog({
+          title: "Photo Too Large",
+          subtitle: "Upload limit",
+          message: "Photo files must be 1MB or smaller."
+        });
+        return;
+      }
+
+      try {
+        const dataUrl = await readFileAsDataUrl(file);
+        pendingPhotoData = await resizeImageDataUrl(dataUrl);
+      } catch (error) {
+        console.warn("Photo processing failed.", error);
+        animalFields.photo.value = "";
+        showAlertDialog({
+          title: "Photo Error",
+          subtitle: "Image processing",
+          message: error && error.message
+            ? error.message
+            : "The selected image could not be processed."
+        });
+      }
+    }
+
+    function upsertAnimal(nextAnimal) {
+      const index = animals.findIndex((animal) => animal.id === nextAnimal.id);
+
+      if (index === -1) {
+        animals = [nextAnimal, ...animals];
+      } else {
+        const updatedAnimals = animals.slice();
+        updatedAnimals[index] = nextAnimal;
+        animals = updatedAnimals;
+      }
+
+      saveAllData();
+      renderApp();
+      maybeWarnFosterCapacityByName(nextAnimal.fosterName);
+    }
+
+    function deleteAnimal(id) {
+      animals = animals.filter((animal) => animal.id !== id);
+      saveAllData();
+      renderApp();
+    }
+
+    function upsertFoster(nextFoster) {
+      const existingFoster = currentFosterEditId
+        ? fosters.find((foster) => foster.id === currentFosterEditId)
+        : null;
+      const originalName = existingFoster ? existingFoster.name : "";
+      const index = fosters.findIndex((foster) => foster.id === nextFoster.id);
+
+      if (index === -1) {
+        fosters = [nextFoster, ...fosters];
+      } else {
+        const updatedFosters = fosters.slice();
+        updatedFosters[index] = nextFoster;
+        fosters = updatedFosters;
+      }
+
+      if (originalName && originalName !== nextFoster.name) {
+        animals = animals.map((animal) =>
+          animal.fosterName === originalName
+            ? { ...animal, fosterName: nextFoster.name }
+            : animal
+        );
+      }
+
+      saveAllData();
+      renderApp();
+      maybeWarnFosterCapacityByName(nextFoster.name);
+    }
+
+    function deleteFoster(id) {
+      const foster = fosters.find((entry) => entry.id === id);
+      if (!foster) {
+        return;
+      }
+
+      fosters = fosters.filter((entry) => entry.id !== id);
+      animals = animals.map((animal) =>
+        animal.fosterName === foster.name
+          ? { ...animal, fosterName: "" }
+          : animal
+      );
+      saveAllData();
+      renderApp();
+    }
+
+    function maybeWarnFosterCapacityByName(fosterName) {
+      if (!fosterName) {
+        return;
+      }
+
+      const foster = fosters.find((entry) => entry.name === fosterName);
+      if (!foster) {
+        return;
+      }
+
+      if (getAssignedCountForFoster(foster.name) > foster.capacity) {
+        showAlertDialog({
+          title: "Capacity Warning",
+          subtitle: foster.name,
+          message: "Foster capacity exceeded"
+        });
+      }
+    }
+
+    async function handleRowStatusChange(id, nextStatus) {
+      const animal = animals.find((entry) => entry.id === id);
+      if (!animal || !STATUS_ORDER.includes(nextStatus)) {
+        renderAnimalTable();
+        return;
+      }
+
+      const hasStatusChanged = animal.status !== nextStatus;
+      const nextHistory = hasStatusChanged
+        ? (() => {
+            const lastEntry = Array.isArray(animal.statusHistory)
+              ? animal.statusHistory[animal.statusHistory.length - 1]
+              : null;
+
+            if (lastEntry && lastEntry.status === nextStatus) {
+              return animal.statusHistory;
+            }
+
+            return [
+              ...(Array.isArray(animal.statusHistory) ? animal.statusHistory : []),
+              {
+                status: nextStatus,
+                date: new Date().toISOString()
+              }
+            ];
+          })()
+        : animal.statusHistory;
+
+      const nextAnimal = {
+        ...animal,
+        status: nextStatus,
+        statusHistory: nextHistory,
+        statusUpdatedAt: hasStatusChanged ? new Date().toISOString() : animal.statusUpdatedAt,
+        location: nextStatus === "Adopted"
+          ? "Adopted"
+          : (nextStatus === "Foster" ? "Foster" : animal.location)
+      };
+
+      upsertAnimal(nextAnimal);
+    }
+
+    function getTodayDateString() {
+      const today = new Date();
+      const year = today.getFullYear();
+      const month = String(today.getMonth() + 1).padStart(2, "0");
+      const day = String(today.getDate()).padStart(2, "0");
+      return year + "-" + month + "-" + day;
+    }
+
+    function escapeHtml(value) {
+      return String(value || "")
+        .replace(/&/g, "&amp;")
+        .replace(/</g, "&lt;")
+        .replace(/>/g, "&gt;")
+        .replace(/"/g, "&quot;")
+        .replace(/'/g, "&#39;");
+    }
+
+    function printAnimalSheet(id) {
+      const animal = animals.find((entry) => entry.id === id);
+      if (!animal) {
+        return;
+      }
+
+      const printWindow = window.open("", "_blank", "width=760,height=900");
+      if (!printWindow) {
+        showAlertDialog({
+          title: "Print Blocked",
+          subtitle: "Popup blocked",
+          message: "Allow popups for this page to print intake sheets."
+        });
+        return;
+      }
+
+      const safeNotes = escapeHtml(animal.notes || "").replace(/\n/g, "<br>");
+      const safeFosterName = animal.fosterName ? escapeHtml(animal.fosterName) : "-";
+      const printableHtml = `<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Animal Intake Sheet</title>
+  <style>
+    body {
+      margin: 0;
+      padding: 32px;
+      background: #ffffff;
+      color: #000000;
+      font-family: Arial, Helvetica, sans-serif;
+      line-height: 1.45;
+    }
+
+    h1 {
+      margin: 0 0 24px;
+      font-size: 28px;
+    }
+
+    .sheet {
+      max-width: 720px;
+    }
+
+    .row {
+      margin-bottom: 12px;
+    }
+
+    .label {
+      display: block;
+      font-weight: 700;
+      margin-bottom: 2px;
+    }
+
+    .notes {
+      white-space: normal;
+      word-break: break-word;
+    }
+
+    @media print {
+      body {
+        padding: 0;
+      }
+    }
+  </style>
+</head>
+<body>
+  <main class="sheet">
+    <h1>Animal Intake Sheet</h1>
+    <div class="row"><span class="label">Name</span><div>${escapeHtml(animal.name)}</div></div>
+    <div class="row"><span class="label">Species</span><div>${escapeHtml(animal.species)}</div></div>
+    <div class="row"><span class="label">Status</span><div>${escapeHtml(animal.status)}</div></div>
+    <div class="row"><span class="label">Intake Date</span><div>${escapeHtml(formatDate(animal.intakeDate))}</div></div>
+    <div class="row"><span class="label">Location</span><div>${escapeHtml(animal.location)}</div></div>
+    <div class="row"><span class="label">Foster Name</span><div>${safeFosterName}</div></div>
+    <div class="row"><span class="label">ID</span><div>${escapeHtml(animal.id.slice(0, 8))}</div></div>
+    <div class="row"><span class="label">Notes</span><div class="notes">${safeNotes || "-"}</div></div>
+  </main>
+  <script>
+    window.addEventListener("load", function () {
+      window.print();
+    });
+
+    window.addEventListener("afterprint", function () {
+      window.close();
+    });
+  <\/script>
+</body>
+</html>`;
+
+      printWindow.document.open();
+      printWindow.document.write(printableHtml);
+      printWindow.document.close();
+    }
+
+    function exportData() {
+      try {
+        const json = JSON.stringify({ animals, fosters }, null, 2);
+        const blob = new Blob([json], { type: "application/json" });
+        const url = URL.createObjectURL(blob);
+        const link = document.createElement("a");
+        const filename = "kind-foster-board-backup-" + getTodayDateString() + ".json";
+
+        link.href = url;
+        link.download = filename;
+        document.body.appendChild(link);
+        link.click();
+        link.remove();
+        URL.revokeObjectURL(url);
+      } catch (error) {
+        console.warn("Export failed.", error);
+        showAlertDialog({
+          title: "Export Failed",
+          subtitle: "Backup error",
+          message: "The data export could not be created."
+        });
+      }
+    }
+
+    async function handleImportFileSelection(event) {
+      const file = event.target.files && event.target.files[0];
+      importFileInput.value = "";
+
+      if (!file) {
+        return;
+      }
+
+      try {
+        const fileText = await file.text();
+        const parsed = JSON.parse(fileText);
+
+        let nextAnimals = [];
+        let nextFosters = [];
+
+        if (Array.isArray(parsed)) {
+          nextAnimals = parsed.map(normalizeAnimal).filter(Boolean);
+        } else if (parsed && typeof parsed === "object") {
+          nextAnimals = Array.isArray(parsed.animals)
+            ? parsed.animals.map(normalizeAnimal).filter(Boolean)
+            : [];
+          nextFosters = Array.isArray(parsed.fosters)
+            ? parsed.fosters.map(normalizeFoster).filter(Boolean)
+            : [];
+        } else {
+          throw new Error("Imported file must contain animals or a foster board backup.");
+        }
+
+        const confirmed = await showConfirmDialog({
+          title: "Replace Current Data",
+          subtitle: "Import confirmation",
+          message: "Importing will replace current animals and fosters. Continue?",
+          confirmText: "Import Data",
+          cancelText: "Cancel",
+          confirmClassName: "btn btn-primary"
+        });
+
+        if (!confirmed) {
+          return;
+        }
+
+        animals = nextAnimals;
+        fosters = nextFosters;
+        saveAllData();
+        renderApp();
+      } catch (error) {
+        console.warn("Import failed.", error);
+        showAlertDialog({
+          title: "Import Failed",
+          subtitle: "Invalid backup file",
+          message: error && error.message
+            ? error.message
+            : "The selected file could not be imported."
+        });
+      }
+    }
+
+    function showAlertDialog(config) {
+      return new Promise((resolve) => {
+        openDialog({
+          title: config.title,
+          subtitle: config.subtitle,
+          message: config.message,
+          confirmText: config.confirmText || "OK",
+          cancelText: config.cancelText || "Close",
+          confirmClassName: "btn btn-primary",
+          onConfirm: () => {
+            closeDialog();
+            resolve(true);
+          },
+          onCancel: () => {
+            closeDialog();
+            resolve(false);
+          }
+        });
+
+        dialogCancelButton.hidden = true;
+      });
+    }
+
+    function showConfirmDialog(config) {
+      return new Promise((resolve) => {
+        dialogCancelButton.hidden = false;
+
+        openDialog({
+          title: config.title,
+          subtitle: config.subtitle,
+          message: config.message,
+          confirmText: config.confirmText || "Continue",
+          cancelText: config.cancelText || "Cancel",
+          confirmClassName: config.confirmClassName || "btn btn-primary",
+          onConfirm: () => {
+            closeDialog();
+            resolve(true);
+          },
+          onCancel: () => {
+            closeDialog();
+            resolve(false);
+          }
+        });
+      });
+    }
+
+    function confirmDeleteAnimal(id) {
+      const animal = animals.find((entry) => entry.id === id);
+      if (!animal) {
+        return;
+      }
+
+      showConfirmDialog({
+        title: "Delete Animal",
+        subtitle: animal.name,
+        message: "Delete " + animal.name + "? This cannot be undone.",
+        confirmText: "Delete",
+        cancelText: "Cancel",
+        confirmClassName: "btn btn-danger"
+      }).then((confirmed) => {
+        if (confirmed) {
+          deleteAnimal(id);
+        }
+      });
+    }
+
+    function confirmDeleteFoster(id) {
+      const foster = fosters.find((entry) => entry.id === id);
+      if (!foster) {
+        return;
+      }
+
+      showConfirmDialog({
+        title: "Delete Foster",
+        subtitle: foster.name,
+        message: "Delete " + foster.name + "? Assigned animals will be unassigned.",
+        confirmText: "Delete",
+        cancelText: "Cancel",
+        confirmClassName: "btn btn-danger"
+      }).then((confirmed) => {
+        if (confirmed) {
+          deleteFoster(id);
+        }
+      });
+    }
+
+    function initializeFilters() {
+      const fragment = document.createDocumentFragment();
+
+      for (const status of STATUS_ORDER) {
+        const option = document.createElement("option");
+        option.value = status;
+        option.textContent = status;
+        fragment.appendChild(option);
+      }
+
+      statusFilter.appendChild(fragment);
+      loadFilterState();
+    }
+
+    function handleAnimalFormSubmit(event) {
+      event.preventDefault();
+
+      const nextAnimal = collectAnimalFormData();
+      const errorMessage = validateAnimal(nextAnimal);
+
+      if (errorMessage) {
+        animalFormError.textContent = errorMessage;
+        return;
+      }
+
+      upsertAnimal(nextAnimal);
+      closeAnimalModal();
+    }
+
+    function handleFosterFormSubmit(event) {
+      event.preventDefault();
+
+      const nextFoster = collectFosterFormData();
+      const errorMessage = validateFoster(nextFoster);
+
+      if (errorMessage) {
+        fosterFormError.textContent = errorMessage;
+        return;
+      }
+
+      upsertFoster(nextFoster);
+      closeFosterModal();
+    }
+
+    function handleSortClick(event) {
+      const button = event.target.closest("[data-sort-key]");
+      if (!button) {
+        return;
+      }
+
+      const key = button.getAttribute("data-sort-key");
+
+      if (currentSort.key === key) {
+        currentSort.direction = currentSort.direction === "asc" ? "desc" : "asc";
+      } else {
+        currentSort = { key, direction: key === "intakeDate" ? "desc" : "asc" };
+      }
+
+      renderAnimalTable();
+      renderSortIndicators();
+    }
+
+    function handleFilterInput() {
+      saveFilterState();
+      renderAnimalTable();
+    }
+
+    function handleDialogConfirm() {
+      if (!dialogState || typeof dialogState.onConfirm !== "function") {
+        closeDialog();
+        return;
+      }
+
+      dialogState.onConfirm();
+    }
+
+    function handleDialogCancel() {
+      if (dialogState && typeof dialogState.onCancel === "function") {
+        dialogState.onCancel();
+      } else {
+        closeDialog();
+      }
+    }
+
+    initializeFilters();
+
+    addAnimalButton.addEventListener("click", () => openAnimalModal());
+    addFosterButton.addEventListener("click", () => openFosterModal());
+    exportDataButton.addEventListener("click", exportData);
+    importDataButton.addEventListener("click", () => importFileInput.click());
+    importFileInput.addEventListener("change", handleImportFileSelection);
+
+    closeAnimalModalButton.addEventListener("click", closeAnimalModal);
+    cancelAnimalModalButton.addEventListener("click", closeAnimalModal);
+    animalForm.addEventListener("submit", handleAnimalFormSubmit);
+    animalFields.photo.addEventListener("change", handlePhotoSelection);
+
+    closeFosterModalButton.addEventListener("click", closeFosterModal);
+    cancelFosterModalButton.addEventListener("click", closeFosterModal);
+    fosterForm.addEventListener("submit", handleFosterFormSubmit);
+
+    statusFilter.addEventListener("input", handleFilterInput);
+    speciesFilter.addEventListener("input", handleFilterInput);
+    nameSearch.addEventListener("input", handleFilterInput);
+
+    document.querySelector("thead").addEventListener("click", handleSortClick);
+
+    dialogConfirmButton.addEventListener("click", handleDialogConfirm);
+    dialogCancelButton.addEventListener("click", handleDialogCancel);
+
+    animalModal.addEventListener("click", (event) => {
+      if (event.target === animalModal) {
+        closeAnimalModal();
+      }
+    });
+
+    fosterModal.addEventListener("click", (event) => {
+      if (event.target === fosterModal) {
+        closeFosterModal();
+      }
+    });
+
+    dialogModal.addEventListener("click", (event) => {
+      if (event.target === dialogModal) {
+        handleDialogCancel();
+      }
+    });
+
+    document.addEventListener("keydown", (event) => {
+      if (event.key === "Escape") {
+        if (activeModalName === "animal") {
+          closeAnimalModal();
+        } else if (activeModalName === "foster") {
+          closeFosterModal();
+        } else if (activeModalName === "dialog") {
+          handleDialogCancel();
+        }
+      }
+
+      trapFocus(event);
+    });
+
+    renderApp();
+    updateSaveIndicator("Ready", false);
+  </script>
+</body>
+</html>
