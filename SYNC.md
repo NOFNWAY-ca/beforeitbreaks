@@ -10,6 +10,7 @@ Active marketing/demo site with multiple standalone demos.
 - `caylie-*.html` = planner variants
 
 ## Recent Changes
+- Added `SAR-Demo/index.html`, a direct-link landing page for the three KIND rescue demos at `/SAR-Demo`, with noindex protection and links to all tiers.
 - Renamed the PetSet demo family to `KIND`, short for Key Intake and Data, including demo filenames, landing-page references, localStorage keys, export filenames, and visible product copy.
 - Pulled the KIND demo family off the public landing page and added `noindex, nofollow` meta tags so the files can stay reachable by direct URL without being visibly promoted.
 - Moved the client prep organizer out of the site and into a visible home-directory folder for local use.
