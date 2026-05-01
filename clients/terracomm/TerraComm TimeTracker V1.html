@@ -1,0 +1,1007 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>TerraComm · Field Timesheet</title>
+<link href="https://fonts.googleapis.com/css2?family=Share+Tech+Mono&family=Barlow:wght@300;400;500;600&display=swap" rel="stylesheet">
+<style>
+* { box-sizing: border-box; margin: 0; padding: 0; }
+
+:root {
+  --bg:       #f0f2f5;
+  --surface:  #ffffff;
+  --border:   #d0d6df;
+  --border2:  #b0bac8;
+  --accent:   #0D1B2A;
+  --accent2:  #1a3550;
+  --signal:   #E85D04;
+  --signal2:  #f07820;
+  --text:     #0D1B2A;
+  --muted:    #5a6e82;
+  --danger:   #c0392b;
+  --weekend:  #edf0f4;
+  --today:    #fff3eb;
+  --radius:   3px;
+  --mono:     'Share Tech Mono', 'Courier New', monospace;
+  --sans:     'Barlow', system-ui, sans-serif;
+}
+
+body { font-family: var(--sans); background: var(--bg); color: var(--text); font-size: 13px; min-height: 100vh; }
+
+header {
+  background: var(--accent); color: #fff; padding: 0 24px; height: 56px;
+  display: flex; align-items: center; justify-content: space-between;
+  position: sticky; top: 0; z-index: 200;
+  border-bottom: 2px solid var(--signal);
+}
+
+.wordmark { font-family: var(--mono); font-size: 13px; font-weight: 600; letter-spacing: 0.15em; text-transform: uppercase; }
+
+.nav { display: flex; gap: 2px; }
+.nav-btn {
+  background: none; border: none; color: rgba(255,255,255,0.6); font-family: var(--sans);
+  font-size: 12px; font-weight: 500; padding: 6px 12px; border-radius: var(--radius);
+  cursor: pointer; transition: all 0.12s; border-bottom: 2px solid transparent;
+}
+.nav-btn:hover { color: #fff; background: rgba(255,255,255,0.08); }
+.nav-btn.active { color: #fff; background: rgba(232,93,4,0.25); border-bottom: 2px solid #E85D04; border-radius: 0; }
+
+.page { display: none; }
+.page.active { display: block; }
+.container { max-width: 1140px; margin: 0 auto; padding: 24px; }
+
+.month-bar { display: flex; align-items: center; gap: 10px; margin-bottom: 20px; flex-wrap: wrap; }
+.month-label { font-family: var(--mono); font-size: 18px; font-weight: 600; letter-spacing: -0.02em; }
+.month-nav { display: flex; align-items: center; gap: 4px; background: var(--surface); border: 1px solid var(--border); border-radius: var(--radius); padding: 2px; }
+.mnav-btn { background: none; border: none; color: var(--muted); font-size: 18px; width: 30px; height: 30px; display: flex; align-items: center; justify-content: center; cursor: pointer; border-radius: 2px; transition: all 0.1s; }
+.mnav-btn:hover { background: var(--bg); color: var(--text); }
+.spacer { flex: 1; }
+
+.stats-row { display: flex; gap: 10px; margin-bottom: 20px; flex-wrap: wrap; }
+.stat { background: var(--surface); border: 1px solid var(--border); border-radius: var(--radius); padding: 10px 16px; min-width: 110px; }
+.stat-label { font-family: var(--mono); font-size: 9px; font-weight: 600; text-transform: uppercase; letter-spacing: 0.12em; color: var(--muted); margin-bottom: 4px; }
+.stat-value { font-family: var(--mono); font-size: 22px; font-weight: 600; color: var(--signal); line-height: 1; }
+
+.table-wrap { background: var(--surface); border: 1px solid var(--border); border-radius: var(--radius); overflow-x: auto; }
+table { width: 100%; border-collapse: collapse; font-size: 13px; }
+th { font-family: var(--mono); font-size: 9px; font-weight: 600; text-transform: uppercase; letter-spacing: 0.1em; color: var(--muted); text-align: left; padding: 10px 8px 8px; border-bottom: 2px solid var(--border); white-space: nowrap; background: var(--surface); }
+td { padding: 3px 4px; border-bottom: 1px solid var(--border); vertical-align: middle; }
+tr:last-child td { border-bottom: none; }
+tr.weekend td { background: var(--weekend); }
+tr.today td { background: var(--today); }
+
+.date-cell { font-family: var(--mono); font-size: 11px; color: var(--muted); padding: 6px 10px; white-space: nowrap; user-select: none; }
+.date-cell.is-today { color: var(--accent); font-weight: 600; }
+.day-label { font-size: 9px; text-transform: uppercase; letter-spacing: 0.06em; opacity: 0.6; display: block; }
+
+.cell-input { background: transparent; border: 1px solid transparent; color: var(--text); font-family: var(--sans); font-size: 13px; padding: 4px 6px; border-radius: 3px; width: 100%; outline: none; transition: border-color 0.1s, background 0.1s; }
+.cell-input:focus { border-color: var(--signal); background: #fff7f2; }
+select.cell-input { cursor: pointer; }
+.cell-input.num { text-align: right; }
+
+.auto-cell { font-family: var(--mono); font-size: 11px; color: var(--muted); padding: 4px 8px; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; max-width: 130px; }
+
+.del-btn { background: none; border: none; color: var(--border2); font-size: 16px; width: 26px; height: 26px; display: inline-flex; align-items: center; justify-content: center; cursor: pointer; border-radius: 3px; transition: all 0.1s; line-height: 1; vertical-align: middle; }
+.del-btn:hover { background: #fdecea; color: var(--danger); }
+.split-btn { background: none; border: 1px solid var(--border); color: var(--muted); font-size: 14px; font-weight: 600; width: 22px; height: 22px; display: inline-flex; align-items: center; justify-content: center; cursor: pointer; border-radius: 3px; transition: all 0.1s; line-height: 1; font-family: var(--mono); vertical-align: middle; }
+.split-btn:hover { background: var(--today); border-color: var(--signal); color: var(--signal); }
+.split-date { opacity: 0.4; }
+
+.action-bar { display: flex; align-items: center; gap: 8px; margin-bottom: 14px; flex-wrap: wrap; }
+.export-label { font-family: var(--mono); font-size: 9px; font-weight: 600; text-transform: uppercase; letter-spacing: 0.1em; color: var(--muted); }
+
+.btn { background: var(--surface); border: 1px solid var(--border); color: var(--text); font-family: var(--sans); font-size: 12px; font-weight: 500; padding: 6px 12px; border-radius: var(--radius); cursor: pointer; transition: all 0.1s; white-space: nowrap; display: inline-flex; align-items: center; gap: 5px; }
+.btn:hover { border-color: var(--signal); color: var(--signal); }
+.btn-primary { background: var(--signal); color: #fff; border-color: var(--signal); }
+.btn-primary:hover { background: var(--signal2); color: #fff; border-color: var(--signal2); }
+
+.proj-form { display: flex; gap: 10px; flex-wrap: wrap; align-items: flex-end; background: var(--surface); border: 1px solid var(--border); border-radius: var(--radius); padding: 16px; margin-bottom: 20px; }
+.field { display: flex; flex-direction: column; gap: 5px; }
+.field label { font-family: var(--mono); font-size: 9px; font-weight: 600; text-transform: uppercase; letter-spacing: 0.1em; color: var(--muted); }
+.field input { background: var(--bg); border: 1px solid var(--border); color: var(--text); font-family: var(--sans); font-size: 13px; padding: 7px 10px; border-radius: var(--radius); outline: none; min-width: 140px; transition: border-color 0.1s; }
+.field input:focus { border-color: var(--accent2); }
+
+.network-pill { display: inline-block; padding: 2px 8px; border-radius: 3px; font-family: var(--mono); font-size: 10px; font-weight: 600; background: #fff7f2; border: 1px solid #f0c4a0; color: var(--signal); }
+
+.history-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(220px,1fr)); gap: 10px; }
+.hist-card { background: var(--surface); border: 1px solid var(--border); border-radius: var(--radius); padding: 16px; cursor: pointer; transition: border-color 0.12s; }
+.hist-card:hover { border-color: var(--signal); }
+.hist-month { font-family: var(--mono); font-size: 13px; font-weight: 600; margin-bottom: 10px; }
+.hist-stats { display: flex; flex-direction: column; gap: 4px; }
+.hist-stat { display: flex; justify-content: space-between; font-size: 12px; color: var(--muted); }
+.hist-stat strong { font-family: var(--mono); color: var(--signal); font-weight: 600; }
+
+#toast { position: fixed; bottom: 20px; left: 50%; transform: translateX(-50%) translateY(10px); background: var(--accent); color: #fff; font-family: var(--mono); font-size: 11px; font-weight: 600; letter-spacing: 0.06em; padding: 8px 18px; border-radius: 20px; opacity: 0; transition: all 0.2s; pointer-events: none; z-index: 999; white-space: nowrap; }
+#toast.show { opacity: 1; transform: translateX(-50%) translateY(0); }
+
+.empty { text-align: center; padding: 40px 20px; color: var(--muted); font-size: 13px; }
+.empty-icon { font-size: 28px; margin-bottom: 10px; opacity: 0.5; }
+
+::-webkit-scrollbar { width: 5px; height: 5px; }
+::-webkit-scrollbar-track { background: var(--bg); }
+::-webkit-scrollbar-thumb { background: var(--border2); border-radius: 3px; }
+
+@media (max-width:700px) {
+  th:nth-child(n+7), td:nth-child(n+7) { display: none; }
+  .container { padding: 14px; }
+}
+</style>
+</head>
+<body>
+
+<header>
+  <div class="wordmark">
+    <svg viewBox="0 0 260 44" width="260" height="44" xmlns="http://www.w3.org/2000/svg" style="display:block">
+      <g transform="translate(22,22)">
+        <!-- Straight tip -->
+        <line x1="0" y1="-18" x2="0" y2="-12" stroke="#E85D04" stroke-width="2" stroke-linecap="round"/>
+        <!-- Signal arcs centered on tip -->
+        <path d="M-3.5,-20.0 A4,4 0 0,1 -3.5,-16.0" fill="none" stroke="#E85D04" stroke-width="1.8" stroke-linecap="round" opacity="1.0"/>
+        <path d="M3.5,-20.0 A4,4 0 0,0 3.5,-16.0" fill="none" stroke="#E85D04" stroke-width="1.8" stroke-linecap="round" opacity="1.0"/>
+        <path d="M-6.5,-21.8 A7.5,7.5 0 0,1 -6.5,-14.2" fill="none" stroke="#E85D04" stroke-width="1.8" stroke-linecap="round" opacity="0.6"/>
+        <path d="M6.5,-21.8 A7.5,7.5 0 0,0 6.5,-14.2" fill="none" stroke="#E85D04" stroke-width="1.8" stroke-linecap="round" opacity="0.6"/>
+        <path d="M-9.5,-23.5 A11,11 0 0,1 -9.5,-12.5" fill="none" stroke="#E85D04" stroke-width="1.8" stroke-linecap="round" opacity="0.3"/>
+        <path d="M9.5,-23.5 A11,11 0 0,0 9.5,-12.5" fill="none" stroke="#E85D04" stroke-width="1.8" stroke-linecap="round" opacity="0.3"/>
+        <!-- A-frame legs -->
+        <line x1="0" y1="-12" x2="-8" y2="14" stroke="rgba(255,255,255,0.9)" stroke-width="2" stroke-linecap="round"/>
+        <line x1="0" y1="-12" x2="8"  y2="14" stroke="rgba(255,255,255,0.9)" stroke-width="2" stroke-linecap="round"/>
+        <!-- Upper crosspiece -->
+        <line x1="-3.5" y1="-3" x2="3.5" y2="-3" stroke="rgba(255,255,255,0.75)" stroke-width="1.5" stroke-linecap="round"/>
+        <!-- Lower crosspiece -->
+        <line x1="-6" y1="6" x2="6" y2="6" stroke="rgba(255,255,255,0.75)" stroke-width="1.5" stroke-linecap="round"/>
+        <!-- Base feet -->
+        <line x1="-8" y1="14" x2="-11" y2="14" stroke="rgba(255,255,255,0.6)" stroke-width="1.5" stroke-linecap="round"/>
+        <line x1="8"  y1="14" x2="11"  y2="14" stroke="rgba(255,255,255,0.6)" stroke-width="1.5" stroke-linecap="round"/>
+      </g>
+      <text x="50" y="22" font-family="'Share Tech Mono',monospace" font-size="16" fill="white" letter-spacing="3">TERRACOMM</text>
+      <line x1="50" y1="27" x2="220" y2="27" stroke="#E85D04" stroke-width="1" opacity="0.6"/>
+      <text x="50" y="38" font-family="'Share Tech Mono',monospace" font-size="9" fill="rgba(255,255,255,0.45)" letter-spacing="2.5">TIMETRACKER</text>
+
+    </svg>
+  </div>
+  <nav class="nav">
+    <button class="nav-btn active" onclick="showPage('log',this)">Log</button>
+    <button class="nav-btn" onclick="showPage('history',this)">History</button>
+    <button class="nav-btn" onclick="showPage('projects',this)">Projects</button>
+    <button class="nav-btn" onclick="showPage('expenses',this)">Expenses</button>
+    <button class="nav-btn" onclick="showPage('summary',this)">Summary</button>
+    <button class="nav-btn" onclick="showPage('backup',this)">Backup</button>
+  </nav>
+</header>
+
+<div id="toast"></div>
+
+<!-- LOG -->
+<div class="page active" id="page-log">
+<div class="container">
+  <div class="month-bar">
+    <div class="month-nav">
+      <button class="mnav-btn" onclick="prevMonth()" title="Previous">&#8249;</button>
+      <button class="mnav-btn" onclick="nextMonth()" title="Next">&#8250;</button>
+    </div>
+    <div class="month-label" id="monthLabel"></div>
+    <div class="spacer"></div>
+  </div>
+  <div class="stats-row" id="statsRow"></div>
+  <div class="action-bar">
+    <span class="export-label">Export</span>
+    <button class="btn" onclick="exportCSV()">&#8595; CSV</button>
+    <button class="btn" onclick="exportExcel()">&#8595; Excel</button>
+    <button class="btn" onclick="exportPDF()">&#8595; PDF</button>
+
+  </div>
+  <div class="table-wrap">
+    <table>
+      <thead>
+        <tr>
+          <th style="width:90px">Date</th>
+          <th style="width:110px">Network</th>
+          <th style="min-width:180px">Project</th>
+          <th style="width:110px">EEA</th>
+          <th style="width:120px">WBS</th>
+          <th style="width:70px">Hrs</th>
+          <th style="min-width:150px">Expense Desc</th>
+          <th style="width:85px">Amount</th>
+          <th style="width:60px">KMs</th>
+          <th style="width:55px">Diems</th>
+          <th style="width:32px"></th>
+        </tr>
+      </thead>
+      <tbody id="logBody"></tbody>
+    </table>
+  </div>
+</div>
+</div>
+
+<!-- HISTORY -->
+<div class="page" id="page-history">
+<div class="container">
+  <div style="margin-bottom:16px"><span style="font-family:var(--mono);font-size:11px;font-weight:600;text-transform:uppercase;letter-spacing:0.1em;color:var(--muted)">All Months</span></div>
+  <div class="history-grid" id="historyGrid"></div>
+</div>
+</div>
+
+<!-- PROJECTS -->
+<div class="page" id="page-projects">
+<div class="container">
+  <div class="proj-form">
+    <div class="field">
+      <label>Network</label>
+      <input id="pNet" placeholder="e.g. LMRN" style="min-width:100px">
+    </div>
+    <div class="field">
+      <label>Project Description</label>
+      <input id="pDesc" placeholder="e.g. NWZ LMRN" style="min-width:200px">
+    </div>
+    <div class="field">
+      <label>EEA Code</label>
+      <input id="pEEA" placeholder="optional" style="min-width:110px">
+    </div>
+    <div class="field">
+      <label>WBS</label>
+      <input id="pWBS" placeholder="optional" style="min-width:120px">
+    </div>
+    <button class="btn btn-primary" onclick="addProject()" style="align-self:flex-end;height:34px">Add Project</button>
+  </div>
+  <div class="table-wrap">
+    <table>
+      <thead>
+        <tr>
+          <th>Network</th><th>Project Description</th><th>EEA Code</th><th>WBS</th><th></th>
+        </tr>
+      </thead>
+      <tbody id="projBody"></tbody>
+    </table>
+  </div>
+</div>
+</div>
+
+<!-- EXPENSES -->
+<div class="page" id="page-expenses">
+<div class="container">
+
+  <div class="month-bar">
+    <div class="month-nav">
+      <button class="mnav-btn" onclick="expPrevMonth()">&#8249;</button>
+      <button class="mnav-btn" onclick="expNextMonth()">&#8250;</button>
+    </div>
+    <div class="month-label" id="expLabel"></div>
+    <div class="spacer"></div>
+    <button class="btn btn-primary" onclick="addExpenseRow()" style="height:34px">+ Add receipt</button>
+  </div>
+
+  <div class="table-wrap">
+    <table>
+      <thead>
+        <tr>
+          <th style="width:100px">Date</th>
+          <th style="width:100px">Network</th>
+          <th style="min-width:160px">Project</th>
+          <th style="min-width:180px">Description</th>
+          <th style="width:90px;text-align:right">Amount</th>
+          <th style="width:32px"></th>
+        </tr>
+      </thead>
+      <tbody id="expBody"></tbody>
+    </table>
+  </div>
+
+  <div id="expTotals" style="margin-top:16px"></div>
+
+</div>
+</div>
+
+<!-- SUMMARY -->
+<div class="page" id="page-summary">
+<div class="container">
+
+  <div class="month-bar">
+    <div class="month-nav">
+      <button class="mnav-btn" onclick="summaryPrevMonth()">&#8249;</button>
+      <button class="mnav-btn" onclick="summaryNextMonth()">&#8250;</button>
+    </div>
+    <div class="month-label" id="summaryLabel"></div>
+  </div>
+
+  <div id="summaryContent"></div>
+
+</div>
+</div>
+
+<!-- BACKUP -->
+<div class="page" id="page-backup">
+<div class="container" style="max-width:600px">
+
+  <div style="margin-bottom:24px">
+    <div style="font-family:var(--mono);font-size:11px;font-weight:600;text-transform:uppercase;letter-spacing:0.1em;color:var(--muted);margin-bottom:8px">Save Backup</div>
+    <p style="color:var(--muted);font-size:13px;line-height:1.6;margin-bottom:16px">Downloads a <code style="font-family:var(--mono);font-size:11px;background:var(--bg);padding:1px 5px;border-radius:3px">.json</code> file with all your data. To restore on another device, use the Load section below.</p>
+
+    <div style="display:flex;gap:10px;align-items:flex-end;flex-wrap:wrap;margin-bottom:12px">
+      <div class="field" style="flex:1;min-width:200px">
+        <label>Filename</label>
+        <input id="backupFilename" style="font-family:var(--mono);font-size:12px">
+      </div>
+      <button class="btn btn-primary" onclick="saveBackup()" style="height:34px;align-self:flex-end">&#8595; Save backup</button>
+    </div>
+    <p style="font-size:11px;color:var(--muted)">Your browser will save to its default download folder. To choose a location, right-click → Save link as, or change your browser's download settings.</p>
+  </div>
+
+  <div style="border-top:1px solid var(--border);padding-top:24px">
+    <div style="font-family:var(--mono);font-size:11px;font-weight:600;text-transform:uppercase;letter-spacing:0.1em;color:var(--muted);margin-bottom:8px">Load Backup</div>
+    <p style="color:var(--muted);font-size:13px;line-height:1.6;margin-bottom:14px">Select a previously saved <code style="font-family:var(--mono);font-size:11px;background:var(--bg);padding:1px 5px;border-radius:3px">.json</code> backup file to restore all data.</p>
+    <div style="display:flex;gap:10px;align-items:center;flex-wrap:wrap">
+      <button class="btn" onclick="document.getElementById('importFile').click()">&#8593; Choose backup file</button>
+      <span id="importFilename" style="font-size:12px;color:var(--muted);font-family:var(--mono)"></span>
+    </div>
+    <input type="file" id="importFile" accept=".json" style="display:none" onchange="previewImport(this)">
+
+    <div id="importPreview" style="display:none;margin-top:14px;background:var(--bg);border:1px solid var(--border);border-radius:var(--radius);padding:14px">
+      <div id="importSummary" style="font-size:13px;color:var(--text);margin-bottom:12px"></div>
+      <div style="display:flex;gap:8px">
+        <button class="btn btn-primary" onclick="confirmImport()">Restore this backup</button>
+        <button class="btn" onclick="cancelImport()">Cancel</button>
+      </div>
+    </div>
+  </div>
+
+</div>
+</div>
+
+<script>
+const KEY = 'erk_tt_v2';
+const MONTHS = ['January','February','March','April','May','June','July','August','September','October','November','December'];
+const DAYS   = ['Sun','Mon','Tue','Wed','Thu','Fri','Sat'];
+
+function defaultState() {
+  return {
+    projects: [
+      {id:uid(),network:'LMRN',description:'SWZ LMRN',eea:'LMRN ZONE',wbs:'SW0CONTRTT'},
+      {id:uid(),network:'LMRN',description:'SEZ LMRN',eea:'LMRN ZONE',wbs:'SE0CONTRTT'},
+      {id:uid(),network:'LMRN',description:'NEZ LMRN',eea:'LMRN ZONE',wbs:'NE0CONTRTT'},
+      {id:uid(),network:'LMRN',description:'NWZ LMRN',eea:'LMRN ZONE',wbs:'NW0CONTRTT'},
+      {id:uid(),network:'Off', description:'Sick',     eea:'',wbs:''},
+      {id:uid(),network:'Off', description:'Holiday',  eea:'',wbs:''},
+      {id:uid(),network:'ORS', description:'City Of Ottawa Radio',eea:'N3EALLOG',wbs:'LLOGW0869LBR'},
+      {id:uid(),network:'PSCS',description:'RM of Ritchot (St Agathe fire)',   eea:'MBPQWORR',wbs:'FC-43EN'},
+      {id:uid(),network:'PSCS',description:'RM of Ritchot (Ile Des Chene Fire)',eea:'MBPQWORR',wbs:'FC-43EN'},
+      {id:uid(),network:'PSCS',description:'Pinawa FD',          eea:'',wbs:''},
+      {id:uid(),network:'PSCS',description:'Russell FD',         eea:'',wbs:''},
+      {id:uid(),network:'PSCS',description:'Canadian Nuclear Lab',eea:'',wbs:''},
+      {id:uid(),network:'PSCS',description:'Woodlands DVRS',     eea:'',wbs:''},
+      {id:uid(),network:'PSCS',description:'VECTRS Reprogramming',eea:'SRU26010000143',wbs:''},
+    ],
+    months: {}
+  };
+}
+
+let state;
+try { state = JSON.parse(localStorage.getItem(KEY)) || defaultState(); }
+catch(e) { state = defaultState(); }
+if (!state.projects) state = defaultState();
+
+function save() { localStorage.setItem(KEY, JSON.stringify(state)); }
+function uid()  { return Math.random().toString(36).slice(2,9); }
+
+const now = new Date();
+let viewYear  = now.getFullYear();
+let viewMonth = now.getMonth();
+
+// ── NAV ──────────────────────────────────────────────────────────────────────
+function showPage(id, btn) {
+  document.querySelectorAll('.page').forEach(p => p.classList.remove('active'));
+  document.querySelectorAll('.nav-btn').forEach(b => b.classList.remove('active'));
+  document.getElementById('page-' + id).classList.add('active');
+  if (btn) btn.classList.add('active');
+  if (id === 'log')      renderLog();
+  if (id === 'history')  renderHistory();
+  if (id === 'projects') renderProjects();
+  if (id === 'expenses') renderExpenses();
+  if (id === 'summary')  renderSummary();
+  if (id === 'backup')   { refreshBackup(); document.getElementById('importPreview').style.display='none'; }
+}
+
+// ── MONTH ────────────────────────────────────────────────────────────────────
+function monthKey(y, m) { return `${y}-${String(m+1).padStart(2,'0')}`; }
+function daysInMonth(y, m) { return new Date(y, m+1, 0).getDate(); }
+function prevMonth() { viewMonth--; if (viewMonth < 0) { viewMonth=11; viewYear--; } renderLog(); }
+function nextMonth() { viewMonth++; if (viewMonth > 11) { viewMonth=0; viewYear++; } renderLog(); }
+
+function getMonthEntries() {
+  const key = monthKey(viewYear, viewMonth);
+  if (!state.months[key]) {
+    const days = daysInMonth(viewYear, viewMonth);
+    state.months[key] = Array.from({length:days}, (_,i) => ({
+      id: uid(),
+      date: `${viewYear}-${String(viewMonth+1).padStart(2,'0')}-${String(i+1).padStart(2,'0')}`,
+      network:'', project:'', eea:'', wbs:'', hours:'', expDesc:'', expenses:'', kms:'', diems:''
+    }));
+    save();
+  }
+  return state.months[key];
+}
+
+// ── LOG ──────────────────────────────────────────────────────────────────────
+function renderLog() {
+  document.getElementById('monthLabel').textContent = `${MONTHS[viewMonth]} ${viewYear}`;
+  const entries = getMonthEntries();
+
+  const hrs  = entries.reduce((s,e)=>s+(parseFloat(e.hours)||0),0);
+  const expKey = 'exp_' + monthKey(viewYear, viewMonth);
+  const expReceipts = state.months[expKey] || [];
+  const exp = expReceipts.reduce((s,r)=>s+(parseFloat(r.amount)||0),0);
+  const km   = entries.reduce((s,e)=>s+(parseFloat(e.kms)||0),0);
+  const days = entries.filter(e=>e.network||e.hours).length;
+
+  document.getElementById('statsRow').innerHTML = `
+    <div class="stat"><div class="stat-label">Reg Hours</div><div class="stat-value">${hrs}</div></div>
+    <div class="stat"><div class="stat-label">Expenses</div><div class="stat-value">$${exp.toFixed(2)}</div></div>
+    <div class="stat"><div class="stat-label">KMs</div><div class="stat-value">${km}</div></div>
+    <div class="stat"><div class="stat-label">Days Logged</div><div class="stat-value">${days}</div></div>
+  `;
+
+  const tbody   = document.getElementById('logBody');
+  const todayStr = now.toISOString().slice(0,10);
+  const networks = [...new Set(state.projects.map(p=>p.network))].sort();
+
+  tbody.innerHTML = '';
+  entries.forEach((entry, i) => {
+    const d = new Date(entry.date + 'T12:00:00');
+    const dow = d.getDay();
+    const isWknd  = dow===0||dow===6;
+    const isToday = entry.date===todayStr;
+
+    const tr = document.createElement('tr');
+    if (isWknd) tr.classList.add('weekend');
+    if (isToday) tr.classList.add('today');
+
+    // Network dropdown
+    const netOpts = `<option value="">—</option>` +
+      networks.map(n=>`<option value="${n}"${entry.network===n?' selected':''}>${n}</option>`).join('');
+
+    // Project dropdown — filtered to selected network only
+    const projs = entry.network ? state.projects.filter(p=>p.network===entry.network) : [];
+    const projOpts = `<option value="">—</option>` +
+      projs.map(p=>`<option value="${esc(p.description)}"${entry.project===p.description?' selected':''}>${p.description}</option>`).join('');
+
+    const isSplit    = i > 0 && entries[i-1].date === entry.date;
+    const hasNextSplit = i < entries.length-1 && entries[i+1].date === entry.date;
+
+    tr.innerHTML = `
+      <td><div class="date-cell${isToday?' is-today':''}${isSplit?' split-date':''}">
+        ${isSplit
+          ? '<span class="day-label" style="visibility:hidden">—</span>↳'
+          : `<span class="day-label">${DAYS[dow]}</span>${d.getDate()} ${MONTHS[viewMonth].slice(0,3)}`}
+      </div></td>
+      <td><select class="cell-input" onchange="changeNetwork(${i},this.value)">${netOpts}</select></td>
+      <td><select class="cell-input" id="proj_${i}" onchange="changeProject(${i},this.value)">${projOpts}</select></td>
+      <td><div class="auto-cell" title="${esc(entry.eea)}">${entry.eea||''}</div></td>
+      <td><div class="auto-cell" title="${esc(entry.wbs)}">${entry.wbs||''}</div></td>
+      <td><input class="cell-input num" value="${entry.hours||''}" placeholder="0" oninput="setField(${i},'hours',this.value)"></td>
+      <td><div class="auto-cell" style="color:var(--muted);font-size:11px">${expDescForDate(entry.date)}</div></td>
+      <td><div class="auto-cell" style="text-align:right">${expTotalForDate(entry.date)}</div></td>
+      <td><input class="cell-input num" value="${entry.kms||''}" placeholder="0" oninput="setField(${i},'kms',this.value)"></td>
+      <td><input class="cell-input num" value="${entry.diems||''}" placeholder="0" oninput="setField(${i},'diems',this.value)"></td>
+      <td style="text-align:center;vertical-align:middle;padding:0 2px;white-space:nowrap">
+        ${!hasNextSplit ? `<button class="split-btn" onclick="splitRow(${i})" title="Split day">+</button>` : ''}
+        ${isSplit
+          ? `<button class="del-btn" onclick="deleteRow(${i})" title="Remove row">&#215;</button>`
+          : `<button class="del-btn" onclick="clearRow(${i})" title="Clear">&#215;</button>`}
+      </td>
+    `;
+    tbody.appendChild(tr);
+  });
+}
+
+function esc(s) { return String(s||'').replace(/&/g,'&amp;').replace(/"/g,'&quot;').replace(/</g,'&lt;'); }
+
+function changeNetwork(i, val) {
+  const e = getMonthEntries()[i];
+  e.network=''; e.project=''; e.eea=''; e.wbs='';
+  e.network = val;
+  save();
+  renderLog();
+  // Auto-focus project dropdown
+  setTimeout(()=>{ const s=document.getElementById(`proj_${i}`); if(s)s.focus(); },30);
+}
+
+function changeProject(i, val) {
+  const e = getMonthEntries()[i];
+  e.project = val;
+  const proj = state.projects.find(p=>p.network===e.network&&p.description===val);
+  if (proj) { e.eea=proj.eea||''; e.wbs=proj.wbs||''; }
+  save();
+  // Just update the auto-cells without full re-render
+  const row = document.getElementById(`proj_${i}`)?.closest('tr');
+  if (row) {
+    const cells = row.querySelectorAll('.auto-cell');
+    if (cells[0]) { cells[0].textContent=e.eea; cells[0].title=e.eea; }
+    if (cells[1]) { cells[1].textContent=e.wbs;  cells[1].title=e.wbs; }
+  }
+}
+
+function setField(i, field, val) {
+  getMonthEntries()[i][field] = val;
+  save();
+}
+
+function clearRow(i) {
+  const e = getMonthEntries()[i];
+  Object.assign(e, {network:'',project:'',eea:'',wbs:'',hours:'',expDesc:'',expenses:'',kms:'',diems:''});
+  save();
+  renderLog();
+}
+
+function splitRow(i) {
+  const entries = getMonthEntries();
+  const date = entries[i].date;
+  const newRow = {id:uid(), date, network:'', project:'', eea:'', wbs:'', hours:'', expDesc:'', expenses:'', kms:'', diems:''};
+  entries.splice(i + 1, 0, newRow);
+  save();
+  renderLog();
+  setTimeout(()=>{ const s=document.getElementById(`proj_${i+1}`); if(s)s.previousElementSibling?.focus(); },30);
+}
+
+function deleteRow(i) {
+  const entries = getMonthEntries();
+  entries.splice(i, 1);
+  save();
+  renderLog();
+}
+
+// ── PROJECTS ─────────────────────────────────────────────────────────────────
+function renderProjects() {
+  const tbody  = document.getElementById('projBody');
+  const sorted = [...state.projects].sort((a,b)=>a.network.localeCompare(b.network)||a.description.localeCompare(b.description));
+  if (!sorted.length) {
+    tbody.innerHTML = `<tr><td colspan="5"><div class="empty"><div class="empty-icon">📁</div>No projects yet.</div></td></tr>`;
+    return;
+  }
+  tbody.innerHTML = sorted.map(p => {
+    const ri = state.projects.indexOf(p);
+    return `<tr>
+      <td><span class="network-pill">${p.network}</span></td>
+      <td>${p.description}</td>
+      <td style="font-family:var(--mono);font-size:11px;color:var(--muted)">${p.eea||'—'}</td>
+      <td style="font-family:var(--mono);font-size:11px;color:var(--muted)">${p.wbs||'—'}</td>
+      <td><button class="del-btn" onclick="deleteProject(${ri})" title="Delete">&#215;</button></td>
+    </tr>`;
+  }).join('');
+}
+
+function addProject() {
+  const network     = document.getElementById('pNet').value.trim().toUpperCase();
+  const description = document.getElementById('pDesc').value.trim();
+  const eea         = document.getElementById('pEEA').value.trim();
+  const wbs         = document.getElementById('pWBS').value.trim();
+  if (!network||!description) { toast('Network and Description required'); return; }
+  if (state.projects.some(p=>p.network===network&&p.description===description)) { toast('Already exists'); return; }
+  state.projects.push({id:uid(),network,description,eea,wbs});
+  save(); renderProjects();
+  ['pNet','pDesc','pEEA','pWBS'].forEach(id=>document.getElementById(id).value='');
+  toast('Project added');
+}
+
+function deleteProject(i) {
+  if (!confirm(`Delete "${state.projects[i].description}"?`)) return;
+  state.projects.splice(i,1);
+  save(); renderProjects(); toast('Deleted');
+}
+
+// ── HISTORY ──────────────────────────────────────────────────────────────────
+function renderHistory() {
+  const grid = document.getElementById('historyGrid');
+  const keys = Object.keys(state.months).sort().reverse();
+  if (!keys.length) {
+    grid.innerHTML=`<div class="empty" style="grid-column:1/-1"><div class="empty-icon">🗓</div>No months logged yet.</div>`;
+    return;
+  }
+  grid.innerHTML = keys.map(key => {
+    if (key.startsWith('exp_')) return '';
+    const entries = state.months[key]||[];
+    const hrs  = entries.reduce((s,e)=>s+(parseFloat(e.hours)||0),0);
+    const expRec = state.months['exp_'+key] || [];
+    const exp  = expRec.reduce((s,r)=>s+(parseFloat(r.amount)||0),0);
+    const days = entries.filter(e=>e.network||e.hours).length;
+    const [y,m] = key.split('-').map(Number);
+    return `<div class="hist-card" onclick="jumpTo('${key}')">
+      <div class="hist-month">${MONTHS[m-1]} ${y}</div>
+      <div class="hist-stats">
+        <div class="hist-stat"><span>Hours</span><strong>${hrs}</strong></div>
+        <div class="hist-stat"><span>Expenses</span><strong>$${exp.toFixed(2)}</strong></div>
+        <div class="hist-stat"><span>Days logged</span><strong>${days}</strong></div>
+      </div>
+    </div>`;
+  }).join('');
+}
+
+function jumpTo(key) {
+  const [y,m] = key.split('-').map(Number);
+  viewYear=y; viewMonth=m-1;
+  document.querySelectorAll('.nav-btn').forEach((b,i)=>b.classList.toggle('active',i===0));
+  showPage('log');
+}
+
+// ── EXPORTS ──────────────────────────────────────────────────────────────────
+function exportData() {
+  return getMonthEntries().map(e=>({
+    'Date':                e.date,
+    'Network':             e.network,
+    'Project Description': e.project,
+    'EEA':                 e.eea,
+    'WBS':                 e.wbs,
+    'Reg Hours':           e.hours,
+    'Expense Description': expDescForDate(e.date),
+    'Expenses Incurred':   expTotalForDate(e.date).replace('$',''),
+    'KMs':                 e.kms,
+    'Diems':               e.diems
+  }));
+}
+
+function exportCSV() {
+  const data=exportData(), h=Object.keys(data[0]);
+  const csv=[h,...data.map(r=>h.map(k=>`"${String(r[k]||'').replace(/"/g,'""')}"`))].map(r=>r.join(',')).join('\n');
+  dl(`timesheet_${monthKey(viewYear,viewMonth)}.csv`,'text/csv',csv);
+  toast('CSV downloaded');
+}
+
+function exportExcel() {
+  const data=exportData(), h=Object.keys(data[0]);
+  const ex=v=>String(v||'').replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;');
+  const rows=[h,...data.map(r=>h.map(k=>r[k]))];
+  const xml=`<?xml version="1.0"?><Workbook xmlns="urn:schemas-microsoft-com:office:spreadsheet" xmlns:ss="urn:schemas-microsoft-com:office:spreadsheet"><Worksheet ss:Name="${MONTHS[viewMonth]} ${viewYear}"><Table>${rows.map(row=>`<Row>${row.map(c=>`<Cell><Data ss:Type="String">${ex(c)}</Data></Cell>`).join('')}</Row>`).join('')}</Table></Worksheet></Workbook>`;
+  dl(`timesheet_${monthKey(viewYear,viewMonth)}.xls`,'application/vnd.ms-excel',xml);
+  toast('Excel downloaded');
+}
+
+function exportPDF() {
+  const data=exportData(), h=Object.keys(data[0]);
+  const label=`${MONTHS[viewMonth]} ${viewYear}`;
+  const hrs=data.reduce((s,r)=>s+(parseFloat(r['Reg Hours'])||0),0);
+  const exp=data.reduce((s,r)=>s+(parseFloat(r['Expenses Incurred'])||0),0);
+  const win=window.open('','_blank');
+  win.document.write(`<!DOCTYPE html><html><head><title>${label}</title><style>body{font-family:Arial,sans-serif;font-size:11px;padding:28px;color:#111}h2{font-size:16px;margin-bottom:2px}.sub{color:#888;font-size:11px;margin-bottom:16px}.stats{display:flex;gap:16px;margin-bottom:20px}.s{background:#f5f5f5;padding:8px 14px;border-radius:4px}.s strong{display:block;font-size:16px;color:#1a472a}table{width:100%;border-collapse:collapse}th{background:#1a1a2e;color:#fff;padding:5px 7px;text-align:left;font-size:10px;text-transform:uppercase;letter-spacing:.05em}td{padding:4px 7px;border-bottom:1px solid #eee}tr:nth-child(even) td{background:#f9f9f9}@media print{body{padding:12px}}</style></head><body><h2>${label}</h2><div class="sub">Exported ${new Date().toLocaleDateString('en-CA')}</div><div class="stats"><div class="s"><strong>${hrs}</strong>Regular Hours</div><div class="s"><strong>$${exp.toFixed(2)}</strong>Expenses</div><div class="s"><strong>${data.filter(r=>r.Network).length}</strong>Days Logged</div></div><table><thead><tr>${h.map(k=>`<th>${k}</th>`).join('')}</tr></thead><tbody>${data.map(r=>`<tr>${h.map(k=>`<td>${r[k]||''}</td>`).join('')}</tr>`).join('')}</tbody></table><script>window.onload=()=>window.print()<\/script></body></html>`);
+  win.document.close();
+  toast('PDF print dialog opened');
+}
+
+let _pendingImport = null;
+
+function defaultFilename() {
+  const now = new Date();
+  const ts = now.toISOString().slice(0,10);
+  return `timesheet_backup_${ts}`;
+}
+
+function refreshBackup() {
+  const el = document.getElementById('backupFilename');
+  if (el && !el.value) el.value = defaultFilename();
+}
+
+function saveBackup() {
+  let name = (document.getElementById('backupFilename').value.trim() || defaultFilename());
+  if (!name.endsWith('.json')) name += '.json';
+  dl(name, 'application/json', JSON.stringify(state, null, 2));
+  toast('Backup saved');
+}
+
+function previewImport(input) {
+  const file = input.files[0];
+  if (!file) return;
+  document.getElementById('importFilename').textContent = file.name;
+  const reader = new FileReader();
+  reader.onload = e => {
+    try {
+      const imported = JSON.parse(e.target.result);
+      if (!imported.projects || !imported.months) { toast('Invalid backup file'); return; }
+      _pendingImport = imported;
+      const monthCount   = Object.keys(imported.months).length;
+      const projectCount = imported.projects.length;
+      const entryCount   = Object.values(imported.months).reduce((s,m)=>s+m.filter(e=>e.network||e.hours).length, 0);
+      document.getElementById('importSummary').innerHTML =
+        `<strong>${file.name}</strong><br>
+        <span style="color:var(--muted)">${projectCount} projects &nbsp;·&nbsp; ${monthCount} months &nbsp;·&nbsp; ${entryCount} logged entries</span>`;
+      document.getElementById('importPreview').style.display = 'block';
+    } catch(err) {
+      toast('Could not read file — is it a valid backup?');
+    }
+    input.value = '';
+  };
+  reader.readAsText(file);
+}
+
+function confirmImport() {
+  if (!_pendingImport) return;
+  state = _pendingImport;
+  _pendingImport = null;
+  save();
+  renderLog();
+  document.getElementById('importPreview').style.display = 'none';
+  document.getElementById('importFilename').textContent = '';
+  toast('Backup restored');
+}
+
+function cancelImport() {
+  _pendingImport = null;
+  document.getElementById('importPreview').style.display = 'none';
+  document.getElementById('importFilename').textContent = '';
+}
+
+// ── SUMMARY ──────────────────────────────────────────────────────────────────
+let sumYear  = new Date().getFullYear();
+let sumMonth = new Date().getMonth();
+
+function summaryPrevMonth() { sumMonth--; if(sumMonth<0){sumMonth=11;sumYear--;} renderSummary(); }
+function summaryNextMonth() { sumMonth++; if(sumMonth>11){sumMonth=0;sumYear++;} renderSummary(); }
+
+function renderSummary() {
+  document.getElementById('summaryLabel').textContent = MONTHS[sumMonth] + ' ' + sumYear;
+
+  const key     = monthKey(sumYear, sumMonth);
+  const entries = (state.months[key] || []).filter(e => e.network || e.hours);
+
+  const el = document.getElementById('summaryContent');
+
+  if (!entries.length) {
+    el.innerHTML = '<div class="empty"><div class="empty-icon">📋</div>No entries logged for this month.</div>';
+    return;
+  }
+
+  // Build per-project totals
+  const byProject = {};
+  entries.forEach(e => {
+    const key = e.network + '|||' + e.project;
+    if (!byProject[key]) byProject[key] = { network: e.network, project: e.project, hours:0, expenses:0, kms:0, diems:0, days:new Set() };
+    const p = byProject[key];
+    p.hours    += parseFloat(e.hours)    || 0;
+    // expenses now come from exp_ receipt keys, not log entries
+    p.kms      += parseFloat(e.kms)      || 0;
+    p.diems    += parseFloat(e.diems)    || 0;
+    if (e.hours || e.network) p.days.add(e.date);
+  });
+
+  // Populate expenses from receipt keys — use project assigned directly on receipt
+  const expRecs = state.months['exp_' + monthKey(sumYear, sumMonth)] || [];
+  expRecs.forEach(r => {
+    if (!r.network || !r.project) return; // skip unassigned receipts
+    const pkey = r.network + '|||' + r.project;
+    if (byProject[pkey]) {
+      byProject[pkey].expenses += parseFloat(r.amount) || 0;
+    } else {
+      // receipt project not in log this month — create an entry for it
+      byProject[pkey] = { network: r.network, project: r.project, hours:0, expenses: parseFloat(r.amount)||0, kms:0, diems:0, days: new Set() };
+    }
+  });
+
+  // Group by network
+  const byNetwork = {};
+  Object.values(byProject).forEach(p => {
+    if (!byNetwork[p.network]) byNetwork[p.network] = [];
+    byNetwork[p.network].push(p);
+  });
+
+  // Grand totals
+  let gtHours=0, gtExpenses=0, gtKms=0, gtDiems=0;
+  Object.values(byProject).forEach(p => { gtHours+=p.hours; gtExpenses+=p.expenses; gtKms+=p.kms; gtDiems+=p.diems; });
+
+  const fmt = n => n % 1 === 0 ? n.toString() : n.toFixed(2);
+
+  let html = '';
+  Object.keys(byNetwork).sort().forEach(network => {
+    const projs = byNetwork[network];
+    let netHours=0, netExp=0, netKms=0, netDiems=0;
+    projs.forEach(p=>{netHours+=p.hours;netExp+=p.expenses;netKms+=p.kms;netDiems+=p.diems;});
+
+    html += `
+    <div style="margin-bottom:24px">
+      <div style="display:flex;align-items:center;gap:10px;margin-bottom:8px">
+        <span class="network-pill" style="font-size:11px;padding:3px 10px">${network}</span>
+        <span style="font-family:var(--mono);font-size:11px;color:var(--muted)">${fmt(netHours)} hrs${netExp?'  ·  $'+netExp.toFixed(2):''}${netKms?'  ·  '+netKms+' km':''}</span>
+      </div>
+      <div class="table-wrap">
+        <table>
+          <thead><tr>
+            <th style="min-width:180px">Project</th>
+            <th style="min-width:110px">EEA</th>
+            <th style="min-width:130px">WBS</th>
+            <th style="width:80px;text-align:right">Hours</th>
+            <th style="width:90px;text-align:right">Expenses</th>
+            <th style="width:70px;text-align:right">KMs</th>
+            <th style="width:60px;text-align:right">Diems</th>
+            <th style="width:60px;text-align:right">Days</th>
+          </tr></thead>
+          <tbody>
+            ${projs.map(p => {
+              const proj = state.projects.find(x=>x.network===p.network&&x.description===p.project)||{};
+              return `<tr>
+              <td style="padding:7px 8px">${p.project||'<span style="color:var(--muted)">—</span>'}</td>
+              <td style="padding:7px 8px;font-family:var(--mono);font-size:11px;color:var(--muted)">${proj.eea||'—'}</td>
+              <td style="padding:7px 8px;font-family:var(--mono);font-size:11px;color:var(--muted)">${proj.wbs||'—'}</td>
+              <td style="padding:7px 8px;text-align:right;font-family:var(--mono);font-size:12px">${p.hours ? fmt(p.hours) : '—'}</td>
+              <td style="padding:7px 8px;text-align:right;font-family:var(--mono);font-size:12px">${p.expenses ? '$'+p.expenses.toFixed(2) : '—'}</td>
+              <td style="padding:7px 8px;text-align:right;font-family:var(--mono);font-size:12px">${p.kms ? fmt(p.kms) : '—'}</td>
+              <td style="padding:7px 8px;text-align:right;font-family:var(--mono);font-size:12px">${p.diems ? fmt(p.diems) : '—'}</td>
+              <td style="padding:7px 8px;text-align:right;font-family:var(--mono);font-size:12px;color:var(--muted)">${p.days.size}</td>
+            </tr>`;}).join('')}
+            <tr style="border-top:2px solid var(--border)">
+              <td style="padding:7px 8px;font-weight:600;font-size:12px">Network total</td>
+              <td></td><td></td>
+              <td style="padding:7px 8px;text-align:right;font-family:var(--mono);font-size:12px;font-weight:600;color:var(--accent)">${fmt(netHours)}</td>
+              <td style="padding:7px 8px;text-align:right;font-family:var(--mono);font-size:12px;font-weight:600;color:var(--accent)">${netExp ? '$'+netExp.toFixed(2) : '—'}</td>
+              <td style="padding:7px 8px;text-align:right;font-family:var(--mono);font-size:12px;font-weight:600;color:var(--accent)">${netKms ? fmt(netKms) : '—'}</td>
+              <td style="padding:7px 8px;text-align:right;font-family:var(--mono);font-size:12px;font-weight:600;color:var(--accent)">${netDiems ? fmt(netDiems) : '—'}</td>
+              <td></td>
+            </tr>
+          </tbody>
+        </table>
+      </div>
+    </div>`;
+  });
+
+  // Grand total bar
+  html += `
+  <div style="background:var(--signal);color:#fff;border-radius:var(--radius);padding:14px 20px;display:flex;gap:32px;flex-wrap:wrap;margin-top:4px">
+    <div>
+      <div style="font-family:var(--mono);font-size:9px;font-weight:600;text-transform:uppercase;letter-spacing:0.1em;opacity:0.7;margin-bottom:3px">Total Hours</div>
+      <div style="font-family:var(--mono);font-size:22px;font-weight:600">${fmt(gtHours)}</div>
+    </div>
+    ${gtExpenses ? `<div>
+      <div style="font-family:var(--mono);font-size:9px;font-weight:600;text-transform:uppercase;letter-spacing:0.1em;opacity:0.7;margin-bottom:3px">Total Expenses</div>
+      <div style="font-family:var(--mono);font-size:22px;font-weight:600">$${gtExpenses.toFixed(2)}</div>
+    </div>` : ''}
+    ${gtKms ? `<div>
+      <div style="font-family:var(--mono);font-size:9px;font-weight:600;text-transform:uppercase;letter-spacing:0.1em;opacity:0.7;margin-bottom:3px">Total KMs</div>
+      <div style="font-family:var(--mono);font-size:22px;font-weight:600">${fmt(gtKms)}</div>
+    </div>` : ''}
+    ${gtDiems ? `<div>
+      <div style="font-family:var(--mono);font-size:9px;font-weight:600;text-transform:uppercase;letter-spacing:0.1em;opacity:0.7;margin-bottom:3px">Total Diems</div>
+      <div style="font-family:var(--mono);font-size:22px;font-weight:600">${fmt(gtDiems)}</div>
+    </div>` : ''}
+  </div>`;
+
+  el.innerHTML = html;
+}
+
+// ── EXPENSES ─────────────────────────────────────────────────────────────────
+let expYear  = new Date().getFullYear();
+let expMonth = new Date().getMonth();
+
+function expPrevMonth() { expMonth--; if(expMonth<0){expMonth=11;expYear--;} renderExpenses(); }
+function expNextMonth() { expMonth++; if(expMonth>11){expMonth=0;expYear++;} renderExpenses(); }
+
+function getExpenses() {
+  const key = 'exp_' + monthKey(expYear, expMonth);
+  if (!state.months[key]) state.months[key] = [];
+  return state.months[key];
+}
+
+function expTotalForDate(date) {
+  // look across all expense keys for this date
+  const y = date.slice(0,7); // YYYY-MM
+  const key = 'exp_' + y;
+  const receipts = state.months[key] || [];
+  const total = receipts.filter(r=>r.date===date).reduce((s,r)=>s+(parseFloat(r.amount)||0),0);
+  return total ? '$'+total.toFixed(2) : '';
+}
+
+function expDescForDate(date) {
+  const y = date.slice(0,7);
+  const key = 'exp_' + y;
+  const receipts = (state.months[key]||[]).filter(r=>r.date===date);
+  if (!receipts.length) return '';
+  if (receipts.length === 1) return receipts[0].desc || '';
+  return receipts.length + ' receipts';
+}
+
+function addExpenseRow() {
+  const receipts = getExpenses();
+  // default to today if in current month, else first of month
+  const today = new Date().toISOString().slice(0,10);
+  const firstOfMonth = `${expYear}-${String(expMonth+1).padStart(2,'0')}-01`;
+  const defaultDate = today.startsWith(`${expYear}-${String(expMonth+1).padStart(2,'0')}`) ? today : firstOfMonth;
+  receipts.push({ id: uid(), date: defaultDate, desc: '', amount: '' });
+  save();
+  renderExpenses();
+}
+
+function setExpField(id, field, val) {
+  const receipts = getExpenses();
+  const r = receipts.find(r=>r.id===id);
+  if (r) { r[field]=val; save(); }
+}
+
+function changeExpNetwork(id, val) {
+  const receipts = getExpenses();
+  const r = receipts.find(r=>r.id===id);
+  if (!r) return;
+  r.network = val;
+  r.project = '';
+  save();
+  renderExpenses();
+  setTimeout(()=>{ const s=document.getElementById(`expp_${id}`); if(s)s.focus(); },30);
+}
+
+function deleteExpense(id) {
+  const key = 'exp_' + monthKey(expYear, expMonth);
+  state.months[key] = (state.months[key]||[]).filter(r=>r.id!==id);
+  save();
+  renderExpenses();
+  // refresh log if visible
+  if (document.getElementById('page-log').classList.contains('active')) renderLog();
+}
+
+function renderExpenses() {
+  document.getElementById('expLabel').textContent = MONTHS[expMonth] + ' ' + expYear;
+  const receipts = getExpenses();
+  const tbody = document.getElementById('expBody');
+
+  // Build date options for this month
+  const days = daysInMonth(expYear, expMonth);
+  const dateOpts = Array.from({length:days},(_,i)=>{
+    const d = `${expYear}-${String(expMonth+1).padStart(2,'0')}-${String(i+1).padStart(2,'0')}`;
+    const label = `${i+1} ${MONTHS[expMonth].slice(0,3)}`;
+    return `<option value="${d}">${label}</option>`;
+  }).join('');
+
+  if (!receipts.length) {
+    tbody.innerHTML = `<tr><td colspan="6"><div class="empty"><div class="empty-icon">🧾</div>No receipts yet. Click "+ Add receipt" to start.</div></td></tr>`;
+    document.getElementById('expTotals').innerHTML = '';
+    return;
+  }
+
+  const networks = [...new Set(state.projects.map(p=>p.network))].sort();
+
+  tbody.innerHTML = receipts.map(r => {
+    const opts = dateOpts.replace(`value="${r.date}"`, `value="${r.date}" selected`);
+    const netOpts = `<option value="">—</option>` +
+      networks.map(n=>`<option value="${n}"${r.network===n?' selected':''}>${n}</option>`).join('');
+    const projs = r.network ? state.projects.filter(p=>p.network===r.network) : [];
+    const projOpts = `<option value="">—</option>` +
+      projs.map(p=>`<option value="${esc(p.description)}"${r.project===p.description?' selected':''}>${p.description}</option>`).join('');
+    return `<tr>
+      <td><select class="cell-input" onchange="setExpField('${r.id}','date',this.value);renderExpenses()">${opts}</select></td>
+      <td><select class="cell-input" onchange="changeExpNetwork('${r.id}',this.value)">${netOpts}</select></td>
+      <td><select class="cell-input" id="expp_${r.id}" onchange="setExpField('${r.id}','project',this.value)">${projOpts}</select></td>
+      <td><input class="cell-input" value="${esc(r.desc)}" placeholder="Receipt description" oninput="setExpField('${r.id}','desc',this.value)"></td>
+      <td><input class="cell-input num" value="${r.amount}" placeholder="0.00" oninput="setExpField('${r.id}','amount',this.value)"></td>
+      <td style="text-align:center;vertical-align:middle;padding:0 2px"><button class="del-btn" onclick="deleteExpense('${r.id}')" title="Remove">&#215;</button></td>
+    </tr>`;
+  }).join('');
+
+  // Totals by date
+  const byDate = {};
+  receipts.forEach(r => {
+    if (!byDate[r.date]) byDate[r.date] = 0;
+    byDate[r.date] += parseFloat(r.amount)||0;
+  });
+  const grandTotal = receipts.reduce((s,r)=>s+(parseFloat(r.amount)||0),0);
+
+  let totalsHtml = '<div style="display:flex;gap:10px;flex-wrap:wrap;align-items:flex-start">';
+  // Per-day summary pills
+  Object.keys(byDate).sort().forEach(date => {
+    const d = new Date(date+'T12:00:00');
+    const label = `${d.getDate()} ${MONTHS[d.getMonth()].slice(0,3)}`;
+    totalsHtml += `<div class="stat" style="min-width:90px"><div class="stat-label">${label}</div><div class="stat-value" style="font-size:16px">$${byDate[date].toFixed(2)}</div></div>`;
+  });
+  totalsHtml += `<div class="stat" style="min-width:100px;border-color:var(--accent2)"><div class="stat-label">Month total</div><div class="stat-value">$${grandTotal.toFixed(2)}</div></div>`;
+  totalsHtml += '</div>';
+  document.getElementById('expTotals').innerHTML = totalsHtml;
+}
+
+function dl(name,type,content) {
+  const a=document.createElement('a');
+  a.href=URL.createObjectURL(new Blob([content],{type}));
+  a.download=name; a.click(); URL.revokeObjectURL(a.href);
+}
+
+let _tt;
+function toast(msg) {
+  const el=document.getElementById('toast');
+  el.textContent=msg; el.classList.add('show');
+  clearTimeout(_tt); _tt=setTimeout(()=>el.classList.remove('show'),2000);
+}
+
+renderLog();
+</script>
+</body>
+</html>

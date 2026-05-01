@@ -1,0 +1,986 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Client Prep Desk</title>
+<style>
+*,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
+:root{
+  --bg:#1a1812;
+  --surface:#242018;
+  --surface2:#1e1b14;
+  --panel:#201d16;
+  --border:#333028;
+  --border2:#4a4232;
+  --text:#ede8df;
+  --muted:#8c8478;
+  --brand:#2d5fa0;
+  --brand-lit:#4a7fc1;
+  --gold:#c9a84c;
+  --accent:#C62828;
+  --green:#3f8f5b;
+  --shadow:#11100c;
+}
+body{
+  min-height:100vh;
+  background:
+    radial-gradient(circle at 12% 4%,rgba(74,127,193,.16),transparent 28rem),
+    linear-gradient(135deg,rgba(201,168,76,.08),transparent 36%),
+    var(--bg);
+  color:var(--text);
+  font-family:'Gill Sans','Gill Sans MT',Calibri,sans-serif;
+  font-size:15px;
+  line-height:1.6;
+}
+button,input,select,textarea{font:inherit}
+button{cursor:pointer}
+.shell{max-width:1460px;margin:0 auto;padding:18px}
+.topbar{
+  display:flex;
+  align-items:flex-start;
+  justify-content:space-between;
+  gap:18px;
+  border:1px solid var(--border2);
+  background:linear-gradient(135deg,var(--surface),var(--surface2));
+  box-shadow:6px 6px 0 var(--shadow);
+  padding:22px;
+  margin-bottom:18px;
+}
+.brand h1{
+  font-family:system-ui,-apple-system,sans-serif;
+  font-size:clamp(2rem,5vw,4.6rem);
+  line-height:.9;
+  letter-spacing:-2px;
+  font-weight:900;
+}
+.brand p{max-width:760px;color:var(--muted);font-size:1rem;margin-top:10px}
+.top-actions{display:flex;gap:8px;flex-wrap:wrap;justify-content:flex-end}
+.btn{
+  border:1px solid var(--border2);
+  background:var(--surface2);
+  color:var(--text);
+  padding:9px 13px;
+  font-weight:700;
+  font-family:system-ui,-apple-system,sans-serif;
+  text-transform:uppercase;
+  letter-spacing:.04em;
+  box-shadow:3px 3px 0 var(--brand);
+}
+.btn:hover{transform:translate(2px,2px);box-shadow:1px 1px 0 var(--shadow)}
+.btn.primary{background:var(--brand-lit);color:#fff}
+.btn.danger{background:var(--accent);color:#fff;box-shadow:3px 3px 0 #701717}
+.btn.good{background:var(--green);color:#fff}
+.btn.gold{background:var(--gold);color:var(--bg);box-shadow:3px 3px 0 #7c6327}
+.btn.small{font-size:.72rem;padding:6px 9px;box-shadow:2px 2px 0 var(--shadow)}
+.layout{display:grid;grid-template-columns:330px 1fr 390px;gap:18px;align-items:start}
+.panel{
+  border:1px solid var(--border2);
+  background:var(--surface);
+  box-shadow:4px 4px 0 var(--shadow);
+}
+.panel.pad{padding:14px}
+.panel-title{
+  display:flex;
+  justify-content:space-between;
+  align-items:center;
+  gap:12px;
+  padding:12px 14px;
+  border-bottom:1px solid var(--border2);
+  background:var(--surface2);
+  font-family:system-ui,-apple-system,sans-serif;
+  font-weight:900;
+  letter-spacing:.02em;
+  text-transform:uppercase;
+  font-size:1.05rem;
+}
+.field{display:flex;flex-direction:column;gap:5px;margin-bottom:10px}
+.field label{
+  font-family:system-ui,-apple-system,sans-serif;
+  font-size:.72rem;
+  font-weight:700;
+  color:var(--muted);
+  text-transform:uppercase;
+  letter-spacing:.08em;
+}
+input,select,textarea{
+  width:100%;
+  border:1px solid var(--border2);
+  background:var(--surface2);
+  color:var(--text);
+  padding:9px 10px;
+  font-family:'Gill Sans','Gill Sans MT',Calibri,sans-serif;
+  font-size:1rem;
+  font-weight:400;
+  letter-spacing:normal;
+  text-transform:none;
+}
+input::placeholder,textarea::placeholder{color:#6f675b}
+textarea{min-height:82px;resize:vertical}
+input:focus,select:focus,textarea:focus{outline:none;border-color:var(--brand-lit);background:#28231a}
+.row{display:grid;grid-template-columns:1fr 1fr;gap:10px}
+.triple{display:grid;grid-template-columns:1fr 1fr 1fr;gap:10px}
+.stats{display:grid;grid-template-columns:1fr 1fr;gap:10px;margin-bottom:12px}
+.stat{
+  border:1px solid var(--border2);
+  background:var(--surface2);
+  padding:10px;
+}
+.stat b{display:block;font-family:system-ui,-apple-system,sans-serif;font-size:1.7rem;line-height:1;color:var(--brand-lit);font-weight:900}
+.stat span{display:block;color:var(--muted);font-family:system-ui,-apple-system,sans-serif;font-size:.7rem;font-weight:700;text-transform:uppercase;margin-top:4px}
+.searchbar{display:flex;gap:8px;margin-bottom:10px}
+.client-list{display:flex;flex-direction:column;gap:8px;max-height:70vh;overflow:auto;padding-right:3px}
+.client-card{
+  width:100%;
+  text-align:left;
+  border:1px solid var(--border2);
+  background:var(--surface2);
+  color:var(--text);
+  padding:10px;
+  box-shadow:2px 2px 0 var(--shadow);
+}
+.client-card:hover{border-color:var(--muted)}
+.client-card.active{border-color:var(--brand-lit);box-shadow:3px 3px 0 var(--brand)}
+.client-name{font-family:system-ui,-apple-system,sans-serif;font-weight:900;font-size:1rem}
+.client-meta{color:var(--muted);font-size:.82rem;margin-top:3px}
+.tagrow{display:flex;gap:5px;flex-wrap:wrap;margin-top:8px}
+.tag{
+  display:inline-flex;
+  border:1px solid var(--border2);
+  background:var(--panel);
+  color:var(--text);
+  padding:2px 6px;
+  font-family:system-ui,-apple-system,sans-serif;
+  font-size:.68rem;
+  font-weight:700;
+  text-transform:uppercase;
+}
+.tag.hot{background:#3a1818;color:#f0a2a2}
+.tag.good{background:#173520;color:#95d6a9}
+.tag.blue{background:#162a42;color:#9fc3ef}
+.workspace{display:flex;flex-direction:column;gap:18px}
+.empty{
+  padding:42px 20px;
+  text-align:center;
+  color:var(--muted);
+}
+.empty strong{display:block;color:var(--text);font-family:system-ui,-apple-system,sans-serif;font-size:2rem;font-weight:900;letter-spacing:-1px;text-transform:uppercase;margin-bottom:8px}
+.section{padding:14px;border-bottom:1px solid var(--border)}
+.section:last-child{border-bottom:none}
+.section h2{
+  font-family:system-ui,-apple-system,sans-serif;
+  font-weight:900;
+  text-transform:uppercase;
+  letter-spacing:.02em;
+  font-size:1.25rem;
+  margin-bottom:12px;
+}
+.notes-list,.task-list{display:flex;flex-direction:column;gap:8px}
+.note,.task{
+  border:1px solid var(--border2);
+  background:var(--surface2);
+  padding:10px;
+}
+.note-head,.task-head{display:flex;justify-content:space-between;gap:10px;color:var(--muted);font-family:system-ui,-apple-system,sans-serif;font-size:.72rem;font-weight:700;text-transform:uppercase;margin-bottom:6px}
+.note-body{white-space:pre-wrap}
+.task{display:grid;grid-template-columns:auto 1fr auto;gap:9px;align-items:start}
+.task input{width:auto;margin-top:2px}
+.task.done .task-text{text-decoration:line-through;color:var(--muted)}
+.summary-box{
+  border:1px dashed var(--border2);
+  background:var(--surface2);
+  padding:12px;
+  white-space:pre-wrap;
+  min-height:160px;
+}
+.price-grid{display:grid;grid-template-columns:1fr 1fr;gap:10px}
+.price-card{
+  border:1px solid var(--border2);
+  background:var(--surface2);
+  padding:12px;
+}
+.price-card strong{display:block;font-family:system-ui,-apple-system,sans-serif;font-size:1.5rem;color:var(--brand-lit);font-weight:900}
+.price-card span{display:block;color:var(--muted);font-size:.85rem}
+.helper-result{
+  border:1px solid var(--border2);
+  background:var(--gold);
+  padding:12px;
+  margin:12px 0;
+  color:var(--bg);
+  font-family:system-ui,-apple-system,sans-serif;
+  font-weight:900;
+  font-size:1.8rem;
+  text-align:center;
+  box-shadow:4px 4px 0 #7c6327;
+}
+.question-list{display:flex;flex-direction:column;gap:8px}
+.question{
+  border-left:5px solid var(--brand-lit);
+  background:var(--surface2);
+  padding:9px 10px;
+  color:var(--text);
+}
+.question small{display:block;color:var(--muted);font-family:system-ui,-apple-system,sans-serif;font-weight:700;text-transform:uppercase;margin-bottom:3px}
+.toast{
+  position:fixed;
+  right:18px;
+  bottom:18px;
+  background:var(--brand-lit);
+  color:#fff;
+  padding:11px 14px;
+  font-family:system-ui,-apple-system,sans-serif;
+  font-weight:700;
+  opacity:0;
+  transform:translateY(10px);
+  transition:.18s;
+  pointer-events:none;
+}
+.toast.show{opacity:1;transform:translateY(0)}
+@media(max-width:1160px){.layout{grid-template-columns:310px 1fr}.side-right{grid-column:1/-1}}
+@media(max-width:760px){
+  .shell{padding:10px}
+  .topbar{display:block}
+  .top-actions{justify-content:flex-start;margin-top:14px}
+  .layout{grid-template-columns:1fr}
+  .row,.triple,.price-grid{grid-template-columns:1fr}
+  .client-list{max-height:none}
+}
+@media print{
+  .top-actions,.side-left,.side-right,.btn,.searchbar{display:none!important}
+  body{background:#fff}
+  .shell{max-width:none;padding:0}
+  .topbar,.panel{box-shadow:none;border-color:#000}
+  .layout{display:block}
+}
+</style>
+</head>
+<body>
+<div class="shell">
+  <header class="topbar">
+    <div class="brand">
+      <h1>Client Prep Desk</h1>
+      <p>One offline place for discovery notes, client scale, pricing guesses, next steps, and the stuff you do not want to remember by force.</p>
+    </div>
+    <div class="top-actions">
+      <button class="btn primary" id="newClientBtn" type="button">New Client</button>
+      <button class="btn" id="exportBtn" type="button">Export</button>
+      <label class="btn" for="importFile">Import</label>
+      <input id="importFile" type="file" accept="application/json" hidden>
+      <button class="btn danger" id="clearBtn" type="button">Clear</button>
+    </div>
+  </header>
+
+  <main class="layout">
+    <aside class="panel pad side-left">
+      <div class="stats">
+        <div class="stat"><b id="statActive">0</b><span>Active</span></div>
+        <div class="stat"><b id="statQuoted">$0</b><span>Quoted</span></div>
+        <div class="stat"><b id="statFollow">0</b><span>Need next step</span></div>
+        <div class="stat"><b id="statWon">0</b><span>Won</span></div>
+      </div>
+      <div class="searchbar">
+        <input id="searchInput" type="search" placeholder="Search clients">
+        <select id="statusFilter" aria-label="Filter by status">
+          <option value="all">All</option>
+          <option value="lead">Lead</option>
+          <option value="discovery">Discovery</option>
+          <option value="quoted">Quoted</option>
+          <option value="building">Building</option>
+          <option value="waiting">Waiting</option>
+          <option value="won">Won</option>
+          <option value="lost">Lost</option>
+        </select>
+      </div>
+      <div class="client-list" id="clientList"></div>
+    </aside>
+
+    <section class="workspace">
+      <div class="panel" id="editorPanel">
+        <div class="empty">
+          <strong>No Client Selected</strong>
+          Pick a client or create a new one. Data stays in this browser.
+        </div>
+      </div>
+    </section>
+
+    <aside class="panel side-right">
+      <div class="panel-title">Price Helper</div>
+      <div class="section">
+        <div class="field">
+          <label for="helperScale">Scale</label>
+          <select id="helperScale">
+            <option value="500">Simple — one screen, one purpose</option>
+            <option value="1200" selected>Standard — core tool + one operational layer</option>
+            <option value="2500">Complex — full operations build</option>
+          </select>
+        </div>
+        <div class="field">
+          <label for="helperMess">Messiness</label>
+          <select id="helperMess">
+            <option value="0">Clear process</option>
+            <option value="200" selected>Some messy edge cases</option>
+            <option value="500">Lots of exceptions</option>
+            <option value="1000">Business rules still being discovered</option>
+          </select>
+        </div>
+        <div class="field">
+          <label for="helperRisk">Data risk</label>
+          <select id="helperRisk">
+            <option value="0">Simple notes only</option>
+            <option value="200" selected>Important business records</option>
+            <option value="500">Private or regulated data</option>
+          </select>
+        </div>
+        <div class="field">
+          <label for="helperRush">Timeline</label>
+          <select id="helperRush">
+            <option value="1">Normal</option>
+            <option value="1.25">Soon</option>
+            <option value="1.5">Rush</option>
+          </select>
+        </div>
+        <div class="helper-result" id="helperResult">$0 to $0</div>
+        <button class="btn gold" id="applyPriceBtn" type="button">Apply To Selected</button>
+      </div>
+      <div class="panel-title">Discovery Prompts</div>
+      <div class="section">
+        <div class="question-list" id="questionList"></div>
+      </div>
+    </aside>
+  </main>
+</div>
+<div class="toast" id="toast" role="status" aria-live="polite"></div>
+
+<script>
+(function(){
+  const STORAGE_KEY = "beforeitbreaks.clientPrep.v1";
+  const state = {
+    clients: [],
+    selectedId: "",
+    search: "",
+    status: "all"
+  };
+
+  const questions = [
+    ["Pain", "What breaks, gets forgotten, or depends on one person remembering it?"],
+    ["Frequency", "How often does this happen in a normal week?"],
+    ["Actors", "Who touches this process, and who only needs to see the result?"],
+    ["Current tools", "What are they using now: paper, texts, spreadsheet, memory, software they hate?"],
+    ["Failure cost", "What does one mistake cost in money, time, embarrassment, or customer trust?"],
+    ["Must-have", "If the first version only does three things, what are the three?"],
+    ["Data", "What information needs to be saved, searched, printed, or exported?"],
+    ["Price anchor", "What would this replace: hours, admin work, missed jobs, subscriptions, stress?"]
+  ];
+
+  const el = {
+    clientList: document.getElementById("clientList"),
+    editorPanel: document.getElementById("editorPanel"),
+    searchInput: document.getElementById("searchInput"),
+    statusFilter: document.getElementById("statusFilter"),
+    statActive: document.getElementById("statActive"),
+    statQuoted: document.getElementById("statQuoted"),
+    statFollow: document.getElementById("statFollow"),
+    statWon: document.getElementById("statWon"),
+    helperScale: document.getElementById("helperScale"),
+    helperMess: document.getElementById("helperMess"),
+    helperRisk: document.getElementById("helperRisk"),
+    helperRush: document.getElementById("helperRush"),
+    helperResult: document.getElementById("helperResult"),
+    questionList: document.getElementById("questionList"),
+    toast: document.getElementById("toast")
+  };
+
+  function uid(){
+    return "c_" + Date.now().toString(36) + "_" + Math.random().toString(36).slice(2,8);
+  }
+
+  function money(value){
+    const n = Number(value) || 0;
+    return "$" + n.toLocaleString("en-CA", {maximumFractionDigits:0});
+  }
+
+  function today(){
+    return new Date().toISOString().slice(0,10);
+  }
+
+  function blankClient(){
+    return {
+      id: uid(),
+      name: "New client",
+      business: "",
+      contact: "",
+      email: "",
+      phone: "",
+      source: "",
+      status: "lead",
+      scale: "standard",
+      priceLow: 500,
+      priceHigh: 1200,
+      quoted: 0,
+      dueDate: "",
+      nextStep: "",
+      problem: "",
+      workflow: "",
+      users: "",
+      frequency: "",
+      data: "",
+      risks: "",
+      notes: [],
+      tasks: []
+    };
+  }
+
+  function load(){
+    const raw = localStorage.getItem(STORAGE_KEY);
+    if(!raw) return;
+    try{
+      const parsed = JSON.parse(raw);
+      if(Array.isArray(parsed.clients)){
+        state.clients = parsed.clients;
+        state.selectedId = parsed.selectedId || "";
+      }
+    }catch(err){
+      notify("Could not load saved data.");
+    }
+  }
+
+  function save(){
+    localStorage.setItem(STORAGE_KEY, JSON.stringify({
+      clients: state.clients,
+      selectedId: state.selectedId
+    }));
+  }
+
+  function selected(){
+    return state.clients.find(client => client.id === state.selectedId) || null;
+  }
+
+  function notify(message){
+    el.toast.textContent = message;
+    el.toast.classList.add("show");
+    window.setTimeout(() => el.toast.classList.remove("show"), 1800);
+  }
+
+  function clearNode(node){
+    while(node.firstChild) node.removeChild(node.firstChild);
+  }
+
+  function make(tag, className, text){
+    const node = document.createElement(tag);
+    if(className) node.className = className;
+    if(text !== undefined) node.textContent = text;
+    return node;
+  }
+
+  function filteredClients(){
+    const q = state.search.trim().toLowerCase();
+    return state.clients.filter(client => {
+      const statusOk = state.status === "all" || client.status === state.status;
+      const text = [client.name, client.business, client.contact, client.problem, client.nextStep].join(" ").toLowerCase();
+      return statusOk && (!q || text.includes(q));
+    }).sort((a,b) => {
+      const ad = a.dueDate || "9999-99-99";
+      const bd = b.dueDate || "9999-99-99";
+      return ad.localeCompare(bd) || a.name.localeCompare(b.name);
+    });
+  }
+
+  function statusLabel(value){
+    const map = {
+      lead:"Lead",
+      discovery:"Discovery",
+      quoted:"Quoted",
+      building:"Building",
+      waiting:"Waiting",
+      won:"Won",
+      lost:"Lost"
+    };
+    return map[value] || value;
+  }
+
+  function scaleLabel(value){
+    const map = {
+      simple:"Simple",
+      standard:"Standard",
+      complex:"Complex"
+    };
+    return map[value] || value;
+  }
+
+  function tagClass(status){
+    if(status === "won") return "tag good";
+    if(status === "quoted" || status === "building") return "tag blue";
+    if(status === "lost") return "tag hot";
+    return "tag";
+  }
+
+  function renderStats(){
+    const active = state.clients.filter(c => !["won","lost"].includes(c.status)).length;
+    const quoted = state.clients.reduce((sum,c) => sum + (Number(c.quoted) || 0), 0);
+    const follow = state.clients.filter(c => !["won","lost"].includes(c.status) && !String(c.nextStep || "").trim()).length;
+    const won = state.clients.filter(c => c.status === "won").length;
+    el.statActive.textContent = String(active);
+    el.statQuoted.textContent = money(quoted);
+    el.statFollow.textContent = String(follow);
+    el.statWon.textContent = String(won);
+  }
+
+  function renderClientList(){
+    clearNode(el.clientList);
+    const list = filteredClients();
+    if(!list.length){
+      el.clientList.appendChild(make("p","client-meta","No clients match this filter."));
+      return;
+    }
+    list.forEach(client => {
+      const btn = make("button","client-card","");
+      btn.type = "button";
+      if(client.id === state.selectedId) btn.classList.add("active");
+      btn.addEventListener("click", () => {
+        state.selectedId = client.id;
+        save();
+        render();
+      });
+      btn.appendChild(make("div","client-name",client.name || "Unnamed client"));
+      const meta = [client.business, client.nextStep ? "Next: " + client.nextStep : "", client.dueDate ? "Due: " + client.dueDate : ""].filter(Boolean).join(" | ");
+      btn.appendChild(make("div","client-meta",meta || "No details yet"));
+      const tags = make("div","tagrow","");
+      tags.appendChild(make("span",tagClass(client.status),statusLabel(client.status)));
+      tags.appendChild(make("span","tag",scaleLabel(client.scale)));
+      tags.appendChild(make("span","tag blue",money(client.priceLow) + "-" + money(client.priceHigh)));
+      btn.appendChild(tags);
+      el.clientList.appendChild(btn);
+    });
+  }
+
+  function bindText(input, client, key, numeric){
+    input.value = client[key] || "";
+    input.addEventListener("input", () => {
+      client[key] = numeric ? Number(input.value) || 0 : input.value;
+      save();
+      renderStats();
+      renderClientList();
+      renderSummary();
+    });
+  }
+
+  function field(labelText, input){
+    const wrap = make("div","field","");
+    const label = document.createElement("label");
+    label.textContent = labelText;
+    label.appendChild(input);
+    wrap.appendChild(label);
+    return wrap;
+  }
+
+  function input(type){
+    const node = document.createElement("input");
+    node.type = type;
+    return node;
+  }
+
+  function textarea(){
+    return document.createElement("textarea");
+  }
+
+  function select(options){
+    const node = document.createElement("select");
+    options.forEach(item => {
+      const opt = document.createElement("option");
+      opt.value = item[0];
+      opt.textContent = item[1];
+      node.appendChild(opt);
+    });
+    return node;
+  }
+
+  function renderEditor(){
+    const client = selected();
+    clearNode(el.editorPanel);
+    if(!client){
+      const empty = make("div","empty","");
+      empty.appendChild(make("strong","", "No Client Selected"));
+      empty.appendChild(document.createTextNode("Pick a client or create a new one. Data stays in this browser."));
+      el.editorPanel.appendChild(empty);
+      return;
+    }
+
+    const title = make("div","panel-title","");
+    title.appendChild(make("span","",client.name || "Client"));
+    const deleteBtn = make("button","btn small danger","Delete");
+    deleteBtn.type = "button";
+    deleteBtn.addEventListener("click", () => deleteClient(client.id));
+    title.appendChild(deleteBtn);
+    el.editorPanel.appendChild(title);
+
+    const basic = make("section","section","");
+    basic.appendChild(make("h2","", "Client"));
+    const name = input("text"); bindText(name, client, "name");
+    const business = input("text"); bindText(business, client, "business");
+    const contact = input("text"); bindText(contact, client, "contact");
+    const email = input("email"); bindText(email, client, "email");
+    const phone = input("tel"); bindText(phone, client, "phone");
+    const source = input("text"); bindText(source, client, "source");
+    const status = select([["lead","Lead"],["discovery","Discovery"],["quoted","Quoted"],["building","Building"],["waiting","Waiting"],["won","Won"],["lost","Lost"]]);
+    status.value = client.status || "lead";
+    status.addEventListener("change", () => { client.status = status.value; save(); render(); });
+    const scale = select([["simple","Simple — $500"],["standard","Standard — $1,200"],["complex","Complex — $2,500"]]);
+    scale.value = client.scale || "small";
+    scale.addEventListener("change", () => { client.scale = scale.value; save(); renderClientList(); renderSummary(); });
+    const row1 = make("div","row","");
+    row1.appendChild(field("Client name", name));
+    row1.appendChild(field("Business", business));
+    const row2 = make("div","row","");
+    row2.appendChild(field("Contact person", contact));
+    row2.appendChild(field("Source", source));
+    const row3 = make("div","row","");
+    row3.appendChild(field("Email", email));
+    row3.appendChild(field("Phone", phone));
+    const row4 = make("div","row","");
+    row4.appendChild(field("Status", status));
+    row4.appendChild(field("Scale", scale));
+    basic.appendChild(row1);
+    basic.appendChild(row2);
+    basic.appendChild(row3);
+    basic.appendChild(row4);
+    el.editorPanel.appendChild(basic);
+
+    const scope = make("section","section","");
+    scope.appendChild(make("h2","", "Discovery"));
+    const problem = textarea(); bindText(problem, client, "problem");
+    const workflow = textarea(); bindText(workflow, client, "workflow");
+    const users = input("text"); bindText(users, client, "users");
+    const frequency = input("text"); bindText(frequency, client, "frequency");
+    const data = textarea(); bindText(data, client, "data");
+    const risks = textarea(); bindText(risks, client, "risks");
+    scope.appendChild(field("Problem in their words", problem));
+    scope.appendChild(field("Workflow today", workflow));
+    const row5 = make("div","row","");
+    row5.appendChild(field("Users / roles", users));
+    row5.appendChild(field("Frequency", frequency));
+    scope.appendChild(row5);
+    scope.appendChild(field("Data that matters", data));
+    scope.appendChild(field("Risks / weird edge cases", risks));
+    el.editorPanel.appendChild(scope);
+
+    const price = make("section","section","");
+    price.appendChild(make("h2","", "Scale And Price"));
+    const low = input("number"); bindText(low, client, "priceLow", true);
+    const high = input("number"); bindText(high, client, "priceHigh", true);
+    const quoted = input("number"); bindText(quoted, client, "quoted", true);
+    const due = input("date"); bindText(due, client, "dueDate");
+    const next = input("text"); bindText(next, client, "nextStep");
+    const priceRow = make("div","triple","");
+    priceRow.appendChild(field("Low estimate", low));
+    priceRow.appendChild(field("High estimate", high));
+    priceRow.appendChild(field("Quoted price", quoted));
+    const nextRow = make("div","row","");
+    nextRow.appendChild(field("Next step", next));
+    nextRow.appendChild(field("Follow-up date", due));
+    price.appendChild(priceRow);
+    price.appendChild(nextRow);
+    const priceCards = make("div","price-grid","");
+    const range = make("div","price-card","");
+    range.appendChild(make("strong","",money(client.priceLow) + " to " + money(client.priceHigh)));
+    range.appendChild(make("span","","Working range"));
+    const final = make("div","price-card","");
+    final.appendChild(make("strong","",money(client.quoted)));
+    final.appendChild(make("span","","Quoted"));
+    priceCards.appendChild(range);
+    priceCards.appendChild(final);
+    price.appendChild(priceCards);
+    el.editorPanel.appendChild(price);
+
+    const notes = make("section","section","");
+    notes.appendChild(make("h2","", "Notes"));
+    const noteText = textarea();
+    noteText.placeholder = "Call notes, details, objections, exact wording...";
+    const noteType = select([["call","Call"],["meeting","Meeting"],["idea","Idea"],["risk","Risk"],["price","Price"],["todo","To-do"]]);
+    const addNote = make("button","btn primary","Add Note");
+    addNote.type = "button";
+    addNote.addEventListener("click", () => {
+      const text = noteText.value.trim();
+      if(!text) return;
+      client.notes.unshift({id:uid(), type:noteType.value, text:text, date:new Date().toLocaleString()});
+      noteText.value = "";
+      save();
+      render();
+    });
+    const noteRow = make("div","row","");
+    noteRow.appendChild(field("Type", noteType));
+    const btnWrap = make("div","field","");
+    btnWrap.appendChild(make("label","", "Save"));
+    btnWrap.appendChild(addNote);
+    noteRow.appendChild(btnWrap);
+    notes.appendChild(field("New note", noteText));
+    notes.appendChild(noteRow);
+    notes.appendChild(renderNotes(client));
+    el.editorPanel.appendChild(notes);
+
+    const tasks = make("section","section","");
+    tasks.appendChild(make("h2","", "Tasks"));
+    const taskText = input("text");
+    taskText.placeholder = "Example: send scope email";
+    const addTask = make("button","btn primary","Add Task");
+    addTask.type = "button";
+    addTask.addEventListener("click", () => {
+      const text = taskText.value.trim();
+      if(!text) return;
+      client.tasks.push({id:uid(), text:text, done:false});
+      taskText.value = "";
+      save();
+      render();
+    });
+    const taskRow = make("div","row","");
+    taskRow.appendChild(field("New task", taskText));
+    const taskBtn = make("div","field","");
+    taskBtn.appendChild(make("label","", "Save"));
+    taskBtn.appendChild(addTask);
+    taskRow.appendChild(taskBtn);
+    tasks.appendChild(taskRow);
+    tasks.appendChild(renderTasks(client));
+    el.editorPanel.appendChild(tasks);
+
+    const summary = make("section","section","");
+    summary.appendChild(make("h2","", "Client Summary"));
+    const summaryBox = make("div","summary-box","");
+    summaryBox.id = "summaryBox";
+    summary.appendChild(summaryBox);
+    const copy = make("button","btn good","Copy Summary");
+    copy.type = "button";
+    copy.addEventListener("click", copySummary);
+    summary.appendChild(copy);
+    el.editorPanel.appendChild(summary);
+    renderSummary();
+  }
+
+  function renderNotes(client){
+    const wrap = make("div","notes-list","");
+    if(!client.notes.length){
+      wrap.appendChild(make("p","client-meta","No notes yet."));
+      return wrap;
+    }
+    client.notes.forEach(note => {
+      const card = make("div","note","");
+      const head = make("div","note-head","");
+      head.appendChild(make("span","",note.type || "note"));
+      const del = make("button","btn small","Remove");
+      del.type = "button";
+      del.addEventListener("click", () => {
+        client.notes = client.notes.filter(item => item.id !== note.id);
+        save();
+        render();
+      });
+      head.appendChild(make("span","",note.date || ""));
+      card.appendChild(head);
+      card.appendChild(make("div","note-body",note.text || ""));
+      card.appendChild(del);
+      wrap.appendChild(card);
+    });
+    return wrap;
+  }
+
+  function renderTasks(client){
+    const wrap = make("div","task-list","");
+    if(!client.tasks.length){
+      wrap.appendChild(make("p","client-meta","No tasks yet."));
+      return wrap;
+    }
+    client.tasks.forEach(task => {
+      const row = make("div","task","");
+      if(task.done) row.classList.add("done");
+      const check = document.createElement("input");
+      check.type = "checkbox";
+      check.checked = Boolean(task.done);
+      check.addEventListener("change", () => {
+        task.done = check.checked;
+        save();
+        renderTasksOnly(client);
+      });
+      const text = make("div","task-text",task.text || "");
+      const del = make("button","btn small","Remove");
+      del.type = "button";
+      del.addEventListener("click", () => {
+        client.tasks = client.tasks.filter(item => item.id !== task.id);
+        save();
+        render();
+      });
+      row.appendChild(check);
+      row.appendChild(text);
+      row.appendChild(del);
+      wrap.appendChild(row);
+    });
+    return wrap;
+  }
+
+  function renderTasksOnly(){
+    render();
+  }
+
+  function clientSummary(client){
+    if(!client) return "";
+    const openTasks = client.tasks.filter(task => !task.done).map(task => "- " + task.text).join("\n") || "- None";
+    const latestNotes = client.notes.slice(0,3).map(note => "- [" + (note.type || "note") + "] " + (note.text || "").replace(/\s+/g," ").trim()).join("\n") || "- None";
+    return [
+      "CLIENT: " + (client.name || "Unnamed"),
+      "BUSINESS: " + (client.business || "Not captured"),
+      "CONTACT: " + ([client.contact, client.email, client.phone].filter(Boolean).join(" | ") || "Not captured"),
+      "STATUS: " + statusLabel(client.status) + " | SCALE: " + scaleLabel(client.scale),
+      "PRICE RANGE: " + money(client.priceLow) + " to " + money(client.priceHigh) + " | QUOTED: " + money(client.quoted),
+      "NEXT STEP: " + (client.nextStep || "Not set"),
+      "FOLLOW-UP: " + (client.dueDate || "Not set"),
+      "",
+      "PROBLEM:",
+      client.problem || "Not captured",
+      "",
+      "WORKFLOW TODAY:",
+      client.workflow || "Not captured",
+      "",
+      "USERS / FREQUENCY:",
+      (client.users || "Users not captured") + " | " + (client.frequency || "Frequency not captured"),
+      "",
+      "DATA / RISKS:",
+      (client.data || "Data not captured") + "\n" + (client.risks || "Risks not captured"),
+      "",
+      "OPEN TASKS:",
+      openTasks,
+      "",
+      "LATEST NOTES:",
+      latestNotes
+    ].join("\n");
+  }
+
+  function renderSummary(){
+    const box = document.getElementById("summaryBox");
+    if(box) box.textContent = clientSummary(selected());
+  }
+
+  function copySummary(){
+    const text = clientSummary(selected());
+    if(!text) return;
+    if(navigator.clipboard && navigator.clipboard.writeText){
+      navigator.clipboard.writeText(text).then(() => notify("Summary copied."));
+    }else{
+      notify("Clipboard unavailable. Use print or export.");
+    }
+  }
+
+  function deleteClient(id){
+    const client = state.clients.find(item => item.id === id);
+    if(!client) return;
+    const ok = window.confirm("Delete " + (client.name || "this client") + "?");
+    if(!ok) return;
+    state.clients = state.clients.filter(item => item.id !== id);
+    state.selectedId = state.clients[0] ? state.clients[0].id : "";
+    save();
+    render();
+  }
+
+  function addClient(){
+    const client = blankClient();
+    state.clients.unshift(client);
+    state.selectedId = client.id;
+    save();
+    render();
+  }
+
+  function renderQuestions(){
+    clearNode(el.questionList);
+    questions.forEach(item => {
+      const card = make("div","question","");
+      card.appendChild(make("small","",item[0]));
+      card.appendChild(make("div","",item[1]));
+      el.questionList.appendChild(card);
+    });
+  }
+
+  function helperEstimate(){
+    const base = Number(el.helperScale.value) || 0;
+    const mess = Number(el.helperMess.value) || 0;
+    const risk = Number(el.helperRisk.value) || 0;
+    const rush = Number(el.helperRush.value) || 1;
+    const low = Math.round(((base + mess + risk) * rush) / 100) * 100;
+    const high = Math.round((low * 1.45) / 100) * 100;
+    el.helperResult.textContent = money(low) + " to " + money(high);
+    return {low, high};
+  }
+
+  function applyPrice(){
+    const client = selected();
+    if(!client){
+      notify("Select a client first.");
+      return;
+    }
+    const estimate = helperEstimate();
+    client.priceLow = estimate.low;
+    client.priceHigh = estimate.high;
+    if(!client.quoted) client.quoted = estimate.high;
+    save();
+    render();
+    notify("Price range applied.");
+  }
+
+  function exportData(){
+    const blob = new Blob([JSON.stringify({exported:today(), clients:state.clients}, null, 2)], {type:"application/json"});
+    const url = URL.createObjectURL(blob);
+    const a = document.createElement("a");
+    a.href = url;
+    a.download = "client-prep-" + today() + ".json";
+    document.body.appendChild(a);
+    a.click();
+    a.remove();
+    URL.revokeObjectURL(url);
+  }
+
+  function importData(file){
+    if(!file) return;
+    const reader = new FileReader();
+    reader.onload = () => {
+      try{
+        const parsed = JSON.parse(String(reader.result || ""));
+        if(!Array.isArray(parsed.clients)) throw new Error("Missing clients");
+        state.clients = parsed.clients;
+        state.selectedId = state.clients[0] ? state.clients[0].id : "";
+        save();
+        render();
+        notify("Import complete.");
+      }catch(err){
+        notify("Import failed.");
+      }
+    };
+    reader.readAsText(file);
+  }
+
+  function clearAll(){
+    if(!state.clients.length) return;
+    const ok = window.confirm("Clear all client prep data from this browser?");
+    if(!ok) return;
+    state.clients = [];
+    state.selectedId = "";
+    save();
+    render();
+  }
+
+  function render(){
+    renderStats();
+    renderClientList();
+    renderEditor();
+    helperEstimate();
+  }
+
+  document.getElementById("newClientBtn").addEventListener("click", addClient);
+  document.getElementById("exportBtn").addEventListener("click", exportData);
+  document.getElementById("clearBtn").addEventListener("click", clearAll);
+  document.getElementById("importFile").addEventListener("change", event => importData(event.target.files[0]));
+  document.getElementById("applyPriceBtn").addEventListener("click", applyPrice);
+  el.searchInput.addEventListener("input", () => { state.search = el.searchInput.value; renderClientList(); });
+  el.statusFilter.addEventListener("change", () => { state.status = el.statusFilter.value; renderClientList(); });
+  [el.helperScale, el.helperMess, el.helperRisk, el.helperRush].forEach(node => node.addEventListener("change", helperEstimate));
+
+  load();
+  renderQuestions();
+  render();
+})();
+</script>
+</body>
+</html>

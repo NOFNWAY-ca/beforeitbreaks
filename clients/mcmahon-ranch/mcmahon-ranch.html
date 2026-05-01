@@ -1,0 +1,2609 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>McMahon Ranch | Ranch Management</title>
+<link rel="manifest" href="./manifest.json">
+<meta name="theme-color" content="#2c1a0e">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Playfair+Display:wght@400;700&family=Source+Sans+3:wght@400;600;700&display=swap" rel="stylesheet">
+<style>
+*,*::before,*::after{box-sizing:border-box}
+html{font-size:16px}
+:root{
+  --primary:#2c1a0e;
+  --accent:#9b5b31;
+  --accent-strong:#7f461f;
+  --bg:#f6f2eb;
+  --panel:#fffdf9;
+  --panel-strong:#f0e7dc;
+  --line:#d8cbbd;
+  --text:#23160d;
+  --muted:#645546;
+  --success:#2f6b34;
+  --success-bg:#e8f4e8;
+  --warning:#8a5b00;
+  --warning-bg:#fff3d8;
+  --danger:#9f1f1f;
+  --danger-bg:#fde8e8;
+  --info:#244f7f;
+  --info-bg:#e7f0f8;
+  --shadow:0 8px 24px rgba(44,26,14,.12);
+  --radius:12px;
+}
+body.high-viz{
+  --primary:#000;
+  --accent:#ffd400;
+  --accent-strong:#c2a100;
+  --bg:#fff55c;
+  --panel:#fff94d;
+  --panel-strong:#fff17b;
+  --line:#000;
+  --text:#000;
+  --muted:#111;
+  --success:#000;
+  --success-bg:#d8ff63;
+  --warning:#000;
+  --warning-bg:#ffe84d;
+  --danger:#000;
+  --danger-bg:#ff8e63;
+  --info:#000;
+  --info-bg:#fff19a;
+  --shadow:none;
+}
+body{
+  margin:0;
+  font-family:'Source Sans 3',sans-serif;
+  background:linear-gradient(180deg,#eee3d2 0,#f6f2eb 200px);
+  color:var(--text);
+  min-height:100vh;
+}
+body.high-viz{background:var(--bg)}
+button,input,select,textarea{font:inherit}
+button,input,select{min-height:44px}
+button{cursor:pointer}
+a{color:inherit}
+.app-shell{max-width:1640px;margin:0 auto;padding-bottom:48px}
+header{
+  background:var(--primary);
+  color:#fff;
+  padding:18px 18px 14px;
+  position:sticky;
+  top:0;
+  z-index:20;
+  box-shadow:0 4px 16px rgba(0,0,0,.18);
+}
+.header-row{display:flex;align-items:center;justify-content:space-between;gap:12px}
+.brand h1{
+  margin:0;
+  font-family:'Playfair Display',serif;
+  font-size:1.9rem;
+  line-height:1;
+  letter-spacing:.02em;
+}
+.brand p{
+  margin:.35rem 0 0;
+  font-size:.78rem;
+  letter-spacing:.16em;
+  text-transform:uppercase;
+  color:#d8c5ac;
+}
+.header-tools{display:flex;gap:10px;align-items:center;flex-wrap:wrap;justify-content:flex-end}
+.pill{
+  display:inline-flex;
+  align-items:center;
+  gap:8px;
+  min-height:44px;
+  padding:0 14px;
+  border-radius:999px;
+  border:1px solid rgba(255,255,255,.18);
+  background:rgba(255,255,255,.08);
+  color:#fff;
+  font-size:.95rem;
+  font-weight:700;
+}
+.btn{
+  min-height:44px;
+  padding:0 16px;
+  border-radius:10px;
+  border:1px solid transparent;
+  font-weight:700;
+  transition:background .15s,border-color .15s,opacity .15s,color .15s;
+}
+.btn:hover{opacity:.92}
+.btn-primary{background:var(--primary);color:#fff}
+.btn-accent{background:var(--accent);color:#fff}
+.btn-outline{background:transparent;border-color:var(--line);color:var(--text)}
+.btn-soft{background:var(--panel-strong);border-color:var(--line);color:var(--text)}
+.btn-danger{background:var(--danger);color:#fff}
+.btn-chip{
+  background:rgba(255,255,255,.08);
+  border-color:rgba(255,255,255,.2);
+  color:#fff;
+}
+.btn-chip.active{background:var(--accent);border-color:var(--accent);color:#fff}
+.btn-sm{min-height:38px;padding:0 12px}
+.tab-nav{
+  display:flex;
+  gap:8px;
+  overflow:auto;
+  padding:14px 18px 0;
+  scrollbar-width:thin;
+}
+.tab-btn{
+  border:0;
+  border-bottom:3px solid transparent;
+  background:transparent;
+  color:#ceb89e;
+  min-height:44px;
+  padding:0 2px 10px;
+  font-size:.95rem;
+  font-weight:700;
+  white-space:nowrap;
+}
+.tab-btn.active{color:#fff;border-bottom-color:#f4e7d3}
+main{padding:20px 18px}
+.section{margin-bottom:24px}
+.section-head{display:flex;align-items:flex-start;justify-content:space-between;gap:12px;flex-wrap:wrap;margin-bottom:14px}
+.section-head h2,.section-head h3{
+  margin:0;
+  font-family:'Playfair Display',serif;
+  font-size:1.5rem;
+}
+.section-head p{margin:4px 0 0;color:var(--muted)}
+.actions{display:flex;gap:10px;flex-wrap:wrap}
+.card-grid{display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:14px}
+.card{
+  background:var(--panel);
+  border:1px solid var(--line);
+  border-radius:var(--radius);
+  box-shadow:var(--shadow);
+}
+.stat-card{padding:18px}
+.stat-label{font-size:.78rem;text-transform:uppercase;letter-spacing:.1em;color:var(--muted);font-weight:700}
+.stat-value{font-size:2rem;font-weight:700;margin-top:8px;line-height:1}
+.stat-meta{margin-top:8px;color:var(--muted);font-size:.95rem}
+.split-grid{display:grid;grid-template-columns:1.25fr .95fr;gap:18px}
+.stack{display:grid;gap:18px}
+.panel{padding:18px}
+.panel h3{
+  margin:0 0 12px;
+  font-family:'Playfair Display',serif;
+  font-size:1.25rem;
+}
+.toolbar{
+  display:flex;
+  gap:10px;
+  flex-wrap:wrap;
+  align-items:center;
+  margin-bottom:12px;
+}
+.search,.select,.input,.textarea{
+  width:100%;
+  border:1px solid var(--line);
+  border-radius:10px;
+  padding:0 14px;
+  background:#fff;
+  color:var(--text);
+}
+.search,.select,.input{height:44px}
+.textarea{padding:12px 14px;min-height:92px;resize:vertical}
+.search:focus,.select:focus,.input:focus,.textarea:focus{outline:2px solid transparent;border-color:var(--accent)}
+.toolbar .search{max-width:280px}
+.toolbar .select{max-width:220px}
+.count{margin-left:auto;color:var(--muted);font-weight:700}
+.table-wrap{
+  background:var(--panel);
+  border:1px solid var(--line);
+  border-radius:var(--radius);
+  overflow:auto;
+  box-shadow:var(--shadow);
+}
+table{width:100%;border-collapse:collapse;min-width:760px}
+thead th{
+  background:var(--primary);
+  color:#f1deca;
+  padding:12px 14px;
+  text-align:left;
+  font-size:.8rem;
+  text-transform:uppercase;
+  letter-spacing:.06em;
+}
+tbody td{
+  padding:12px 14px;
+  border-top:1px solid #efe5da;
+  vertical-align:top;
+}
+tbody tr:hover{background:#fbf7f1}
+.td-muted{color:var(--muted)}
+.td-actions{white-space:nowrap;text-align:right}
+.td-actions .btn{margin-left:6px}
+.badge{
+  display:inline-flex;
+  align-items:center;
+  min-height:24px;
+  padding:0 10px;
+  border-radius:999px;
+  font-size:.76rem;
+  font-weight:700;
+  letter-spacing:.03em;
+}
+.b-ok{background:var(--success-bg);color:var(--success)}
+.b-warn{background:var(--warning-bg);color:var(--warning)}
+.b-danger{background:var(--danger-bg);color:var(--danger)}
+.b-info{background:var(--info-bg);color:var(--info)}
+.b-neutral{background:var(--panel-strong);color:var(--muted)}
+.notice-stack{display:grid;gap:10px;margin-bottom:18px}
+.notice{
+  display:flex;
+  gap:10px;
+  align-items:flex-start;
+  padding:14px 16px;
+  border-radius:12px;
+  border:1px solid var(--line);
+  background:var(--panel);
+}
+.notice strong{display:block;margin-bottom:3px}
+.notice.info{background:var(--info-bg);border-color:#b8cfe4}
+.notice.warn{background:var(--warning-bg);border-color:#e7c77c}
+.notice.danger{background:var(--danger-bg);border-color:#e9b0b0}
+.quick-list,.mini-list{display:grid;gap:10px}
+.mini-item{
+  display:flex;
+  justify-content:space-between;
+  align-items:flex-start;
+  gap:10px;
+  padding:12px 14px;
+  background:var(--panel-strong);
+  border:1px solid var(--line);
+  border-radius:10px;
+}
+.mini-item h4{margin:0 0 4px;font-size:1rem}
+.mini-item p{margin:0;color:var(--muted)}
+.grid-2{display:grid;grid-template-columns:1fr 1fr;gap:14px}
+.form-grid{display:grid;grid-template-columns:1fr 1fr;gap:14px}
+.field{display:flex;flex-direction:column;gap:6px}
+.field.span-2{grid-column:span 2}
+.field label{
+  font-size:.8rem;
+  text-transform:uppercase;
+  letter-spacing:.08em;
+  color:var(--muted);
+  font-weight:700;
+}
+.hint{font-size:.85rem;color:var(--muted)}
+.empty{padding:28px;color:var(--muted);text-align:center}
+.inventory-grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(260px,1fr));gap:14px}
+.inventory-card{padding:16px}
+.inventory-card h4{margin:0 0 8px;font-size:1.1rem}
+.meter{height:10px;border-radius:999px;background:#eadfd2;overflow:hidden;margin:10px 0}
+.meter > span{display:block;height:100%;background:var(--success)}
+.inventory-card.low .meter > span{background:var(--warning)}
+.report-shell{display:grid;gap:18px}
+.report-card{padding:18px}
+.report-meta{display:flex;gap:10px;flex-wrap:wrap;color:var(--muted);margin-bottom:14px}
+.report-table{min-width:unset}
+.report-table table{min-width:unset}
+.report-title{
+  font-family:'Playfair Display',serif;
+  font-size:1.3rem;
+  margin:0 0 8px;
+}
+.settings-list{display:grid;gap:10px}
+.settings-row{
+  display:flex;
+  justify-content:space-between;
+  align-items:center;
+  gap:10px;
+  padding:12px 14px;
+  border:1px solid var(--line);
+  border-radius:10px;
+  background:var(--panel-strong);
+}
+.settings-row .btn{flex:0 0 auto}
+.footer-gap{height:8px}
+.modal-ov{
+  position:fixed;
+  inset:0;
+  background:rgba(22,13,7,.55);
+  display:flex;
+  align-items:center;
+  justify-content:center;
+  padding:18px;
+  z-index:40;
+}
+.modal-ov.hidden{display:none}
+.modal{
+  width:min(760px,100%);
+  max-height:92vh;
+  display:flex;
+  flex-direction:column;
+  background:var(--panel);
+  border:1px solid var(--line);
+  border-radius:18px;
+  box-shadow:0 20px 48px rgba(0,0,0,.25);
+}
+.modal-head,.modal-foot{
+  padding:16px 18px;
+  border-bottom:1px solid var(--line);
+  display:flex;
+  align-items:center;
+  justify-content:space-between;
+  gap:10px;
+}
+.modal-foot{border-bottom:0;border-top:1px solid var(--line);justify-content:flex-end;flex-wrap:wrap}
+.modal-head h3{margin:0;font-family:'Playfair Display',serif;font-size:1.4rem}
+.modal-body{padding:18px;overflow:auto}
+.modal-close{
+  width:44px;
+  min-height:44px;
+  border-radius:10px;
+  background:transparent;
+  border:1px solid var(--line);
+  color:var(--text);
+  font-size:1.25rem;
+}
+.modal-error{
+  display:none;
+  margin-bottom:14px;
+  padding:12px 14px;
+  border-radius:10px;
+  background:var(--danger-bg);
+  color:var(--danger);
+  border:1px solid #e9b0b0;
+  font-weight:700;
+}
+.modal-error.show{display:block}
+.print-only{display:none}
+@media (max-width:1200px){
+  .card-grid{grid-template-columns:repeat(2,minmax(0,1fr))}
+  .split-grid{grid-template-columns:1fr}
+}
+@media (max-width:760px){
+  .header-row{align-items:flex-start;flex-direction:column}
+  .header-tools{width:100%;justify-content:flex-start}
+  .form-grid,.grid-2,.card-grid{grid-template-columns:1fr}
+  .field.span-2{grid-column:span 1}
+  .count{margin-left:0;width:100%}
+  main{padding:16px 14px}
+  .tab-nav{padding:12px 14px 0}
+}
+@media print{
+  body{background:#fff}
+  header,.tab-nav,.toolbar,.actions,.btn,.settings-row button,.notice-stack:not(.print-keep),#toast-region,.modal-ov{display:none!important}
+  main{padding:0}
+  .section{margin:0}
+  .card,.table-wrap,.report-card{box-shadow:none;border:1px solid #999}
+  .print-only{display:block}
+  .report-card{break-inside:avoid-page}
+  .report-shell{gap:12px}
+  .report-title{font-size:1.25rem}
+  thead th{background:#2c1a0e!important;color:#fff!important}
+}
+</style>
+</head>
+<body>
+<div class="app-shell">
+  <header>
+    <div class="header-row">
+      <div class="brand">
+        <h1 id="brand-name">McMahon Ranch</h1>
+        <p id="brand-sub">Ranch Management</p>
+      </div>
+      <div class="header-tools">
+        <span class="pill" id="withdrawal-pill">No active withdrawals</span>
+        <button class="btn btn-chip" id="highviz-btn" type="button" onclick="toggleHighViz()">High-Viz Mode</button>
+        <button class="btn btn-chip" type="button" onclick="openSettings()">Settings</button>
+      </div>
+    </div>
+    <nav class="tab-nav">
+      <button class="tab-btn active" data-tab="dashboard" type="button" onclick="switchTab('dashboard')">Dashboard</button>
+      <button class="tab-btn" data-tab="cattle" type="button" onclick="switchTab('cattle')">Cattle</button>
+      <button class="tab-btn" data-tab="operations" type="button" onclick="switchTab('operations')">Operations</button>
+      <button class="tab-btn" data-tab="inventory" type="button" onclick="switchTab('inventory')">Inventory</button>
+      <button class="tab-btn" data-tab="health" type="button" onclick="switchTab('health')">Health</button>
+      <button class="tab-btn" data-tab="equipment" type="button" onclick="switchTab('equipment')">Equipment</button>
+      <button class="tab-btn" data-tab="pastures" type="button" onclick="switchTab('pastures')">Pastures</button>
+      <button class="tab-btn" data-tab="reports" type="button" onclick="switchTab('reports')">Reports</button>
+    </nav>
+  </header>
+
+  <main id="app"></main>
+</div>
+
+<div id="toast-region" class="notice-stack" style="position:fixed;right:18px;bottom:18px;z-index:35;max-width:420px"></div>
+
+<div id="modal-ov" class="modal-ov hidden">
+  <div class="modal">
+    <div class="modal-head">
+      <h3 id="modal-title"></h3>
+      <button class="modal-close" type="button" onclick="closeModal()">×</button>
+    </div>
+    <div class="modal-body">
+      <div id="modal-error" class="modal-error"></div>
+      <div id="modal-body"></div>
+    </div>
+    <div id="modal-foot" class="modal-foot"></div>
+  </div>
+</div>
+
+<script>
+const STORAGE_KEY = 'mr_app_v2';
+const LEGACY_KEYS = {
+  cattle:'ranch_cattle',
+  feedInv:'ranch_feed_inventory',
+  feedLog:'ranch_feed_log',
+  deliveries:'ranch_deliveries',
+  health:'ranch_health',
+  vacc:'ranch_vaccinations',
+  equip:'ranch_equipment',
+  service:'ranch_service',
+  repairs:'ranch_repairs',
+  locs:'ranch_locations',
+  moves:'ranch_moves',
+  settings:'ranch_settings'
+};
+
+let D = {};
+let currentTab = 'dashboard';
+let currentYear = new Date().getFullYear();
+let modalState = null;
+const ui = {
+  cattleQ:'',
+  cattleType:'',
+  cattleStatus:'',
+  cattleLocation:'',
+  operationsType:'',
+  reportYear: currentYear,
+  healthShowResolved: false
+};
+
+function genId(prefix='id'){
+  return prefix + '_' + Math.random().toString(36).slice(2,10);
+}
+function today(){
+  return new Date().toISOString().split('T')[0];
+}
+function fmtDate(value){
+  if(!value) return 'Not set';
+  const [y,m,d] = value.split('-').map(Number);
+  const names = ['Jan','Feb','Mar','Apr','May','Jun','Jul','Aug','Sep','Oct','Nov','Dec'];
+  return `${names[m-1]} ${d}, ${y}`;
+}
+function fmtMoney(value){
+  return value || value === 0 ? `$${Number(value).toLocaleString(undefined,{minimumFractionDigits:2,maximumFractionDigits:2})}` : 'Not set';
+}
+function esc(value){
+  if(value == null) return '';
+  return String(value)
+    .replace(/&/g,'&amp;')
+    .replace(/</g,'&lt;')
+    .replace(/>/g,'&gt;')
+    .replace(/"/g,'&quot;');
+}
+function daysBetween(a,b){
+  if(!a || !b) return 0;
+  return Math.round((new Date(b+'T00:00:00') - new Date(a+'T00:00:00')) / 86400000);
+}
+function addDays(dateString, days){
+  if(!dateString) return '';
+  const d = new Date(dateString + 'T00:00:00');
+  d.setDate(d.getDate() + Number(days || 0));
+  return d.toISOString().split('T')[0];
+}
+function clamp(n,min,max){
+  return Math.max(min, Math.min(max, n));
+}
+function byId(id){
+  return document.getElementById(id);
+}
+function activeAnimalStatuses(){
+  return ['Active','For Sale'];
+}
+function animalLabel(animal){
+  return animal ? `${animal.tag}${animal.name ? ' | ' + animal.name : ''}` : 'Unknown animal';
+}
+function medName(id){
+  const item = D.inventory.medications.find(x => x.id === id);
+  return item ? item.name : '';
+}
+function feedName(id){
+  const item = D.inventory.feed.find(x => x.id === id);
+  return item ? item.name : '';
+}
+function feedUnit(id){
+  const item = D.inventory.feed.find(x => x.id === id);
+  return item ? item.unit : '';
+}
+function equipName(id){
+  const item = D.equipment.find(x => x.id === id);
+  return item ? item.name : '';
+}
+function headCount(locationName){
+  return D.cattle.filter(c => c.location === locationName && activeAnimalStatuses().includes(c.status)).length;
+}
+function getWithdrawalAlerts(){
+  const td = today();
+  return D.treatments
+    .filter(t => t.clearanceDate && t.clearanceDate >= td)
+    .sort((a,b) => a.clearanceDate.localeCompare(b.clearanceDate));
+}
+function saveData(){
+  localStorage.setItem(STORAGE_KEY, JSON.stringify(D));
+}
+function migrateLegacy(){
+  const legacyCattle = getLegacy('cattle') || [];
+  if(!legacyCattle.length) return null;
+  const legacyFeedInv = getLegacy('feedInv') || [];
+  const legacyHealth = getLegacy('health') || [];
+  const legacyVacc = getLegacy('vacc') || [];
+  const legacySettings = getLegacy('settings') || {};
+  const seedData = seed();
+  const data = {
+    meta:{version:2,migratedAt:new Date().toISOString()},
+    settings:{
+      ranchName: legacySettings.ranchName || seedData.settings.ranchName,
+      pid: legacySettings.pid || '',
+      highViz:false,
+      vets: Array.isArray(legacySettings.vets) && legacySettings.vets.length ? legacySettings.vets : seedData.settings.vets
+    },
+    cattle: legacyCattle.map(c => ({
+      id:c.id || genId('cow'),
+      tag:c.tag || '',
+      name:c.name || '',
+      type:c.type === 'Bull Calf' || c.type === 'Heifer Calf' ? 'Calf' : (c.type || 'Cow'),
+      breed:c.breed || 'Commercial',
+      dob:c.dob || '',
+      location:c.location || '',
+      status:c.status || 'Active',
+      cciaTag:(c.cciTag || '').replace(/\D/g,'').slice(0,15),
+      sire:c.sire || '',
+      dam:c.dam || '',
+      notes:c.notes || '',
+      lastWeight:c.lastWeight || '',
+      weightDate:c.weightDate || '',
+      salePrice:c.salePrice || ''
+    })),
+    inventory:{
+      feed:(legacyFeedInv.length ? legacyFeedInv : seedData.inventory.feed).map(item => ({
+        id:item.id || genId('feed'),
+        name:item.name || '',
+        unit:item.unit || 'kg',
+        onHand:Number(item.onHand || 0),
+        threshold:Number(item.threshold || 0)
+      })),
+      medications: seedData.inventory.medications
+    },
+    feedLogs:getLegacy('feedLog') || seedData.feedLogs,
+    deliveries:getLegacy('deliveries') || seedData.deliveries,
+    births: seedData.births,
+    salesDeaths: seedData.salesDeaths,
+    treatments: legacyHealth.map(h => {
+      const withdrawalDays = h.withdrawal && h.startDate ? Math.max(0, daysBetween(h.startDate, h.withdrawal)) : 0;
+      return {
+        id:h.id || genId('tx'),
+        tag:h.tag || '',
+        condition:h.condition || '',
+        medicationId:'',
+        medicationName:'',
+        inventoryQtyUsed:'',
+        dosage:h.dosage || '',
+        treatment:h.treatment || '',
+        startDate:h.startDate || today(),
+        endDate:h.endDate || '',
+        withdrawalDays,
+        clearanceDate:h.withdrawal || addDays(h.startDate || today(), withdrawalDays),
+        vet:h.vet || 'In-house',
+        status:h.status || 'Ongoing',
+        notes:h.notes || ''
+      };
+    }),
+    vaccinations:legacyVacc,
+    equipment:getLegacy('equip') || seedData.equipment,
+    service:getLegacy('service') || seedData.service,
+    repairs:getLegacy('repairs') || seedData.repairs,
+    locations:getLegacy('locs') || seedData.locations,
+    moves:getLegacy('moves') || seedData.moves
+  };
+  return normalizeData(data);
+}
+function getLegacy(name){
+  const raw = localStorage.getItem(LEGACY_KEYS[name]);
+  return raw ? JSON.parse(raw) : null;
+}
+function normalizeData(data){
+  const base = defaultData();
+  const merged = {
+    meta:{version:2},
+    settings:{...base.settings,...(data.settings || {})},
+    cattle:Array.isArray(data.cattle) ? data.cattle : base.cattle,
+    inventory:{
+      feed:Array.isArray(data.inventory && data.inventory.feed) ? data.inventory.feed : base.inventory.feed,
+      medications:Array.isArray(data.inventory && data.inventory.medications) ? data.inventory.medications : base.inventory.medications
+    },
+    feedLogs:Array.isArray(data.feedLogs) ? data.feedLogs : base.feedLogs,
+    deliveries:Array.isArray(data.deliveries) ? data.deliveries : base.deliveries,
+    births:Array.isArray(data.births) ? data.births : base.births,
+    salesDeaths:Array.isArray(data.salesDeaths) ? data.salesDeaths : base.salesDeaths,
+    treatments:Array.isArray(data.treatments) ? data.treatments : base.treatments,
+    vaccinations:Array.isArray(data.vaccinations) ? data.vaccinations : base.vaccinations,
+    equipment:Array.isArray(data.equipment) ? data.equipment : base.equipment,
+    service:Array.isArray(data.service) ? data.service : base.service,
+    repairs:Array.isArray(data.repairs) ? data.repairs : base.repairs,
+    locations:Array.isArray(data.locations) ? data.locations : base.locations,
+    moves:Array.isArray(data.moves) ? data.moves : base.moves
+  };
+  merged.settings.highViz = !!merged.settings.highViz;
+  merged.settings.pid = merged.settings.pid || '';
+  merged.settings.vets = Array.isArray(merged.settings.vets) && merged.settings.vets.length ? merged.settings.vets : ['In-house'];
+  merged.cattle = merged.cattle.map(c => ({
+    ...c,
+    id:c.id || genId('cow'),
+    cciaTag:(c.cciaTag || c.cciTag || '').replace(/\D/g,'').slice(0,15),
+    type:c.type || 'Cow',
+    status:c.status || 'Active'
+  }));
+  merged.treatments = merged.treatments.map(t => ({
+    ...t,
+    id:t.id || genId('tx'),
+    medicationId:t.medicationId || '',
+    medicationName:t.medicationName || ((merged.inventory.medications.find(x => x.id === t.medicationId) || {}).name || ''),
+    inventoryQtyUsed:t.inventoryQtyUsed === 0 ? 0 : (t.inventoryQtyUsed || ''),
+    withdrawalDays:Number(t.withdrawalDays || 0),
+    clearanceDate:t.clearanceDate || addDays(t.startDate || today(), Number(t.withdrawalDays || 0))
+  }));
+  merged.salesDeaths = merged.salesDeaths.map(item => ({
+    ...item,
+    id:item.id || genId('sd'),
+    disposalMethod:item.disposalMethod || (item.kind === 'Sale' ? 'Sold' : 'Burial'),
+    gstStatus:item.gstStatus || 'Not Applicable'
+  }));
+  return merged;
+}
+function loadData(){
+  const current = localStorage.getItem(STORAGE_KEY);
+  if(current){
+    D = normalizeData(JSON.parse(current));
+    return;
+  }
+  const migrated = migrateLegacy();
+  D = migrated || seed();
+  saveData();
+}
+
+function defaultData(){
+  return {
+    settings:{
+      ranchName:'McMahon Ranch',
+      pid:'MB-421-778',
+      highViz:false,
+      vets:['In-house','Dr. Thiessen','Dr. Martens']
+    },
+    cattle:[
+      {id:'c1',tag:'M-001',name:'Ironclad',type:'Bull',breed:'Purebred',dob:'2020-03-15',location:'Bull Pen A',status:'Active',cciaTag:'124000123456001',sire:'EXT-S01',dam:'EXT-D01',notes:'Herd sire. Excellent temperament and conformation.',lastWeight:1055,weightDate:'2026-03-15',salePrice:''},
+      {id:'c2',tag:'M-002',name:'Thunder',type:'Bull',breed:'Purebred',dob:'2019-04-22',location:'Bull Pen B',status:'For Sale',cciaTag:'124000123456002',sire:'EXT-S01',dam:'EXT-D02',notes:'Available for sale. Full EPDs on file.',lastWeight:990,weightDate:'2026-03-10',salePrice:4500},
+      {id:'c3',tag:'M-047',name:'',type:'Cow',breed:'Commercial',dob:'2017-05-10',location:'Home Pasture',status:'Active',cciaTag:'124000123456047',sire:'',dam:'',notes:'Currently isolated for treatment.',lastWeight:582,weightDate:'2026-03-30',salePrice:''},
+      {id:'c4',tag:'M-103',name:'',type:'Cow',breed:'Commercial',dob:'2018-06-01',location:'North Pasture',status:'Active',cciaTag:'124000123456103',sire:'',dam:'',notes:'',lastWeight:614,weightDate:'2026-03-20',salePrice:''},
+      {id:'c5',tag:'M-155',name:'',type:'Cow',breed:'Commercial',dob:'2018-02-14',location:'West Pasture',status:'Active',cciaTag:'124000123456155',sire:'',dam:'',notes:'Monitor body condition.',lastWeight:508,weightDate:'2026-03-25',salePrice:''},
+      {id:'c6',tag:'M-204',name:'',type:'Cow',breed:'Commercial',dob:'2019-03-30',location:'East Pen',status:'Active',cciaTag:'124000123456204',sire:'',dam:'',notes:'',lastWeight:603,weightDate:'2026-03-15',salePrice:''},
+      {id:'c7',tag:'M-312',name:'',type:'Heifer',breed:'Commercial',dob:'2024-04-08',location:'West Pasture',status:'Active',cciaTag:'124000123456312',sire:'',dam:'',notes:'First-calf heifer.',lastWeight:478,weightDate:'2026-03-28',salePrice:''},
+      {id:'c8',tag:'M-415',name:'',type:'Steer',breed:'Commercial',dob:'2024-03-20',location:'Drylot',status:'Active',cciaTag:'124000123456415',sire:'',dam:'',notes:'Monitor respiratory issue.',lastWeight:391,weightDate:'2026-04-02',salePrice:''},
+      {id:'c9',tag:'M-518',name:'',type:'Calf',breed:'Commercial',dob:'2026-02-28',location:'Calving Barn',status:'Active',cciaTag:'124000123456518',sire:'M-001',dam:'M-047',notes:'Healthy birth weight.',lastWeight:38,weightDate:'2026-02-28',salePrice:''},
+      {id:'c10',tag:'M-620',name:'Duke',type:'Bull',breed:'Purebred',dob:'2021-05-01',location:'Bull Pen A',status:'Active',cciaTag:'124000123456620',sire:'EXT-S02',dam:'EXT-D03',notes:'Second breeding bull.',lastWeight:918,weightDate:'2026-03-20',salePrice:''}
+    ],
+    inventory:{
+      feed:[
+        {id:'fi1',name:'Hay',unit:'bales',onHand:87,threshold:30},
+        {id:'fi2',name:'Silage',unit:'tonnes',onHand:14,threshold:8},
+        {id:'fi3',name:'Mineral Supplement',unit:'kg',onHand:320,threshold:50}
+      ],
+      medications:[
+        {id:'mi1',name:'Oxytetracycline',unit:'mL',onHand:460,threshold:100},
+        {id:'mi2',name:'Penicillin G',unit:'mL',onHand:225,threshold:80},
+        {id:'mi3',name:'Meloxicam',unit:'mL',onHand:140,threshold:40}
+      ]
+    },
+    feedLogs:[
+      {id:'fl1',date:'2026-04-05',feedId:'fi1',qty:3,location:'Home Pasture',notes:''},
+      {id:'fl2',date:'2026-04-05',feedId:'fi1',qty:4,location:'North Pasture',notes:''},
+      {id:'fl3',date:'2026-04-04',feedId:'fi2',qty:1,location:'East Pen',notes:''},
+      {id:'fl4',date:'2026-04-04',feedId:'fi3',qty:25,location:'Home Pasture',notes:'Loose mineral in tub.'}
+    ],
+    deliveries:[
+      {id:'d1',date:'2026-03-28',feedId:'fi1',qty:40,supplier:'Penner Hay',costPerUnit:'',notes:''},
+      {id:'d2',date:'2026-03-20',feedId:'fi2',qty:5,supplier:'Red River Silage',costPerUnit:'',notes:'Inoculated baleage.'},
+      {id:'d3',date:'2026-03-10',feedId:'fi3',qty:100,supplier:'Landmark Co-op',costPerUnit:'',notes:''}
+    ],
+    births:[
+      {id:'b1',date:'2026-02-28',damTag:'M-047',calfTag:'M-518',sex:'Unknown',notes:'Healthy live calf',autoCreatedAnimalId:'c9'}
+    ],
+    salesDeaths:[
+      {id:'sd1',date:'2026-03-14',kind:'Sale',animalTag:'M-002',animalName:'Thunder',cciaTag:'124000123456002',amount:4500,gstStatus:'GST Applicable',buyer:'Steinbach Livestock',disposalMethod:'Sold',notes:'Private treaty sale',direction:'Left'},
+      {id:'sd2',date:'2026-01-18',kind:'Death',animalTag:'M-088',animalName:'',cciaTag:'124000123456088',amount:'',gstStatus:'Not Applicable',buyer:'',disposalMethod:'Rendering',notes:'Winter pneumonia loss',direction:'Left'}
+    ],
+    treatments:[
+      {id:'t1',tag:'M-047',condition:'Pinkeye (IBK)',medicationId:'mi1',medicationName:'Oxytetracycline',inventoryQtyUsed:20,dosage:'10 mL IM x2',treatment:'Injection and eye patch',startDate:'2026-03-30',endDate:'',withdrawalDays:14,clearanceDate:'2026-04-13',vet:'In-house',status:'Ongoing',notes:'Left eye. Recheck April 8.'},
+      {id:'t2',tag:'M-155',condition:'Weight loss / poor body condition',medicationId:'',medicationName:'',inventoryQtyUsed:'',dosage:'',treatment:'Supplemental TMR ration and BCS monitoring',startDate:'2026-03-25',endDate:'',withdrawalDays:0,clearanceDate:'',vet:'In-house',status:'Monitoring',notes:'Goal BCS 3.0 before breeding.'},
+      {id:'t3',tag:'M-312',condition:'Foot rot',medicationId:'mi2',medicationName:'Penicillin G',inventoryQtyUsed:18,dosage:'6 mL IM x3',treatment:'Penicillin and hoof trim',startDate:'2026-03-01',endDate:'2026-03-10',withdrawalDays:10,clearanceDate:'2026-03-11',vet:'Dr. Thiessen',status:'Resolved',notes:'Full recovery confirmed.'}
+    ],
+    vaccinations:[
+      {id:'v1',vaccine:'Bovishield Gold FP5 VL5',group:'Full herd',scheduled:'2026-04-15',completed:false,completedDate:''},
+      {id:'v2',vaccine:'Scourguard 4KC',group:'Spring calves',scheduled:'2026-04-12',completed:false,completedDate:''},
+      {id:'v3',vaccine:'Pinkeye Shield',group:'Cows and heifers',scheduled:'2026-04-20',completed:false,completedDate:''},
+      {id:'v4',vaccine:'Clostridial 8-way',group:'Bulls',scheduled:'2026-05-01',completed:false,completedDate:''}
+    ],
+    equipment:[
+      {id:'e1',name:'John Deere 6105M Tractor',year:2018,notes:'Primary field tractor.',status:'Good',hours:2834},
+      {id:'e2',name:'Haybuster 2650 Bale Processor',year:2015,notes:'Daily winter use.',status:'Good',hours:1920},
+      {id:'e3',name:'Kubota RTV-X1140 Utility',year:2021,notes:'Daily use vehicle.',status:'Due Soon',hours:1260},
+      {id:'e4',name:'Grain Auger (8in x 51ft)',year:2010,notes:'Stored in machine shed.',status:'Good',hours:''},
+      {id:'e5',name:'Stock Trailer (24ft)',year:2016,notes:'Annual DOT inspection.',status:'Due Soon',hours:''},
+      {id:'e6',name:'Water Pump | Dugout 2',year:2008,notes:'Supplies North and West pasture waterers.',status:'Repair Needed',hours:''}
+    ],
+    service:[
+      {id:'s1',equipId:'e1',serviceType:'Engine oil and filter change',lastDate:'2026-03-15',interval:'Quarterly',nextDate:'2026-06-15',hoursAtService:2800},
+      {id:'s2',equipId:'e1',serviceType:'DEF and coolant level check',lastDate:'2026-03-15',interval:'Monthly',nextDate:'2026-04-15',hoursAtService:2800},
+      {id:'s3',equipId:'e2',serviceType:'Grease all fittings',lastDate:'2026-02-10',interval:'Monthly',nextDate:'2026-03-10',hoursAtService:1880},
+      {id:'s4',equipId:'e5',serviceType:'DOT safety inspection',lastDate:'2025-04-10',interval:'Annual',nextDate:'2026-04-10',hoursAtService:''}
+    ],
+    repairs:[
+      {id:'r1',date:'2026-03-15',equipId:'e1',work:'Engine oil and filter change, hydraulic fluid top-up',cost:180,by:'Gerry',hoursAtService:2800},
+      {id:'r2',date:'2026-03-20',equipId:'e3',work:'Belt inspection, air filter replaced',cost:45,by:'Gerry',hoursAtService:1245},
+      {id:'r3',date:'2026-04-01',equipId:'e6',work:'Pump seized. Needs impeller assembly.',cost:0,by:'Gerry',hoursAtService:''}
+    ],
+    locations:[
+      {id:'l1',name:'Home Pasture',type:'Pasture',size:'62 acres',notes:'',condition:'Good Grass'},
+      {id:'l2',name:'North Pasture',type:'Pasture',size:'88 acres',notes:'',condition:'Good Grass'},
+      {id:'l3',name:'West Pasture',type:'Pasture',size:'74 acres',notes:'',condition:'Dry'},
+      {id:'l4',name:'Bull Pen A',type:'Pen',size:'8 acres',notes:'Breeding bulls only.',condition:'Good Grass'},
+      {id:'l5',name:'Bull Pen B',type:'Pen',size:'8 acres',notes:'',condition:''},
+      {id:'l6',name:'East Pen',type:'Pen',size:'12 acres',notes:'',condition:''},
+      {id:'l7',name:'Calving Barn',type:'Barn',size:'Indoor',notes:'Heated. Calving season use.',condition:''},
+      {id:'l8',name:'Drylot',type:'Drylot',size:'4 acres',notes:'',condition:'Limited Water'},
+      {id:'l9',name:'South Pasture',type:'Pasture',size:'55 acres',notes:'Currently resting.',condition:'Resting'}
+    ],
+    moves:[
+      {id:'mv1',date:'2026-04-02',animals:'M-415',from:'East Pen',to:'Drylot',reason:'Moved for closer daily observation'},
+      {id:'mv2',date:'2026-04-01',animals:'M-518',from:'Home Pasture',to:'Calving Barn',reason:'Dam calved and pair moved inside'},
+      {id:'mv3',date:'2026-03-28',animals:'M-047',from:'North Pasture',to:'Home Pasture',reason:'Treatment isolation'}
+    ]
+  };
+}
+function seed(){
+  return normalizeData(defaultData());
+}
+
+function applyBranding(){
+  byId('brand-name').textContent = D.settings.ranchName || 'McMahon Ranch';
+  document.title = `${D.settings.ranchName || 'McMahon Ranch'} | Ranch Management`;
+  document.body.classList.toggle('high-viz', !!D.settings.highViz);
+  byId('highviz-btn').classList.toggle('active', !!D.settings.highViz);
+  updateWithdrawalPill();
+}
+function updateWithdrawalPill(){
+  const alerts = getWithdrawalAlerts();
+  const pill = byId('withdrawal-pill');
+  if(alerts.length){
+    pill.textContent = `${alerts.length} withdrawal warning${alerts.length === 1 ? '' : 's'}`;
+    pill.style.background = 'rgba(159,31,31,.92)';
+  }else{
+    pill.textContent = 'No active withdrawals';
+    pill.style.background = 'rgba(255,255,255,.08)';
+  }
+}
+function switchTab(tab){
+  currentTab = tab;
+  document.querySelectorAll('.tab-btn').forEach(btn => btn.classList.toggle('active', btn.dataset.tab === tab));
+  render();
+}
+function showToast(type,title,message,timeout=3200){
+  const region = byId('toast-region');
+  const item = document.createElement('div');
+  item.className = `notice ${type}`;
+  item.innerHTML = `<div><strong>${esc(title)}</strong><div>${esc(message)}</div></div>`;
+  region.appendChild(item);
+  window.setTimeout(() => item.remove(), timeout);
+}
+function openModal(title, bodyHtml, footHtml){
+  modalState = {title};
+  byId('modal-title').textContent = title;
+  byId('modal-body').innerHTML = bodyHtml;
+  byId('modal-foot').innerHTML = footHtml || '<button class="btn btn-outline" type="button" onclick="closeModal()">Close</button>';
+  clearModalError();
+  byId('modal-ov').classList.remove('hidden');
+}
+function closeModal(){
+  byId('modal-ov').classList.add('hidden');
+  modalState = null;
+}
+function showModalError(message){
+  const box = byId('modal-error');
+  box.textContent = message;
+  box.classList.add('show');
+}
+function clearModalError(){
+  const box = byId('modal-error');
+  box.textContent = '';
+  box.classList.remove('show');
+}
+function askConfirm(title, message, actionLabel, actionClass, fn){
+  openModal(
+    title,
+    `<p style="margin:0;font-size:1rem;line-height:1.5">${esc(message)}</p>`,
+    `<button class="btn btn-outline" type="button" onclick="closeModal()">Cancel</button>
+     <button class="btn ${actionClass}" type="button" onclick="runConfirmedAction()">${esc(actionLabel)}</button>`
+  );
+  window.runConfirmedAction = function(){
+    closeModal();
+    delete window.runConfirmedAction;
+    fn();
+  };
+}
+
+function render(){
+  const app = byId('app');
+  if(currentTab === 'dashboard') app.innerHTML = renderDashboard();
+  else if(currentTab === 'cattle') app.innerHTML = renderCattle();
+  else if(currentTab === 'operations') app.innerHTML = renderOperations();
+  else if(currentTab === 'inventory') app.innerHTML = renderInventory();
+  else if(currentTab === 'health') app.innerHTML = renderHealth();
+  else if(currentTab === 'equipment') app.innerHTML = renderEquipment();
+  else if(currentTab === 'pastures') app.innerHTML = renderPastures();
+  else if(currentTab === 'reports') app.innerHTML = renderReports();
+}
+
+function renderDashboard(){
+  const active = D.cattle.filter(c => activeAnimalStatuses().includes(c.status));
+  const saleCount = D.cattle.filter(c => c.status === 'For Sale').length;
+  const withdrawal = getWithdrawalAlerts();
+  const lowFeed = D.inventory.feed.filter(item => item.onHand <= item.threshold);
+  const lowMed = D.inventory.medications.filter(item => item.onHand <= item.threshold);
+  const dueVacc = D.vaccinations.filter(v => !v.completed).sort((a,b) => a.scheduled.localeCompare(b.scheduled)).slice(0,4);
+  const recentOps = [...D.births.map(b => ({date:b.date,label:`Birth logged for ${b.calfTag}`,meta:`Dam ${b.damTag || 'Not set'}`})),
+    ...D.salesDeaths.map(x => ({date:x.date,label:`${x.kind} logged for ${x.animalTag}`,meta:x.disposalMethod})),
+    ...D.treatments.map(t => ({date:t.startDate,label:`Treatment started for ${t.tag}`,meta:t.condition}))
+  ].sort((a,b) => b.date.localeCompare(a.date)).slice(0,6);
+
+  const notices = [];
+  if(withdrawal.length){
+    notices.push(`<div class="notice danger"><div><strong>Withdrawal warning</strong><div>${withdrawal.length} animal${withdrawal.length===1?' is':'s are'} still inside a medication withdrawal period.</div></div></div>`);
+  }
+  if(lowFeed.length || lowMed.length){
+    notices.push(`<div class="notice warn"><div><strong>Low inventory</strong><div>${lowFeed.length} feed item${lowFeed.length===1?'':'s'} and ${lowMed.length} medication item${lowMed.length===1?'':'s'} are at or below threshold.</div></div></div>`);
+  }
+
+  return `
+  <section class="section">
+    <div class="section-head">
+      <div>
+        <h2>Dashboard</h2>
+        <p>Field-first ranch view with quick logging, withdrawal warnings, and stock levels.</p>
+      </div>
+      <div class="actions">
+        <button class="btn btn-accent" type="button" onclick="openBirthModal()">Quick Add: Birth</button>
+        <button class="btn btn-outline" type="button" onclick="openTreatmentModal()">Log Treatment</button>
+        <button class="btn btn-outline" type="button" onclick="openSaleDeathModal()">Log Sale / Death</button>
+      </div>
+    </div>
+    ${notices.length ? `<div class="notice-stack print-keep">${notices.join('')}</div>` : ''}
+    <div class="card-grid">
+      <div class="card stat-card"><div class="stat-label">Active Head</div><div class="stat-value">${active.length}</div><div class="stat-meta">Current cattle on ranch</div></div>
+      <div class="card stat-card"><div class="stat-label">For Sale</div><div class="stat-value">${saleCount}</div><div class="stat-meta">Ready for marketing</div></div>
+      <div class="card stat-card"><div class="stat-label">Active Withdrawals</div><div class="stat-value">${withdrawal.length}</div><div class="stat-meta">Food safety warning count</div></div>
+      <div class="card stat-card"><div class="stat-label">Premises ID</div><div class="stat-value" style="font-size:1.4rem">${esc(D.settings.pid || 'Not set')}</div><div class="stat-meta">Manitoba PID on file</div></div>
+    </div>
+  </section>
+
+  <section class="section split-grid">
+    <div class="stack">
+      <div class="card panel">
+        <div class="section-head">
+          <div>
+            <h3>Withdrawal Watch</h3>
+            <p>Any active withdrawal period shows here until clearance date.</p>
+          </div>
+          <button class="btn btn-outline btn-sm" type="button" onclick="switchTab('health')">Open Health</button>
+        </div>
+        <div class="quick-list">
+          ${withdrawal.length ? withdrawal.map(t => `
+            <div class="mini-item">
+              <div>
+                <h4>${esc(t.tag)} | ${esc(t.condition)}</h4>
+                <p>${esc(t.medicationName || t.treatment || 'Treatment')} | Clearance ${fmtDate(t.clearanceDate)}</p>
+              </div>
+              <span class="badge b-danger">${daysBetween(today(), t.clearanceDate)} day${daysBetween(today(), t.clearanceDate) === 1 ? '' : 's'} left</span>
+            </div>
+          `).join('') : '<div class="empty">No active withdrawal records.</div>'}
+        </div>
+      </div>
+
+      <div class="card panel">
+        <div class="section-head">
+          <div>
+            <h3>Upcoming Vaccinations</h3>
+            <p>Next herd tasks due on the schedule.</p>
+          </div>
+          <button class="btn btn-outline btn-sm" type="button" onclick="switchTab('health')">Open Health</button>
+        </div>
+        <div class="quick-list">
+          ${dueVacc.length ? dueVacc.map(v => `
+            <div class="mini-item">
+              <div>
+                <h4>${esc(v.vaccine)}</h4>
+                <p>${esc(v.group)} | ${fmtDate(v.scheduled)}</p>
+              </div>
+              <span class="badge ${v.scheduled < today() ? 'b-danger' : 'b-warn'}">${v.scheduled < today() ? 'Overdue' : 'Scheduled'}</span>
+            </div>
+          `).join('') : '<div class="empty">No upcoming vaccinations.</div>'}
+        </div>
+      </div>
+    </div>
+
+    <div class="stack">
+      <div class="card panel">
+        <div class="section-head">
+          <div>
+            <h3>Inventory Alerts</h3>
+            <p>Touch-up stock before it becomes a field problem.</p>
+          </div>
+          <button class="btn btn-outline btn-sm" type="button" onclick="switchTab('inventory')">Open Inventory</button>
+        </div>
+        <div class="quick-list">
+          ${[...lowFeed.map(item => ({name:item.name,meta:`${item.onHand} ${item.unit} on hand`,kind:'Feed'})),
+             ...lowMed.map(item => ({name:item.name,meta:`${item.onHand} ${item.unit} on hand`,kind:'Medication'}))]
+             .slice(0,6)
+             .map(item => `
+              <div class="mini-item">
+                <div>
+                  <h4>${esc(item.name)}</h4>
+                  <p>${esc(item.kind)} | ${esc(item.meta)}</p>
+                </div>
+                <span class="badge b-warn">Low</span>
+              </div>
+          `).join('') || '<div class="empty">Inventory levels are above threshold.</div>'}
+        </div>
+      </div>
+
+      <div class="card panel">
+        <div class="section-head">
+          <div>
+            <h3>Recent Activity</h3>
+            <p>Latest birth, treatment, sale, and mortality logs.</p>
+          </div>
+          <button class="btn btn-outline btn-sm" type="button" onclick="switchTab('operations')">Open Operations</button>
+        </div>
+        <div class="quick-list">
+          ${recentOps.length ? recentOps.map(item => `
+            <div class="mini-item">
+              <div>
+                <h4>${esc(item.label)}</h4>
+                <p>${fmtDate(item.date)} | ${esc(item.meta)}</p>
+              </div>
+            </div>
+          `).join('') : '<div class="empty">No recent activity logged.</div>'}
+        </div>
+      </div>
+    </div>
+  </section>`;
+}
+
+function renderCattle(){
+  const filtered = D.cattle.filter(c => {
+    const q = ui.cattleQ.trim().toLowerCase();
+    if(q && ![c.tag,c.name,c.type,c.location,c.status,c.cciaTag].some(v => String(v || '').toLowerCase().includes(q))) return false;
+    if(ui.cattleType && c.type !== ui.cattleType) return false;
+    if(ui.cattleStatus && c.status !== ui.cattleStatus) return false;
+    if(ui.cattleLocation && c.location !== ui.cattleLocation) return false;
+    return true;
+  }).sort((a,b) => a.tag.localeCompare(b.tag));
+
+  return `
+  <section class="section">
+    <div class="section-head">
+      <div>
+        <h2>Cattle</h2>
+        <p>CCIA-ready roster with Manitoba-friendly record fields and fast search.</p>
+      </div>
+      <div class="actions">
+        <button class="btn btn-outline" type="button" onclick="exportCattleCSV()">Export CSV</button>
+        <button class="btn btn-primary" type="button" onclick="openAnimalModal()">Add Animal</button>
+      </div>
+    </div>
+    <div class="toolbar">
+      <input class="search" type="text" placeholder="Search tag, name, CCIA, type, location" value="${esc(ui.cattleQ)}" oninput="ui.cattleQ=this.value;render()">
+      <select class="select" onchange="ui.cattleType=this.value;render()">
+        <option value="">All Types</option>
+        ${['Bull','Cow','Calf','Heifer','Steer'].map(type => `<option value="${type}"${ui.cattleType===type?' selected':''}>${type}</option>`).join('')}
+      </select>
+      <select class="select" onchange="ui.cattleStatus=this.value;render()">
+        <option value="">All Statuses</option>
+        ${['Active','For Sale','Sold','Deceased','Culled'].map(status => `<option value="${status}"${ui.cattleStatus===status?' selected':''}>${status}</option>`).join('')}
+      </select>
+      <select class="select" onchange="ui.cattleLocation=this.value;render()">
+        <option value="">All Locations</option>
+        ${D.locations.map(loc => `<option value="${esc(loc.name)}"${ui.cattleLocation===loc.name?' selected':''}>${esc(loc.name)}</option>`).join('')}
+      </select>
+      <div class="count">${filtered.length} shown | ${D.cattle.length} total</div>
+    </div>
+    <div class="table-wrap">
+      <table>
+        <thead>
+          <tr>
+            <th>Tag / CCIA</th>
+            <th>Name</th>
+            <th>Type</th>
+            <th>Status</th>
+            <th>Location</th>
+            <th>Weight</th>
+            <th>Lineage</th>
+            <th></th>
+          </tr>
+        </thead>
+        <tbody>
+          ${filtered.map(c => `
+            <tr>
+              <td><strong>${esc(c.tag)}</strong><div class="td-muted">${esc(c.cciaTag || 'No CCIA tag')}</div></td>
+              <td>${c.name ? esc(c.name) : '<span class="td-muted">Not set</span>'}</td>
+              <td>${esc(c.type)}<div class="td-muted">${esc(c.breed || '')}</div></td>
+              <td><span class="badge ${c.status==='Active'?'b-ok':c.status==='For Sale'?'b-info':'b-neutral'}">${esc(c.status)}</span></td>
+              <td>${esc(c.location || 'Not set')}</td>
+              <td>${c.lastWeight ? `${esc(c.lastWeight)} kg<div class="td-muted">${fmtDate(c.weightDate)}</div>` : '<span class="td-muted">Not set</span>'}</td>
+              <td class="td-muted">${esc([c.sire && `Sire ${c.sire}`, c.dam && `Dam ${c.dam}`].filter(Boolean).join(' | ') || 'Not set')}</td>
+              <td class="td-actions">
+                <button class="btn btn-outline btn-sm" type="button" onclick="openAnimalModal('${c.id}')">Edit</button>
+                <button class="btn btn-danger btn-sm" type="button" onclick="deleteAnimal('${c.id}')">Delete</button>
+              </td>
+            </tr>
+          `).join('') || '<tr><td colspan="8" class="empty">No animals match the current filters.</td></tr>'}
+        </tbody>
+      </table>
+    </div>
+  </section>`;
+}
+
+function renderOperations(){
+  const records = [
+    ...D.births.map(item => ({...item, recType:'Birth', animal:item.calfTag, extra:item.damTag || '', detail:item.notes || ''})),
+    ...D.salesDeaths.map(item => ({...item, recType:item.kind, animal:item.animalTag, extra:item.disposalMethod || '', detail:item.notes || ''}))
+  ].filter(item => !ui.operationsType || item.recType === ui.operationsType).sort((a,b) => b.date.localeCompare(a.date));
+
+  return `
+  <section class="section">
+    <div class="section-head">
+      <div>
+        <h2>Operations</h2>
+        <p>Births, sales, and death records kept in one place for reporting and traceability.</p>
+      </div>
+      <div class="actions">
+        <button class="btn btn-accent" type="button" onclick="openBirthModal()">Quick Add: Birth</button>
+        <button class="btn btn-primary" type="button" onclick="openSaleDeathModal()">Log Sale / Death</button>
+      </div>
+    </div>
+    <div class="toolbar">
+      <select class="select" onchange="ui.operationsType=this.value;render()">
+        <option value="">All Records</option>
+        <option value="Birth"${ui.operationsType==='Birth'?' selected':''}>Births</option>
+        <option value="Sale"${ui.operationsType==='Sale'?' selected':''}>Sales</option>
+        <option value="Death"${ui.operationsType==='Death'?' selected':''}>Deaths</option>
+      </select>
+      <div class="count">${records.length} record${records.length===1?'':'s'}</div>
+    </div>
+    <div class="table-wrap">
+      <table>
+        <thead>
+          <tr>
+            <th>Date</th>
+            <th>Type</th>
+            <th>Animal</th>
+            <th>Reference</th>
+            <th>Notes</th>
+            <th></th>
+          </tr>
+        </thead>
+        <tbody>
+          ${records.map(item => `
+            <tr>
+              <td>${fmtDate(item.date)}</td>
+              <td><span class="badge ${item.recType==='Birth'?'b-ok':item.recType==='Sale'?'b-info':'b-danger'}">${esc(item.recType)}</span></td>
+              <td><strong>${esc(item.animal)}</strong>${item.cciaTag ? `<div class="td-muted">${esc(item.cciaTag)}</div>` : ''}</td>
+              <td>${item.recType==='Birth' ? `Dam ${esc(item.extra || 'Not set')}` : esc(item.extra || 'Not set')}${item.amount ? `<div class="td-muted">${fmtMoney(item.amount)}</div>` : ''}</td>
+              <td class="td-muted">${esc(item.detail || 'Not set')}</td>
+              <td class="td-actions">
+                <button class="btn btn-outline btn-sm" type="button" onclick="${item.recType==='Birth' ? `openBirthModal('${item.id}')` : `openSaleDeathModal('${item.id}')`}">Edit</button>
+                <button class="btn btn-danger btn-sm" type="button" onclick="${item.recType==='Birth' ? `deleteBirth('${item.id}')` : `deleteSaleDeath('${item.id}')`}">Delete</button>
+              </td>
+            </tr>
+          `).join('') || '<tr><td colspan="6" class="empty">No operation records yet.</td></tr>'}
+        </tbody>
+      </table>
+    </div>
+  </section>`;
+}
+
+function renderInventory(){
+  const feedCards = D.inventory.feed.map(item => inventoryCard(item,'feed'));
+  const medCards = D.inventory.medications.map(item => inventoryCard(item,'med'));
+  const feedLogs = [...D.feedLogs].sort((a,b) => b.date.localeCompare(a.date)).slice(0,10);
+  const deliveries = [...D.deliveries].sort((a,b) => b.date.localeCompare(a.date)).slice(0,10);
+
+  return `
+  <section class="section">
+    <div class="section-head">
+      <div>
+        <h2>Inventory</h2>
+        <p>Feed and medication stock with automatic medication decrement from treatment logs.</p>
+      </div>
+      <div class="actions">
+        <button class="btn btn-outline" type="button" onclick="openInventoryItemModal('feed')">Add Feed Item</button>
+        <button class="btn btn-primary" type="button" onclick="openInventoryItemModal('medications')">Add Medication</button>
+      </div>
+    </div>
+    <div class="grid-2">
+      <div class="card panel">
+        <div class="section-head">
+          <div>
+            <h3>Feed Inventory</h3>
+            <p>On-hand feed stock and thresholds.</p>
+          </div>
+        </div>
+        <div class="inventory-grid">${feedCards.join('') || '<div class="empty">No feed inventory set up.</div>'}</div>
+      </div>
+      <div class="card panel">
+        <div class="section-head">
+          <div>
+            <h3>Medication Inventory</h3>
+            <p>Used by treatment records for automatic stock movement.</p>
+          </div>
+        </div>
+        <div class="inventory-grid">${medCards.join('') || '<div class="empty">No medication inventory set up.</div>'}</div>
+      </div>
+    </div>
+  </section>
+  <section class="section grid-2">
+    <div class="card panel">
+      <div class="section-head">
+        <div>
+          <h3>Feed Usage Log</h3>
+          <p>Recent feed draws from inventory.</p>
+        </div>
+        <button class="btn btn-outline btn-sm" type="button" onclick="openFeedLogModal()">Log Feed</button>
+      </div>
+      <div class="table-wrap">
+        <table>
+          <thead><tr><th>Date</th><th>Feed</th><th>Qty</th><th>Location</th><th></th></tr></thead>
+          <tbody>
+            ${feedLogs.map(log => `
+              <tr>
+                <td>${fmtDate(log.date)}</td>
+                <td>${esc(feedName(log.feedId))}</td>
+                <td>${esc(log.qty)} ${esc(feedUnit(log.feedId))}</td>
+                <td>${esc(log.location || 'Not set')}</td>
+                <td class="td-actions">
+                  <button class="btn btn-outline btn-sm" type="button" onclick="openFeedLogModal('${log.id}')">Edit</button>
+                  <button class="btn btn-danger btn-sm" type="button" onclick="deleteFeedLog('${log.id}')">Delete</button>
+                </td>
+              </tr>
+            `).join('') || '<tr><td colspan="5" class="empty">No feed usage logged.</td></tr>'}
+          </tbody>
+        </table>
+      </div>
+    </div>
+    <div class="card panel">
+      <div class="section-head">
+        <div>
+          <h3>Feed Deliveries</h3>
+          <p>Recent additions into inventory.</p>
+        </div>
+        <button class="btn btn-outline btn-sm" type="button" onclick="openDeliveryModal()">Log Delivery</button>
+      </div>
+      <div class="table-wrap">
+        <table>
+          <thead><tr><th>Date</th><th>Feed</th><th>Qty</th><th>Supplier</th><th></th></tr></thead>
+          <tbody>
+            ${deliveries.map(log => `
+              <tr>
+                <td>${fmtDate(log.date)}</td>
+                <td>${esc(feedName(log.feedId))}</td>
+                <td>${esc(log.qty)} ${esc(feedUnit(log.feedId))}</td>
+                <td>${esc(log.supplier || 'Not set')}</td>
+                <td class="td-actions">
+                  <button class="btn btn-outline btn-sm" type="button" onclick="openDeliveryModal('${log.id}')">Edit</button>
+                  <button class="btn btn-danger btn-sm" type="button" onclick="deleteDelivery('${log.id}')">Delete</button>
+                </td>
+              </tr>
+            `).join('') || '<tr><td colspan="5" class="empty">No deliveries logged.</td></tr>'}
+          </tbody>
+        </table>
+      </div>
+    </div>
+  </section>`;
+}
+function inventoryCard(item, kind){
+  const pct = clamp(Math.round((item.onHand / Math.max(item.threshold * 3 || 1, item.onHand || 1)) * 100), 4, 100);
+  const low = Number(item.onHand) <= Number(item.threshold);
+  const group = kind === 'feed' ? 'feed' : 'medications';
+  return `
+    <div class="card inventory-card ${low ? 'low' : ''}">
+      <div class="section-head" style="margin-bottom:0">
+        <div>
+          <h4>${esc(item.name)}</h4>
+          <p>${esc(item.onHand)} ${esc(item.unit)} on hand</p>
+        </div>
+        <span class="badge ${low ? 'b-warn' : 'b-ok'}">${low ? 'Low' : 'OK'}</span>
+      </div>
+      <div class="meter"><span style="width:${pct}%"></span></div>
+      <div class="hint">Threshold: ${esc(item.threshold)} ${esc(item.unit)}</div>
+      <div class="actions" style="margin-top:12px">
+        <button class="btn btn-outline btn-sm" type="button" onclick="openInventoryItemModal('${group}','${item.id}')">Edit</button>
+        <button class="btn btn-danger btn-sm" type="button" onclick="deleteInventoryItem('${group}','${item.id}')">Delete</button>
+      </div>
+    </div>
+  `;
+}
+
+function renderHealth(){
+  const treatments = D.treatments
+    .filter(t => ui.healthShowResolved ? true : t.status !== 'Resolved')
+    .sort((a,b) => b.startDate.localeCompare(a.startDate));
+  const vaccs = [...D.vaccinations].sort((a,b) => a.scheduled.localeCompare(b.scheduled));
+  const notices = getWithdrawalAlerts().map(t => `
+    <div class="notice danger">
+      <div><strong>${esc(t.tag)} still in withdrawal</strong><div>${esc(t.condition)} | Clearance ${fmtDate(t.clearanceDate)}</div></div>
+    </div>
+  `).join('');
+
+  return `
+  <section class="section">
+    <div class="section-head">
+      <div>
+        <h2>Health</h2>
+        <p>Medication tracking with withdrawal days, clearance dates, and inventory linkage.</p>
+      </div>
+      <div class="actions">
+        <button class="btn btn-outline" type="button" onclick="ui.healthShowResolved=!ui.healthShowResolved;render()">${ui.healthShowResolved ? 'Show Active Only' : 'Show Full History'}</button>
+        <button class="btn btn-primary" type="button" onclick="openTreatmentModal()">Add Treatment</button>
+      </div>
+    </div>
+    ${notices ? `<div class="notice-stack print-keep">${notices}</div>` : ''}
+    <div class="table-wrap">
+      <table>
+        <thead>
+          <tr>
+            <th>Tag</th>
+            <th>Condition</th>
+            <th>Medication</th>
+            <th>Started</th>
+            <th>Withdrawal</th>
+            <th>Status</th>
+            <th></th>
+          </tr>
+        </thead>
+        <tbody>
+          ${treatments.map(t => `
+            <tr>
+              <td><strong>${esc(t.tag)}</strong></td>
+              <td>${esc(t.condition)}<div class="td-muted">${esc(t.treatment || 'No treatment note')}</div></td>
+              <td>${esc(t.medicationName || 'Manual entry')}<div class="td-muted">${esc(t.dosage || '')}</div></td>
+              <td>${fmtDate(t.startDate)}</td>
+              <td>${t.withdrawalDays ? `${t.withdrawalDays} day${t.withdrawalDays===1?'':'s'}<div class="td-muted">Clearance ${fmtDate(t.clearanceDate)}</div>` : '<span class="td-muted">None</span>'}</td>
+              <td><span class="badge ${t.status==='Resolved'?'b-ok':t.status==='Monitoring'?'b-warn':'b-danger'}">${esc(t.status)}</span></td>
+              <td class="td-actions">
+                <button class="btn btn-outline btn-sm" type="button" onclick="openTreatmentModal('${t.id}')">Edit</button>
+                <button class="btn btn-danger btn-sm" type="button" onclick="deleteTreatment('${t.id}')">Delete</button>
+              </td>
+            </tr>
+          `).join('') || '<tr><td colspan="7" class="empty">No treatment records.</td></tr>'}
+        </tbody>
+      </table>
+    </div>
+  </section>
+
+  <section class="section">
+    <div class="section-head">
+      <div>
+        <h2>Vaccinations</h2>
+        <p>Upcoming and completed vaccination schedule.</p>
+      </div>
+      <div class="actions">
+        <button class="btn btn-primary" type="button" onclick="openVaccinationModal()">Add Vaccination</button>
+      </div>
+    </div>
+    <div class="table-wrap">
+      <table>
+        <thead>
+          <tr>
+            <th>Vaccine</th>
+            <th>Group</th>
+            <th>Scheduled</th>
+            <th>Completed</th>
+            <th></th>
+          </tr>
+        </thead>
+        <tbody>
+          ${vaccs.map(v => `
+            <tr>
+              <td>${esc(v.vaccine)}</td>
+              <td>${esc(v.group)}</td>
+              <td>${fmtDate(v.scheduled)}</td>
+              <td>${v.completed ? `<span class="badge b-ok">${fmtDate(v.completedDate)}</span>` : '<span class="badge b-warn">Pending</span>'}</td>
+              <td class="td-actions">
+                ${v.completed ? '' : `<button class="btn btn-soft btn-sm" type="button" onclick="markVaccinationDone('${v.id}')">Mark Done</button>`}
+                <button class="btn btn-outline btn-sm" type="button" onclick="openVaccinationModal('${v.id}')">Edit</button>
+                <button class="btn btn-danger btn-sm" type="button" onclick="deleteVaccination('${v.id}')">Delete</button>
+              </td>
+            </tr>
+          `).join('') || '<tr><td colspan="5" class="empty">No vaccinations scheduled.</td></tr>'}
+        </tbody>
+      </table>
+    </div>
+  </section>`;
+}
+
+function renderEquipment(){
+  const serviceRows = [...D.service].sort((a,b) => (a.nextDate || '9999').localeCompare(b.nextDate || '9999'));
+  const repairRows = [...D.repairs].sort((a,b) => b.date.localeCompare(a.date));
+  return `
+  <section class="section">
+    <div class="section-head">
+      <div>
+        <h2>Equipment</h2>
+        <p>Service schedule and repairs for ranch equipment.</p>
+      </div>
+      <div class="actions">
+        <button class="btn btn-outline" type="button" onclick="openEquipmentModal()">Add Equipment</button>
+        <button class="btn btn-primary" type="button" onclick="openRepairModal()">Log Repair</button>
+      </div>
+    </div>
+    <div class="table-wrap">
+      <table>
+        <thead><tr><th>Equipment</th><th>Year</th><th>Hours</th><th>Status</th><th>Notes</th><th></th></tr></thead>
+        <tbody>
+          ${D.equipment.map(e => `
+            <tr>
+              <td><strong>${esc(e.name)}</strong></td>
+              <td>${esc(e.year || 'Not set')}</td>
+              <td>${esc(e.hours || 'Not set')}</td>
+              <td><span class="badge ${e.status==='Good'?'b-ok':e.status==='Due Soon'?'b-warn':'b-danger'}">${esc(e.status)}</span></td>
+              <td class="td-muted">${esc(e.notes || 'Not set')}</td>
+              <td class="td-actions">
+                <button class="btn btn-outline btn-sm" type="button" onclick="openEquipmentModal('${e.id}')">Edit</button>
+                <button class="btn btn-danger btn-sm" type="button" onclick="deleteEquipment('${e.id}')">Delete</button>
+              </td>
+            </tr>
+          `).join('') || '<tr><td colspan="6" class="empty">No equipment records.</td></tr>'}
+        </tbody>
+      </table>
+    </div>
+  </section>
+  <section class="section grid-2">
+    <div class="card panel">
+      <div class="section-head">
+        <div><h3>Service Schedule</h3><p>Upcoming equipment service items.</p></div>
+        <button class="btn btn-outline btn-sm" type="button" onclick="openServiceModal()">Add Item</button>
+      </div>
+      <div class="table-wrap">
+        <table>
+          <thead><tr><th>Equipment</th><th>Service</th><th>Last Done</th><th>Next Due</th><th></th></tr></thead>
+          <tbody>
+            ${serviceRows.map(s => `
+              <tr>
+                <td>${esc(equipName(s.equipId))}</td>
+                <td>${esc(s.serviceType)}<div class="td-muted">${esc(s.interval || '')}</div></td>
+                <td>${fmtDate(s.lastDate)}</td>
+                <td>${s.nextDate ? fmtDate(s.nextDate) : 'Not set'}</td>
+                <td class="td-actions">
+                  <button class="btn btn-outline btn-sm" type="button" onclick="openServiceModal('${s.id}')">Edit</button>
+                  <button class="btn btn-danger btn-sm" type="button" onclick="deleteService('${s.id}')">Delete</button>
+                </td>
+              </tr>
+            `).join('') || '<tr><td colspan="5" class="empty">No service items.</td></tr>'}
+          </tbody>
+        </table>
+      </div>
+    </div>
+    <div class="card panel">
+      <div class="section-head">
+        <div><h3>Repair Log</h3><p>Recent repair and maintenance work.</p></div>
+      </div>
+      <div class="table-wrap">
+        <table>
+          <thead><tr><th>Date</th><th>Equipment</th><th>Work</th><th>Cost</th><th></th></tr></thead>
+          <tbody>
+            ${repairRows.map(r => `
+              <tr>
+                <td>${fmtDate(r.date)}</td>
+                <td>${esc(equipName(r.equipId))}</td>
+                <td>${esc(r.work)}</td>
+                <td>${r.cost || r.cost === 0 ? fmtMoney(r.cost) : 'Not set'}</td>
+                <td class="td-actions">
+                  <button class="btn btn-outline btn-sm" type="button" onclick="openRepairModal('${r.id}')">Edit</button>
+                  <button class="btn btn-danger btn-sm" type="button" onclick="deleteRepair('${r.id}')">Delete</button>
+                </td>
+              </tr>
+            `).join('') || '<tr><td colspan="5" class="empty">No repair entries.</td></tr>'}
+          </tbody>
+        </table>
+      </div>
+    </div>
+  </section>`;
+}
+
+function renderPastures(){
+  const moveRows = [...D.moves].sort((a,b) => b.date.localeCompare(a.date)).slice(0,20);
+  return `
+  <section class="section">
+    <div class="section-head">
+      <div>
+        <h2>Pastures and Pens</h2>
+        <p>Animal locations and recent internal moves.</p>
+      </div>
+      <div class="actions">
+        <button class="btn btn-outline" type="button" onclick="openLocationModal()">Add Location</button>
+        <button class="btn btn-primary" type="button" onclick="openMoveModal()">Log Move</button>
+      </div>
+    </div>
+    <div class="inventory-grid">
+      ${D.locations.map(loc => `
+        <div class="card inventory-card">
+          <div class="section-head" style="margin-bottom:0">
+            <div>
+              <h4>${esc(loc.name)}</h4>
+              <p>${esc(loc.type)} | ${esc(loc.size || 'Size not set')}</p>
+            </div>
+            <span class="badge b-neutral">${headCount(loc.name)} head</span>
+          </div>
+          <div class="hint" style="margin-top:8px">${esc(loc.condition || 'Condition not set')}</div>
+          <div class="hint" style="margin-top:6px">${esc(loc.notes || 'No notes')}</div>
+          <div class="actions" style="margin-top:12px">
+            <button class="btn btn-outline btn-sm" type="button" onclick="goToLocation('${esc(loc.name)}')">View Cattle</button>
+            <button class="btn btn-soft btn-sm" type="button" onclick="openLocationModal('${loc.id}')">Edit</button>
+            <button class="btn btn-danger btn-sm" type="button" onclick="deleteLocation('${loc.id}')">Delete</button>
+          </div>
+        </div>
+      `).join('')}
+    </div>
+  </section>
+  <section class="section">
+    <div class="section-head">
+      <div><h2>Recent Moves</h2><p>Internal movement log for pens and pastures.</p></div>
+    </div>
+    <div class="table-wrap">
+      <table>
+        <thead><tr><th>Date</th><th>Animal(s)</th><th>From</th><th>To</th><th>Reason</th><th></th></tr></thead>
+        <tbody>
+          ${moveRows.map(m => `
+            <tr>
+              <td>${fmtDate(m.date)}</td>
+              <td>${esc(m.animals)}</td>
+              <td>${esc(m.from || 'Not set')}</td>
+              <td>${esc(m.to || 'Not set')}</td>
+              <td class="td-muted">${esc(m.reason || 'Not set')}</td>
+              <td class="td-actions">
+                <button class="btn btn-danger btn-sm" type="button" onclick="deleteMove('${m.id}')">Delete</button>
+              </td>
+            </tr>
+          `).join('') || '<tr><td colspan="6" class="empty">No moves logged.</td></tr>'}
+        </tbody>
+      </table>
+    </div>
+  </section>`;
+}
+
+function renderReports(){
+  const year = Number(ui.reportYear);
+  const annualBirths = D.births.filter(b => Number((b.date || '').slice(0,4)) === year);
+  const annualDeaths = D.salesDeaths.filter(x => x.kind === 'Death' && Number((x.date || '').slice(0,4)) === year);
+  const currentHead = {
+    Bull: D.cattle.filter(c => activeAnimalStatuses().includes(c.status) && c.type === 'Bull').length,
+    Cow: D.cattle.filter(c => activeAnimalStatuses().includes(c.status) && c.type === 'Cow').length,
+    Calf: D.cattle.filter(c => activeAnimalStatuses().includes(c.status) && c.type === 'Calf').length,
+    Heifer: D.cattle.filter(c => activeAnimalStatuses().includes(c.status) && c.type === 'Heifer').length
+  };
+  const movementRows = [
+    ...annualBirths.map(b => {
+      const animal = D.cattle.find(c => c.tag === b.calfTag);
+      return {
+        date:b.date,
+        direction:'Entered',
+        animalTag:b.calfTag,
+        cciaTag:animal ? animal.cciaTag : '',
+        reason:'Birth on premises',
+        notes:b.notes || ''
+      };
+    }),
+    ...D.salesDeaths.filter(x => Number((x.date || '').slice(0,4)) === year).map(x => ({
+      date:x.date,
+      direction:'Left',
+      animalTag:x.animalTag,
+      cciaTag:x.cciaTag || '',
+      reason:x.kind === 'Sale' ? `Sale | ${x.disposalMethod}` : `Death | ${x.disposalMethod}`,
+      notes:x.notes || ''
+    }))
+  ].sort((a,b) => a.date.localeCompare(b.date));
+  const salesRows = D.salesDeaths.filter(x => x.kind === 'Sale' && Number((x.date || '').slice(0,4)) === year).sort((a,b) => a.date.localeCompare(b.date));
+  const totalSales = salesRows.reduce((sum, item) => sum + Number(item.amount || 0), 0);
+
+  return `
+  <section class="section">
+    <div class="section-head">
+      <div>
+        <h2>Reports</h2>
+        <p>Printable business documents for livestock counts, CCIA movement, and tax-ready sales.</p>
+      </div>
+      <div class="actions">
+        <select class="select" style="min-width:160px" onchange="ui.reportYear=Number(this.value);render()">
+          ${Array.from({length:6},(_,i) => currentYear - i).map(y => `<option value="${y}"${ui.reportYear===y?' selected':''}>${y}</option>`).join('')}
+        </select>
+        <button class="btn btn-primary" type="button" onclick="window.print()">Print Reports</button>
+      </div>
+    </div>
+    <div class="report-shell">
+      <article class="card report-card">
+        <div class="print-only" style="margin-bottom:12px">
+          <div class="report-title">${esc(D.settings.ranchName)}</div>
+          <div class="hint">Annual Livestock Report | ${year}</div>
+        </div>
+        <h3 class="report-title">Annual Livestock Report</h3>
+        <div class="report-meta">
+          <span>Year ${year}</span>
+          <span>Premises ID ${esc(D.settings.pid || 'Not set')}</span>
+          <span>Printed ${fmtDate(today())}</span>
+        </div>
+        <div class="grid-2" style="margin-bottom:16px">
+          <div class="card panel" style="box-shadow:none">
+            <h3>Annual Totals</h3>
+            <div class="mini-list">
+              <div class="mini-item"><div><h4>Births</h4><p>Live births logged for the year</p></div><strong>${annualBirths.length}</strong></div>
+              <div class="mini-item"><div><h4>Deaths</h4><p>Mortality records logged for the year</p></div><strong>${annualDeaths.length}</strong></div>
+            </div>
+          </div>
+          <div class="card panel" style="box-shadow:none">
+            <h3>Current Head Count</h3>
+            <div class="mini-list">
+              ${Object.entries(currentHead).map(([label,value]) => `<div class="mini-item"><div><h4>${label}</h4></div><strong>${value}</strong></div>`).join('')}
+            </div>
+          </div>
+        </div>
+      </article>
+
+      <article class="card report-card">
+        <div class="print-only" style="margin-bottom:12px">
+          <div class="report-title">${esc(D.settings.ranchName)}</div>
+          <div class="hint">CCIA Movement Report | ${year}</div>
+        </div>
+        <h3 class="report-title">CCIA Movement Report</h3>
+        <div class="report-meta">
+          <span>Premises ID ${esc(D.settings.pid || 'Not set')}</span>
+          <span>Entries and exits for ${year}</span>
+        </div>
+        <div class="table-wrap report-table">
+          <table>
+            <thead><tr><th>Date</th><th>Direction</th><th>Animal Tag</th><th>CCIA / RFID</th><th>Reason</th><th>Notes</th></tr></thead>
+            <tbody>
+              ${movementRows.map(row => `
+                <tr>
+                  <td>${fmtDate(row.date)}</td>
+                  <td>${esc(row.direction)}</td>
+                  <td>${esc(row.animalTag)}</td>
+                  <td>${esc(row.cciaTag || 'Not set')}</td>
+                  <td>${esc(row.reason)}</td>
+                  <td>${esc(row.notes || 'Not set')}</td>
+                </tr>
+              `).join('') || '<tr><td colspan="6" class="empty">No movement records for this year.</td></tr>'}
+            </tbody>
+          </table>
+        </div>
+      </article>
+
+      <article class="card report-card">
+        <div class="print-only" style="margin-bottom:12px">
+          <div class="report-title">${esc(D.settings.ranchName)}</div>
+          <div class="hint">Tax and Sales Report | ${year}</div>
+        </div>
+        <h3 class="report-title">Tax / Sales Report</h3>
+        <div class="report-meta">
+          <span>${salesRows.length} sale record${salesRows.length===1?'':'s'}</span>
+          <span>Total sales ${fmtMoney(totalSales)}</span>
+        </div>
+        <div class="table-wrap report-table">
+          <table>
+            <thead><tr><th>Date</th><th>Animal</th><th>CCIA / RFID</th><th>Buyer</th><th>Amount</th><th>GST / PST</th><th>Disposal</th><th>Notes</th></tr></thead>
+            <tbody>
+              ${salesRows.map(row => `
+                <tr>
+                  <td>${fmtDate(row.date)}</td>
+                  <td>${esc(row.animalTag)}${row.animalName ? `<div class="td-muted">${esc(row.animalName)}</div>` : ''}</td>
+                  <td>${esc(row.cciaTag || 'Not set')}</td>
+                  <td>${esc(row.buyer || 'Not set')}</td>
+                  <td>${fmtMoney(row.amount || 0)}</td>
+                  <td>${esc(row.gstStatus || 'Not set')}</td>
+                  <td>${esc(row.disposalMethod || 'Sold')}</td>
+                  <td>${esc(row.notes || 'Not set')}</td>
+                </tr>
+              `).join('') || '<tr><td colspan="8" class="empty">No sales records for this year.</td></tr>'}
+            </tbody>
+          </table>
+        </div>
+      </article>
+    </div>
+  </section>`;
+}
+
+function toggleHighViz(){
+  D.settings.highViz = !D.settings.highViz;
+  saveData();
+  applyBranding();
+}
+function goToLocation(name){
+  ui.cattleLocation = name;
+  currentTab = 'cattle';
+  render();
+  document.querySelectorAll('.tab-btn').forEach(btn => btn.classList.toggle('active', btn.dataset.tab === 'cattle'));
+}
+
+function openAnimalModal(id=''){
+  const animal = id ? D.cattle.find(x => x.id === id) : null;
+  const locations = D.locations.map(loc => `<option value="${esc(loc.name)}"${animal && animal.location===loc.name?' selected':''}>${esc(loc.name)}</option>`).join('');
+  openModal(
+    animal ? `Edit Animal | ${animal.tag}` : 'Add Animal',
+    `<div class="form-grid">
+      <div class="field"><label>Tag Number</label><input id="animal-tag" class="input" type="text" value="${esc(animal ? animal.tag : '')}"></div>
+      <div class="field"><label>Name</label><input id="animal-name" class="input" type="text" value="${esc(animal ? animal.name : '')}"></div>
+      <div class="field"><label>CCIA / RFID Tag</label><input id="animal-ccia" class="input" type="text" maxlength="15" inputmode="numeric" value="${esc(animal ? animal.cciaTag : '')}"><div class="hint">15 digits</div></div>
+      <div class="field"><label>Type</label><select id="animal-type" class="select">${['Bull','Cow','Calf','Heifer','Steer'].map(type => `<option value="${type}"${animal && animal.type===type?' selected':''}>${type}</option>`).join('')}</select></div>
+      <div class="field"><label>Breed</label><select id="animal-breed" class="select">${['Commercial','Purebred'].map(type => `<option value="${type}"${animal && animal.breed===type?' selected':''}>${type}</option>`).join('')}</select></div>
+      <div class="field"><label>Date of Birth</label><input id="animal-dob" class="input" type="date" value="${esc(animal ? animal.dob : '')}"></div>
+      <div class="field"><label>Status</label><select id="animal-status" class="select">${['Active','For Sale','Sold','Deceased','Culled'].map(type => `<option value="${type}"${animal && animal.status===type?' selected':''}>${type}</option>`).join('')}</select></div>
+      <div class="field"><label>Location</label><select id="animal-location" class="select"><option value="">Not set</option>${locations}</select></div>
+      <div class="field"><label>Sire Tag</label><input id="animal-sire" class="input" type="text" value="${esc(animal ? animal.sire : '')}"></div>
+      <div class="field"><label>Dam Tag</label><input id="animal-dam" class="input" type="text" value="${esc(animal ? animal.dam : '')}"></div>
+      <div class="field"><label>Last Weight (kg)</label><input id="animal-weight" class="input" type="number" min="0" step="0.1" value="${animal && animal.lastWeight !== '' ? esc(animal.lastWeight) : ''}"></div>
+      <div class="field"><label>Weight Date</label><input id="animal-weightdate" class="input" type="date" value="${esc(animal ? animal.weightDate : '')}"></div>
+      <div class="field span-2"><label>Notes</label><textarea id="animal-notes" class="textarea">${esc(animal ? animal.notes : '')}</textarea></div>
+    </div>`,
+    `<button class="btn btn-outline" type="button" onclick="closeModal()">Cancel</button>
+     <button class="btn btn-primary" type="button" onclick="saveAnimal('${id}')">Save Animal</button>`
+  );
+}
+function saveAnimal(id=''){
+  clearModalError();
+  const tag = byId('animal-tag').value.trim();
+  const cciaTag = byId('animal-ccia').value.replace(/\D/g,'');
+  if(!tag) return showModalError('Tag number is required.');
+  if(cciaTag && cciaTag.length !== 15) return showModalError('CCIA / RFID tag must be 15 digits.');
+  const dupe = D.cattle.find(c => c.tag.toLowerCase() === tag.toLowerCase() && c.id !== id);
+  if(dupe) return showModalError('That tag number is already in use.');
+  const animal = {
+    id:id || genId('cow'),
+    tag,
+    name:byId('animal-name').value.trim(),
+    cciaTag,
+    type:byId('animal-type').value,
+    breed:byId('animal-breed').value,
+    dob:byId('animal-dob').value,
+    status:byId('animal-status').value,
+    location:byId('animal-location').value,
+    sire:byId('animal-sire').value.trim(),
+    dam:byId('animal-dam').value.trim(),
+    lastWeight:byId('animal-weight').value ? Number(byId('animal-weight').value) : '',
+    weightDate:byId('animal-weightdate').value,
+    notes:byId('animal-notes').value.trim(),
+    salePrice:id ? (D.cattle.find(c => c.id===id)?.salePrice || '') : ''
+  };
+  if(id){
+    const idx = D.cattle.findIndex(c => c.id === id);
+    D.cattle[idx] = animal;
+  }else{
+    D.cattle.push(animal);
+  }
+  saveData();
+  closeModal();
+  render();
+  showToast('info','Animal saved', `${tag} updated in the roster.`);
+}
+function deleteAnimal(id){
+  const animal = D.cattle.find(x => x.id === id);
+  if(!animal) return;
+  askConfirm('Delete Animal', `Delete ${animal.tag}? This removes it from the roster but leaves historical logs in place.`, 'Delete', 'btn-danger', () => {
+    D.cattle = D.cattle.filter(x => x.id !== id);
+    saveData();
+    render();
+    showToast('warn','Animal deleted', `${animal.tag} was removed from the roster.`);
+  });
+}
+
+function openBirthModal(id=''){
+  const record = id ? D.births.find(x => x.id === id) : null;
+  openModal(
+    record ? 'Edit Birth Log' : 'Quick Add Birth',
+    `<div class="form-grid">
+      <div class="field"><label>Date</label><input id="birth-date" class="input" type="date" value="${esc(record ? record.date : today())}"></div>
+      <div class="field"><label>Dam ID</label><input id="birth-dam" class="input" type="text" value="${esc(record ? record.damTag : '')}" placeholder="M-047"></div>
+      <div class="field"><label>Calf Tag #</label><input id="birth-calf" class="input" type="text" value="${esc(record ? record.calfTag : '')}" placeholder="M-700"></div>
+      <div class="field"><label>Sex</label><select id="birth-sex" class="select">${['Unknown','Bull','Heifer'].map(opt => `<option value="${opt}"${record && record.sex===opt?' selected':''}>${opt}</option>`).join('')}</select></div>
+      <div class="field span-2"><label>Notes</label><textarea id="birth-notes" class="textarea">${esc(record ? record.notes : '')}</textarea></div>
+    </div>
+    <div class="hint" style="margin-top:12px">Saving this record also creates a calf in the roster if that tag does not already exist.</div>`,
+    `<button class="btn btn-outline" type="button" onclick="closeModal()">Cancel</button>
+     <button class="btn btn-accent" type="button" onclick="saveBirth('${id}')">Save Birth</button>`
+  );
+}
+function saveBirth(id=''){
+  clearModalError();
+  const date = byId('birth-date').value;
+  const damTag = byId('birth-dam').value.trim();
+  const calfTag = byId('birth-calf').value.trim();
+  if(!date || !calfTag) return showModalError('Birth date and calf tag are required.');
+  const dupeBirth = D.births.find(b => b.calfTag.toLowerCase() === calfTag.toLowerCase() && b.id !== id);
+  if(dupeBirth) return showModalError('That calf tag already exists in the birth log.');
+  let calfAnimal = D.cattle.find(c => c.tag.toLowerCase() === calfTag.toLowerCase());
+  if(!calfAnimal){
+    const dam = D.cattle.find(c => c.tag.toLowerCase() === damTag.toLowerCase());
+    calfAnimal = {
+      id:genId('cow'),
+      tag:calfTag,
+      name:'',
+      cciaTag:'',
+      type:'Calf',
+      breed:dam ? dam.breed : 'Commercial',
+      dob:date,
+      status:'Active',
+      location:dam ? dam.location : 'Calving Barn',
+      sire:'',
+      dam:damTag,
+      lastWeight:'',
+      weightDate:'',
+      notes:'Auto-created from Quick Add Birth.',
+      salePrice:''
+    };
+    D.cattle.push(calfAnimal);
+  }
+  const payload = {
+    id:id || genId('birth'),
+    date,
+    damTag,
+    calfTag,
+    sex:byId('birth-sex').value,
+    notes:byId('birth-notes').value.trim(),
+    autoCreatedAnimalId:calfAnimal.id
+  };
+  if(id){
+    const idx = D.births.findIndex(b => b.id === id);
+    D.births[idx] = payload;
+  }else{
+    D.births.push(payload);
+  }
+  saveData();
+  closeModal();
+  render();
+  showToast('info','Birth saved', `Birth log saved for calf ${calfTag}.`);
+}
+function deleteBirth(id){
+  const item = D.births.find(x => x.id === id);
+  if(!item) return;
+  askConfirm('Delete Birth Log', `Delete the birth log for calf ${item.calfTag}?`, 'Delete', 'btn-danger', () => {
+    D.births = D.births.filter(x => x.id !== id);
+    saveData();
+    render();
+    showToast('warn','Birth deleted', `Removed birth log for ${item.calfTag}.`);
+  });
+}
+
+function openSaleDeathModal(id=''){
+  const item = id ? D.salesDeaths.find(x => x.id === id) : null;
+  openModal(
+    item ? 'Edit Sale / Death Log' : 'Log Sale / Death',
+    `<div class="form-grid">
+      <div class="field"><label>Date</label><input id="sd-date" class="input" type="date" value="${esc(item ? item.date : today())}"></div>
+      <div class="field"><label>Record Type</label><select id="sd-kind" class="select" onchange="toggleSaleFields()">${['Sale','Death'].map(opt => `<option value="${opt}"${item && item.kind===opt?' selected':''}>${opt}</option>`).join('')}</select></div>
+      <div class="field"><label>Animal Tag</label><input id="sd-tag" class="input" type="text" value="${esc(item ? item.animalTag : '')}"></div>
+      <div class="field"><label>Animal Name</label><input id="sd-name" class="input" type="text" value="${esc(item ? item.animalName : '')}"></div>
+      <div class="field"><label>CCIA / RFID</label><input id="sd-ccia" class="input" type="text" maxlength="15" inputmode="numeric" value="${esc(item ? item.cciaTag : '')}"></div>
+      <div class="field"><label>Disposal Method</label><select id="sd-disposal" class="select">${['Sold','Home Slaughter','Burial','Rendering'].map(opt => `<option value="${opt}"${item && item.disposalMethod===opt?' selected':''}>${opt}</option>`).join('')}</select></div>
+      <div class="field sale-only"><label>Sale Amount</label><input id="sd-amount" class="input" type="number" min="0" step="0.01" value="${item && item.amount !== '' ? esc(item.amount) : ''}"></div>
+      <div class="field sale-only"><label>GST / PST Status</label><select id="sd-gst" class="select">${['GST Applicable','GST Exempt','PST Exempt','Not Applicable'].map(opt => `<option value="${opt}"${item && item.gstStatus===opt?' selected':''}>${opt}</option>`).join('')}</select></div>
+      <div class="field sale-only span-2"><label>Buyer</label><input id="sd-buyer" class="input" type="text" value="${esc(item ? item.buyer : '')}"></div>
+      <div class="field span-2"><label>Notes</label><textarea id="sd-notes" class="textarea">${esc(item ? item.notes : '')}</textarea></div>
+    </div>`,
+    `<button class="btn btn-outline" type="button" onclick="closeModal()">Cancel</button>
+     <button class="btn btn-primary" type="button" onclick="saveSaleDeath('${id}')">Save Record</button>`
+  );
+  toggleSaleFields();
+}
+function toggleSaleFields(){
+  const isSale = byId('sd-kind').value === 'Sale';
+  document.querySelectorAll('.sale-only').forEach(el => el.style.display = isSale ? '' : 'none');
+}
+function saveSaleDeath(id=''){
+  clearModalError();
+  const tag = byId('sd-tag').value.trim();
+  if(!tag) return showModalError('Animal tag is required.');
+  const cciaTag = byId('sd-ccia').value.replace(/\D/g,'');
+  if(cciaTag && cciaTag.length !== 15) return showModalError('CCIA / RFID tag must be 15 digits.');
+  const kind = byId('sd-kind').value;
+  const animal = D.cattle.find(c => c.tag.toLowerCase() === tag.toLowerCase());
+  const payload = {
+    id:id || genId('sd'),
+    date:byId('sd-date').value,
+    kind,
+    animalTag:tag,
+    animalName:byId('sd-name').value.trim(),
+    cciaTag,
+    amount:kind === 'Sale' && byId('sd-amount').value ? Number(byId('sd-amount').value) : '',
+    gstStatus:kind === 'Sale' ? byId('sd-gst').value : 'Not Applicable',
+    buyer:kind === 'Sale' ? byId('sd-buyer').value.trim() : '',
+    disposalMethod:byId('sd-disposal').value,
+    notes:byId('sd-notes').value.trim(),
+    direction:'Left'
+  };
+  if(id){
+    const idx = D.salesDeaths.findIndex(x => x.id === id);
+    D.salesDeaths[idx] = payload;
+  }else{
+    D.salesDeaths.push(payload);
+  }
+  if(animal){
+    animal.status = kind === 'Sale' ? 'Sold' : 'Deceased';
+    animal.salePrice = kind === 'Sale' ? payload.amount : animal.salePrice;
+  }
+  saveData();
+  closeModal();
+  render();
+  showToast(kind === 'Sale' ? 'info' : 'warn', `${kind} saved`, `${tag} logged under ${payload.disposalMethod}.`);
+}
+function deleteSaleDeath(id){
+  const item = D.salesDeaths.find(x => x.id === id);
+  if(!item) return;
+  askConfirm('Delete Record', `Delete the ${item.kind.toLowerCase()} record for ${item.animalTag}?`, 'Delete', 'btn-danger', () => {
+    D.salesDeaths = D.salesDeaths.filter(x => x.id !== id);
+    saveData();
+    render();
+    showToast('warn','Record deleted', `${item.kind} record removed for ${item.animalTag}.`);
+  });
+}
+
+function openTreatmentModal(id=''){
+  const item = id ? D.treatments.find(x => x.id === id) : null;
+  const medOptions = D.inventory.medications.map(m => `<option value="${m.id}"${item && item.medicationId===m.id?' selected':''}>${esc(m.name)} (${esc(m.onHand)} ${esc(m.unit)} on hand)</option>`).join('');
+  const vetOptions = D.settings.vets.map(v => `<option value="${esc(v)}"${item && item.vet===v?' selected':''}>${esc(v)}</option>`).join('');
+  openModal(
+    item ? 'Edit Treatment' : 'Add Treatment',
+    `<div class="form-grid">
+      <div class="field"><label>Animal Tag</label><input id="tx-tag" class="input" type="text" value="${esc(item ? item.tag : '')}"></div>
+      <div class="field"><label>Status</label><select id="tx-status" class="select">${['Ongoing','Monitoring','Resolved'].map(opt => `<option value="${opt}"${item && item.status===opt?' selected':''}>${opt}</option>`).join('')}</select></div>
+      <div class="field span-2"><label>Condition / Diagnosis</label><input id="tx-condition" class="input" type="text" value="${esc(item ? item.condition : '')}"></div>
+      <div class="field"><label>Medication Inventory</label><select id="tx-med" class="select" onchange="updateTreatmentMedicationMeta()"><option value="">Manual / None</option>${medOptions}</select></div>
+      <div class="field"><label>Inventory Qty Used</label><input id="tx-qty" class="input" type="number" min="0" step="0.1" value="${item && item.inventoryQtyUsed !== '' ? esc(item.inventoryQtyUsed) : ''}"><div id="tx-med-meta" class="hint"></div></div>
+      <div class="field span-2"><label>Treatment</label><input id="tx-treatment" class="input" type="text" value="${esc(item ? item.treatment : '')}"></div>
+      <div class="field"><label>Dosage</label><input id="tx-dosage" class="input" type="text" value="${esc(item ? item.dosage : '')}"></div>
+      <div class="field"><label>Vet / Treater</label><select id="tx-vet" class="select">${vetOptions}</select></div>
+      <div class="field"><label>Start Date</label><input id="tx-start" class="input" type="date" value="${esc(item ? item.startDate : today())}" oninput="updateClearanceDate()"></div>
+      <div class="field"><label>End Date</label><input id="tx-end" class="input" type="date" value="${esc(item ? item.endDate : '')}"></div>
+      <div class="field"><label>Withdrawal Days</label><input id="tx-withdrawal" class="input" type="number" min="0" step="1" value="${esc(item ? item.withdrawalDays : 0)}" oninput="updateClearanceDate()"></div>
+      <div class="field"><label>Clearance Date</label><input id="tx-clearance" class="input" type="date" value="${esc(item ? item.clearanceDate : '')}" readonly></div>
+      <div class="field span-2"><label>Notes</label><textarea id="tx-notes" class="textarea">${esc(item ? item.notes : '')}</textarea></div>
+    </div>`,
+    `<button class="btn btn-outline" type="button" onclick="closeModal()">Cancel</button>
+     <button class="btn btn-primary" type="button" onclick="saveTreatment('${id}')">Save Treatment</button>`
+  );
+  updateTreatmentMedicationMeta();
+  updateClearanceDate();
+}
+function updateTreatmentMedicationMeta(){
+  const medId = byId('tx-med').value;
+  const meta = byId('tx-med-meta');
+  if(!medId){
+    meta.textContent = 'No medication inventory item selected.';
+    return;
+  }
+  const med = D.inventory.medications.find(x => x.id === medId);
+  meta.textContent = `${med.onHand} ${med.unit} available`;
+}
+function updateClearanceDate(){
+  const start = byId('tx-start').value;
+  const days = Number(byId('tx-withdrawal').value || 0);
+  byId('tx-clearance').value = days > 0 ? addDays(start, days) : '';
+}
+function revertTreatmentInventory(item){
+  if(!item.medicationId || !item.inventoryQtyUsed) return;
+  const med = D.inventory.medications.find(x => x.id === item.medicationId);
+  if(med) med.onHand += Number(item.inventoryQtyUsed || 0);
+}
+function saveTreatment(id=''){
+  clearModalError();
+  const tag = byId('tx-tag').value.trim();
+  const condition = byId('tx-condition').value.trim();
+  if(!tag || !condition) return showModalError('Animal tag and condition are required.');
+  const medId = byId('tx-med').value;
+  const qtyUsed = Number(byId('tx-qty').value || 0);
+  const existing = id ? D.treatments.find(x => x.id === id) : null;
+  if(medId){
+    const med = D.inventory.medications.find(x => x.id === medId);
+    if(!med) return showModalError('Selected medication inventory item was not found.');
+    const available = med ? med.onHand + (existing && existing.medicationId === medId ? Number(existing.inventoryQtyUsed || 0) : 0) : 0;
+    if(qtyUsed > available){
+      return showModalError(`Only ${available} ${med.unit} available in medication inventory.`);
+    }
+  }
+  if(existing) revertTreatmentInventory(existing);
+  if(medId){
+    const med = D.inventory.medications.find(x => x.id === medId);
+    med.onHand -= qtyUsed;
+  }
+  const payload = {
+    id:id || genId('tx'),
+    tag,
+    condition,
+    medicationId:medId,
+    medicationName:medId ? medName(medId) : '',
+    inventoryQtyUsed:medId ? qtyUsed : '',
+    dosage:byId('tx-dosage').value.trim(),
+    treatment:byId('tx-treatment').value.trim(),
+    startDate:byId('tx-start').value,
+    endDate:byId('tx-end').value,
+    withdrawalDays:Number(byId('tx-withdrawal').value || 0),
+    clearanceDate:byId('tx-clearance').value,
+    vet:byId('tx-vet').value,
+    status:byId('tx-status').value,
+    notes:byId('tx-notes').value.trim()
+  };
+  if(id){
+    const idx = D.treatments.findIndex(x => x.id === id);
+    D.treatments[idx] = payload;
+  }else{
+    D.treatments.push(payload);
+  }
+  saveData();
+  closeModal();
+  applyBranding();
+  render();
+  showToast('info','Treatment saved', `Treatment record updated for ${tag}.`);
+}
+function deleteTreatment(id){
+  const item = D.treatments.find(x => x.id === id);
+  if(!item) return;
+  askConfirm('Delete Treatment', `Delete treatment record for ${item.tag}? Inventory used by this record will be returned.`, 'Delete', 'btn-danger', () => {
+    revertTreatmentInventory(item);
+    D.treatments = D.treatments.filter(x => x.id !== id);
+    saveData();
+    applyBranding();
+    render();
+    showToast('warn','Treatment deleted', `${item.tag} treatment removed.`);
+  });
+}
+
+function openVaccinationModal(id=''){
+  const item = id ? D.vaccinations.find(x => x.id === id) : null;
+  openModal(
+    item ? 'Edit Vaccination' : 'Add Vaccination',
+    `<div class="form-grid">
+      <div class="field span-2"><label>Vaccine Name</label><input id="vac-name" class="input" type="text" value="${esc(item ? item.vaccine : '')}"></div>
+      <div class="field span-2"><label>Target Group</label><input id="vac-group" class="input" type="text" value="${esc(item ? item.group : '')}"></div>
+      <div class="field"><label>Scheduled Date</label><input id="vac-date" class="input" type="date" value="${esc(item ? item.scheduled : today())}"></div>
+      <div class="field"><label>Completed Date</label><input id="vac-done" class="input" type="date" value="${esc(item ? item.completedDate : '')}"></div>
+    </div>`,
+    `<button class="btn btn-outline" type="button" onclick="closeModal()">Cancel</button>
+     <button class="btn btn-primary" type="button" onclick="saveVaccination('${id}')">Save Vaccination</button>`
+  );
+}
+function saveVaccination(id=''){
+  clearModalError();
+  const name = byId('vac-name').value.trim();
+  if(!name) return showModalError('Vaccine name is required.');
+  const done = byId('vac-done').value;
+  const payload = {
+    id:id || genId('vac'),
+    vaccine:name,
+    group:byId('vac-group').value.trim(),
+    scheduled:byId('vac-date').value,
+    completed:!!done,
+    completedDate:done
+  };
+  if(id){
+    const idx = D.vaccinations.findIndex(x => x.id === id);
+    D.vaccinations[idx] = payload;
+  }else{
+    D.vaccinations.push(payload);
+  }
+  saveData();
+  closeModal();
+  render();
+}
+function markVaccinationDone(id){
+  const item = D.vaccinations.find(x => x.id === id);
+  if(!item) return;
+  item.completed = true;
+  item.completedDate = today();
+  saveData();
+  render();
+  showToast('info','Vaccination updated', `${item.vaccine} marked complete.`);
+}
+function deleteVaccination(id){
+  const item = D.vaccinations.find(x => x.id === id);
+  if(!item) return;
+  askConfirm('Delete Vaccination', `Delete ${item.vaccine} from the schedule?`, 'Delete', 'btn-danger', () => {
+    D.vaccinations = D.vaccinations.filter(x => x.id !== id);
+    saveData();
+    render();
+  });
+}
+
+function openInventoryItemModal(group,id=''){
+  const list = group === 'feed' ? D.inventory.feed : D.inventory.medications;
+  const item = id ? list.find(x => x.id === id) : null;
+  openModal(
+    item ? `Edit ${group === 'feed' ? 'Feed' : 'Medication'} Item` : `Add ${group === 'feed' ? 'Feed' : 'Medication'} Item`,
+    `<div class="form-grid">
+      <div class="field span-2"><label>Name</label><input id="inv-name" class="input" type="text" value="${esc(item ? item.name : '')}"></div>
+      <div class="field"><label>Unit</label><input id="inv-unit" class="input" type="text" value="${esc(item ? item.unit : (group==='feed' ? 'kg' : 'mL'))}"></div>
+      <div class="field"><label>On Hand</label><input id="inv-onhand" class="input" type="number" min="0" step="0.1" value="${item ? esc(item.onHand) : '0'}"></div>
+      <div class="field"><label>Low Threshold</label><input id="inv-threshold" class="input" type="number" min="0" step="0.1" value="${item ? esc(item.threshold) : '0'}"></div>
+    </div>`,
+    `<button class="btn btn-outline" type="button" onclick="closeModal()">Cancel</button>
+     <button class="btn btn-primary" type="button" onclick="saveInventoryItem('${group}','${id}')">Save Item</button>`
+  );
+}
+function saveInventoryItem(group,id=''){
+  clearModalError();
+  const list = group === 'feed' ? D.inventory.feed : D.inventory.medications;
+  const name = byId('inv-name').value.trim();
+  if(!name) return showModalError('Name is required.');
+  const payload = {
+    id:id || genId(group === 'feed' ? 'feed' : 'med'),
+    name,
+    unit:byId('inv-unit').value.trim() || (group === 'feed' ? 'kg' : 'mL'),
+    onHand:Number(byId('inv-onhand').value || 0),
+    threshold:Number(byId('inv-threshold').value || 0)
+  };
+  if(id){
+    const idx = list.findIndex(x => x.id === id);
+    list[idx] = payload;
+  }else{
+    list.push(payload);
+  }
+  saveData();
+  closeModal();
+  render();
+}
+function deleteInventoryItem(group,id){
+  const list = group === 'feed' ? D.inventory.feed : D.inventory.medications;
+  const item = list.find(x => x.id === id);
+  if(!item) return;
+  askConfirm('Delete Inventory Item', `Delete ${item.name} from inventory? Historical logs stay in place.`, 'Delete', 'btn-danger', () => {
+    if(group === 'feed') D.inventory.feed = D.inventory.feed.filter(x => x.id !== id);
+    else D.inventory.medications = D.inventory.medications.filter(x => x.id !== id);
+    saveData();
+    render();
+  });
+}
+
+function openFeedLogModal(id=''){
+  const item = id ? D.feedLogs.find(x => x.id === id) : null;
+  const options = D.inventory.feed.map(f => `<option value="${f.id}"${item && item.feedId===f.id?' selected':''}>${esc(f.name)} (${esc(f.onHand)} ${esc(f.unit)} on hand)</option>`).join('');
+  const locations = D.locations.map(loc => `<option value="${esc(loc.name)}"${item && item.location===loc.name?' selected':''}>${esc(loc.name)}</option>`).join('');
+  openModal(
+    item ? 'Edit Feed Log' : 'Log Feed Usage',
+    `<div class="form-grid">
+      <div class="field"><label>Date</label><input id="feedlog-date" class="input" type="date" value="${esc(item ? item.date : today())}"></div>
+      <div class="field"><label>Feed Item</label><select id="feedlog-feed" class="select">${options}</select></div>
+      <div class="field"><label>Quantity</label><input id="feedlog-qty" class="input" type="number" min="0" step="0.1" value="${item ? esc(item.qty) : ''}"></div>
+      <div class="field"><label>Location</label><select id="feedlog-loc" class="select"><option value="">Not set</option>${locations}</select></div>
+      <div class="field span-2"><label>Notes</label><textarea id="feedlog-notes" class="textarea">${esc(item ? item.notes : '')}</textarea></div>
+    </div>`,
+    `<button class="btn btn-outline" type="button" onclick="closeModal()">Cancel</button>
+     <button class="btn btn-primary" type="button" onclick="saveFeedLog('${id}')">Save Log</button>`
+  );
+}
+function saveFeedLog(id=''){
+  clearModalError();
+  const feedId = byId('feedlog-feed').value;
+  const qty = Number(byId('feedlog-qty').value || 0);
+  if(!feedId || qty <= 0) return showModalError('Feed item and quantity are required.');
+  const feed = D.inventory.feed.find(x => x.id === feedId);
+  if(id){
+    const existing = D.feedLogs.find(x => x.id === id);
+    if(existing){
+      const previousFeed = D.inventory.feed.find(x => x.id === existing.feedId);
+      if(previousFeed) previousFeed.onHand += Number(existing.qty || 0);
+    }
+  }
+  if(feed.onHand < qty) return showModalError(`Only ${feed.onHand} ${feed.unit} available.`);
+  feed.onHand -= qty;
+  const payload = {
+    id:id || genId('fl'),
+    date:byId('feedlog-date').value,
+    feedId,
+    qty,
+    location:byId('feedlog-loc').value,
+    notes:byId('feedlog-notes').value.trim()
+  };
+  if(id){
+    const idx = D.feedLogs.findIndex(x => x.id === id);
+    D.feedLogs[idx] = payload;
+  }else{
+    D.feedLogs.push(payload);
+  }
+  saveData();
+  closeModal();
+  render();
+}
+function deleteFeedLog(id){
+  const item = D.feedLogs.find(x => x.id === id);
+  if(!item) return;
+  askConfirm('Delete Feed Log', 'Delete this feed usage record and return the quantity to inventory?', 'Delete', 'btn-danger', () => {
+    const feed = D.inventory.feed.find(x => x.id === item.feedId);
+    if(feed) feed.onHand += Number(item.qty || 0);
+    D.feedLogs = D.feedLogs.filter(x => x.id !== id);
+    saveData();
+    render();
+  });
+}
+
+function openDeliveryModal(id=''){
+  const item = id ? D.deliveries.find(x => x.id === id) : null;
+  const options = D.inventory.feed.map(f => `<option value="${f.id}"${item && item.feedId===f.id?' selected':''}>${esc(f.name)}</option>`).join('');
+  openModal(
+    item ? 'Edit Delivery' : 'Log Feed Delivery',
+    `<div class="form-grid">
+      <div class="field"><label>Date</label><input id="delivery-date" class="input" type="date" value="${esc(item ? item.date : today())}"></div>
+      <div class="field"><label>Feed Item</label><select id="delivery-feed" class="select">${options}</select></div>
+      <div class="field"><label>Quantity Received</label><input id="delivery-qty" class="input" type="number" min="0" step="0.1" value="${item ? esc(item.qty) : ''}"></div>
+      <div class="field"><label>Supplier</label><input id="delivery-supplier" class="input" type="text" value="${esc(item ? item.supplier : '')}"></div>
+      <div class="field"><label>Cost per Unit</label><input id="delivery-cost" class="input" type="number" min="0" step="0.01" value="${item && item.costPerUnit !== '' ? esc(item.costPerUnit) : ''}"></div>
+      <div class="field span-2"><label>Notes</label><textarea id="delivery-notes" class="textarea">${esc(item ? item.notes : '')}</textarea></div>
+    </div>`,
+    `<button class="btn btn-outline" type="button" onclick="closeModal()">Cancel</button>
+     <button class="btn btn-primary" type="button" onclick="saveDelivery('${id}')">Save Delivery</button>`
+  );
+}
+function saveDelivery(id=''){
+  clearModalError();
+  const feedId = byId('delivery-feed').value;
+  const qty = Number(byId('delivery-qty').value || 0);
+  if(!feedId || qty <= 0) return showModalError('Feed item and quantity are required.');
+  const feed = D.inventory.feed.find(x => x.id === feedId);
+  if(id){
+    const existing = D.deliveries.find(x => x.id === id);
+    if(existing){
+      const previousFeed = D.inventory.feed.find(x => x.id === existing.feedId);
+      if(previousFeed) previousFeed.onHand -= Number(existing.qty || 0);
+    }
+  }
+  feed.onHand += qty;
+  const payload = {
+    id:id || genId('dlv'),
+    date:byId('delivery-date').value,
+    feedId,
+    qty,
+    supplier:byId('delivery-supplier').value.trim(),
+    costPerUnit:byId('delivery-cost').value ? Number(byId('delivery-cost').value) : '',
+    notes:byId('delivery-notes').value.trim()
+  };
+  if(id){
+    const idx = D.deliveries.findIndex(x => x.id === id);
+    D.deliveries[idx] = payload;
+  }else{
+    D.deliveries.push(payload);
+  }
+  saveData();
+  closeModal();
+  render();
+}
+function deleteDelivery(id){
+  const item = D.deliveries.find(x => x.id === id);
+  if(!item) return;
+  askConfirm('Delete Delivery', 'Delete this delivery and remove it from inventory totals?', 'Delete', 'btn-danger', () => {
+    const feed = D.inventory.feed.find(x => x.id === item.feedId);
+    if(feed) feed.onHand = Math.max(0, feed.onHand - Number(item.qty || 0));
+    D.deliveries = D.deliveries.filter(x => x.id !== id);
+    saveData();
+    render();
+  });
+}
+
+function openEquipmentModal(id=''){
+  const item = id ? D.equipment.find(x => x.id === id) : null;
+  openModal(
+    item ? 'Edit Equipment' : 'Add Equipment',
+    `<div class="form-grid">
+      <div class="field span-2"><label>Name</label><input id="equip-name" class="input" type="text" value="${esc(item ? item.name : '')}"></div>
+      <div class="field"><label>Year</label><input id="equip-year" class="input" type="number" min="1900" max="2100" value="${esc(item ? item.year : '')}"></div>
+      <div class="field"><label>Hours / km</label><input id="equip-hours" class="input" type="number" min="0" step="1" value="${item && item.hours !== '' ? esc(item.hours) : ''}"></div>
+      <div class="field"><label>Status</label><select id="equip-status" class="select">${['Good','Due Soon','Repair Needed','Out of Service'].map(opt => `<option value="${opt}"${item && item.status===opt?' selected':''}>${opt}</option>`).join('')}</select></div>
+      <div class="field span-2"><label>Notes</label><textarea id="equip-notes" class="textarea">${esc(item ? item.notes : '')}</textarea></div>
+    </div>`,
+    `<button class="btn btn-outline" type="button" onclick="closeModal()">Cancel</button>
+     <button class="btn btn-primary" type="button" onclick="saveEquipment('${id}')">Save Equipment</button>`
+  );
+}
+function saveEquipment(id=''){
+  clearModalError();
+  const name = byId('equip-name').value.trim();
+  if(!name) return showModalError('Equipment name is required.');
+  const payload = {
+    id:id || genId('eq'),
+    name,
+    year:byId('equip-year').value ? Number(byId('equip-year').value) : '',
+    hours:byId('equip-hours').value ? Number(byId('equip-hours').value) : '',
+    status:byId('equip-status').value,
+    notes:byId('equip-notes').value.trim()
+  };
+  if(id){
+    const idx = D.equipment.findIndex(x => x.id === id);
+    D.equipment[idx] = payload;
+  }else{
+    D.equipment.push(payload);
+  }
+  saveData();
+  closeModal();
+  render();
+}
+function deleteEquipment(id){
+  const item = D.equipment.find(x => x.id === id);
+  if(!item) return;
+  askConfirm('Delete Equipment', `Delete ${item.name}?`, 'Delete', 'btn-danger', () => {
+    D.equipment = D.equipment.filter(x => x.id !== id);
+    saveData();
+    render();
+  });
+}
+
+function calcNext(last, interval){
+  if(!last || interval === 'As needed') return '';
+  const d = new Date(last + 'T00:00:00');
+  if(interval === 'Monthly') d.setMonth(d.getMonth() + 1);
+  else if(interval === 'Quarterly') d.setMonth(d.getMonth() + 3);
+  else if(interval === 'Semi-annual') d.setMonth(d.getMonth() + 6);
+  else if(interval === 'Annual') d.setFullYear(d.getFullYear() + 1);
+  return d.toISOString().split('T')[0];
+}
+function openServiceModal(id=''){
+  const item = id ? D.service.find(x => x.id === id) : null;
+  openModal(
+    item ? 'Edit Service Item' : 'Add Service Item',
+    `<div class="form-grid">
+      <div class="field span-2"><label>Equipment</label><select id="service-equip" class="select">${D.equipment.map(e => `<option value="${e.id}"${item && item.equipId===e.id?' selected':''}>${esc(e.name)}</option>`).join('')}</select></div>
+      <div class="field span-2"><label>Service Type</label><input id="service-type" class="input" type="text" value="${esc(item ? item.serviceType : '')}"></div>
+      <div class="field"><label>Last Service Date</label><input id="service-last" class="input" type="date" value="${esc(item ? item.lastDate : today())}" oninput="updateServiceNext()"></div>
+      <div class="field"><label>Interval</label><select id="service-interval" class="select" onchange="updateServiceNext()">${['Monthly','Quarterly','Semi-annual','Annual','As needed'].map(opt => `<option value="${opt}"${item && item.interval===opt?' selected':''}>${opt}</option>`).join('')}</select></div>
+      <div class="field"><label>Hours at Service</label><input id="service-hours" class="input" type="number" min="0" step="1" value="${item && item.hoursAtService !== '' ? esc(item.hoursAtService) : ''}"></div>
+      <div class="field"><label>Next Due Date</label><input id="service-next" class="input" type="date" value="${esc(item ? item.nextDate : '')}"></div>
+    </div>`,
+    `<button class="btn btn-outline" type="button" onclick="closeModal()">Cancel</button>
+     <button class="btn btn-primary" type="button" onclick="saveService('${id}')">Save Service</button>`
+  );
+  updateServiceNext();
+}
+function updateServiceNext(){
+  const last = byId('service-last');
+  const interval = byId('service-interval');
+  const next = byId('service-next');
+  if(last && interval && next && !next.dataset.manual){
+    next.value = calcNext(last.value, interval.value);
+  }
+}
+function saveService(id=''){
+  clearModalError();
+  const type = byId('service-type').value.trim();
+  if(!type) return showModalError('Service type is required.');
+  const payload = {
+    id:id || genId('svc'),
+    equipId:byId('service-equip').value,
+    serviceType:type,
+    lastDate:byId('service-last').value,
+    interval:byId('service-interval').value,
+    hoursAtService:byId('service-hours').value ? Number(byId('service-hours').value) : '',
+    nextDate:byId('service-next').value
+  };
+  if(id){
+    const idx = D.service.findIndex(x => x.id === id);
+    D.service[idx] = payload;
+  }else{
+    D.service.push(payload);
+  }
+  saveData();
+  closeModal();
+  render();
+}
+function deleteService(id){
+  askConfirm('Delete Service', 'Delete this service schedule item?', 'Delete', 'btn-danger', () => {
+    D.service = D.service.filter(x => x.id !== id);
+    saveData();
+    render();
+  });
+}
+
+function openRepairModal(id=''){
+  const item = id ? D.repairs.find(x => x.id === id) : null;
+  openModal(
+    item ? 'Edit Repair' : 'Log Repair',
+    `<div class="form-grid">
+      <div class="field"><label>Date</label><input id="repair-date" class="input" type="date" value="${esc(item ? item.date : today())}"></div>
+      <div class="field"><label>Equipment</label><select id="repair-equip" class="select">${D.equipment.map(e => `<option value="${e.id}"${item && item.equipId===e.id?' selected':''}>${esc(e.name)}</option>`).join('')}</select></div>
+      <div class="field span-2"><label>Work Done</label><textarea id="repair-work" class="textarea">${esc(item ? item.work : '')}</textarea></div>
+      <div class="field"><label>Cost</label><input id="repair-cost" class="input" type="number" min="0" step="0.01" value="${item && item.cost !== '' && item.cost != null ? esc(item.cost) : ''}"></div>
+      <div class="field"><label>Performed By</label><input id="repair-by" class="input" type="text" value="${esc(item ? item.by : '')}"></div>
+      <div class="field"><label>Hours at Service</label><input id="repair-hours" class="input" type="number" min="0" step="1" value="${item && item.hoursAtService !== '' ? esc(item.hoursAtService) : ''}"></div>
+    </div>`,
+    `<button class="btn btn-outline" type="button" onclick="closeModal()">Cancel</button>
+     <button class="btn btn-primary" type="button" onclick="saveRepair('${id}')">Save Repair</button>`
+  );
+}
+function saveRepair(id=''){
+  clearModalError();
+  const work = byId('repair-work').value.trim();
+  if(!work) return showModalError('Repair work description is required.');
+  const payload = {
+    id:id || genId('rep'),
+    date:byId('repair-date').value,
+    equipId:byId('repair-equip').value,
+    work,
+    cost:byId('repair-cost').value ? Number(byId('repair-cost').value) : '',
+    by:byId('repair-by').value.trim(),
+    hoursAtService:byId('repair-hours').value ? Number(byId('repair-hours').value) : ''
+  };
+  if(id){
+    const idx = D.repairs.findIndex(x => x.id === id);
+    D.repairs[idx] = payload;
+  }else{
+    D.repairs.push(payload);
+  }
+  saveData();
+  closeModal();
+  render();
+}
+function deleteRepair(id){
+  askConfirm('Delete Repair', 'Delete this repair log entry?', 'Delete', 'btn-danger', () => {
+    D.repairs = D.repairs.filter(x => x.id !== id);
+    saveData();
+    render();
+  });
+}
+
+function openLocationModal(id=''){
+  const item = id ? D.locations.find(x => x.id === id) : null;
+  openModal(
+    item ? 'Edit Location' : 'Add Location',
+    `<div class="form-grid">
+      <div class="field span-2"><label>Name</label><input id="loc-name" class="input" type="text" value="${esc(item ? item.name : '')}"></div>
+      <div class="field"><label>Type</label><select id="loc-type" class="select">${['Pasture','Pen','Barn','Drylot','Other'].map(opt => `<option value="${opt}"${item && item.type===opt?' selected':''}>${opt}</option>`).join('')}</select></div>
+      <div class="field"><label>Condition</label><select id="loc-condition" class="select">${['','Good Grass','Wet','Dry','Resting','Reseeded','Limited Water'].map(opt => `<option value="${opt}"${item && item.condition===opt?' selected':''}>${opt || 'Not set'}</option>`).join('')}</select></div>
+      <div class="field"><label>Size</label><input id="loc-size" class="input" type="text" value="${esc(item ? item.size : '')}"></div>
+      <div class="field span-2"><label>Notes</label><textarea id="loc-notes" class="textarea">${esc(item ? item.notes : '')}</textarea></div>
+    </div>`,
+    `<button class="btn btn-outline" type="button" onclick="closeModal()">Cancel</button>
+     <button class="btn btn-primary" type="button" onclick="saveLocation('${id}')">Save Location</button>`
+  );
+}
+function saveLocation(id=''){
+  clearModalError();
+  const name = byId('loc-name').value.trim();
+  if(!name) return showModalError('Location name is required.');
+  const payload = {
+    id:id || genId('loc'),
+    name,
+    type:byId('loc-type').value,
+    condition:byId('loc-condition').value,
+    size:byId('loc-size').value.trim(),
+    notes:byId('loc-notes').value.trim()
+  };
+  if(id){
+    const idx = D.locations.findIndex(x => x.id === id);
+    const previousName = D.locations[idx].name;
+    D.locations[idx] = payload;
+    if(previousName !== name){
+      D.cattle.forEach(c => { if(c.location === previousName) c.location = name; });
+      D.moves.forEach(m => {
+        if(m.from === previousName) m.from = name;
+        if(m.to === previousName) m.to = name;
+      });
+    }
+  }else{
+    D.locations.push(payload);
+  }
+  saveData();
+  closeModal();
+  render();
+}
+function deleteLocation(id){
+  const item = D.locations.find(x => x.id === id);
+  if(!item) return;
+  askConfirm('Delete Location', `Delete ${item.name}? Animal records keep their text location value.`, 'Delete', 'btn-danger', () => {
+    D.locations = D.locations.filter(x => x.id !== id);
+    saveData();
+    render();
+  });
+}
+
+function openMoveModal(){
+  const locOptions = D.locations.map(loc => `<option value="${esc(loc.name)}">${esc(loc.name)}</option>`).join('');
+  openModal(
+    'Log Internal Move',
+    `<div class="form-grid">
+      <div class="field"><label>Date</label><input id="move-date" class="input" type="date" value="${today()}"></div>
+      <div class="field"><label>Animal Tag(s)</label><input id="move-tags" class="input" type="text" placeholder="M-001, M-002"></div>
+      <div class="field"><label>From</label><select id="move-from" class="select"><option value="">Not set</option>${locOptions}</select></div>
+      <div class="field"><label>To</label><select id="move-to" class="select"><option value="">Not set</option>${locOptions}</select></div>
+      <div class="field span-2"><label>Reason</label><textarea id="move-reason" class="textarea"></textarea></div>
+    </div>`,
+    `<button class="btn btn-outline" type="button" onclick="closeModal()">Cancel</button>
+     <button class="btn btn-primary" type="button" onclick="saveMove()">Save Move</button>`
+  );
+}
+function saveMove(){
+  clearModalError();
+  const tagsRaw = byId('move-tags').value.trim();
+  const to = byId('move-to').value;
+  if(!tagsRaw || !to) return showModalError('Animal tags and destination are required.');
+  const tags = tagsRaw.split(',').map(tag => tag.trim()).filter(Boolean);
+  tags.forEach(tag => {
+    const animal = D.cattle.find(c => c.tag.toLowerCase() === tag.toLowerCase());
+    if(animal) animal.location = to;
+  });
+  D.moves.push({
+    id:genId('mv'),
+    date:byId('move-date').value,
+    animals:tagsRaw,
+    from:byId('move-from').value,
+    to,
+    reason:byId('move-reason').value.trim()
+  });
+  saveData();
+  closeModal();
+  render();
+}
+function deleteMove(id){
+  askConfirm('Delete Move', 'Delete this internal move record?', 'Delete', 'btn-danger', () => {
+    D.moves = D.moves.filter(x => x.id !== id);
+    saveData();
+    render();
+  });
+}
+
+function openSettings(){
+  openModal(
+    'Settings',
+    `<div class="stack">
+      <div>
+        <div class="section-head"><div><h3>Ranch Settings</h3><p>Core business identity and compliance details.</p></div></div>
+        <div class="form-grid">
+          <div class="field"><label>Ranch Name</label><input id="set-ranch" class="input" type="text" value="${esc(D.settings.ranchName)}"></div>
+          <div class="field"><label>Manitoba Premises ID (PID)</label><input id="set-pid" class="input" type="text" value="${esc(D.settings.pid || '')}"></div>
+        </div>
+      </div>
+      <div>
+        <div class="section-head"><div><h3>Vets / Treaters</h3><p>Available in treatment forms.</p></div></div>
+        <div class="settings-list">
+          ${D.settings.vets.map((vet,idx) => `
+            <div class="settings-row">
+              <span>${esc(vet)}</span>
+              <button class="btn btn-danger btn-sm" type="button" onclick="removeVet(${idx})">Remove</button>
+            </div>
+          `).join('') || '<div class="empty">No vets set.</div>'}
+        </div>
+        <div class="actions" style="margin-top:12px">
+          <input id="set-newvet" class="input" type="text" placeholder="Add vet or treater" style="max-width:320px">
+          <button class="btn btn-outline" type="button" onclick="addVet()">Add</button>
+        </div>
+      </div>
+      <div>
+        <div class="section-head"><div><h3>Data Safety</h3><p>Manual backup and restore for year-end rollover or emergency recovery.</p></div></div>
+        <div class="actions">
+          <button class="btn btn-outline" type="button" onclick="exportData()">Export Data (JSON)</button>
+          <button class="btn btn-primary" type="button" onclick="triggerImport()">Import Data</button>
+          <input id="import-file" type="file" accept="application/json" style="display:none" onchange="importData(event)">
+        </div>
+      </div>
+      <div>
+        <div class="section-head"><div><h3>Display</h3><p>High-contrast outdoor mode for bright field conditions.</p></div></div>
+        <button class="btn ${D.settings.highViz ? 'btn-accent' : 'btn-outline'}" type="button" onclick="toggleHighViz()">${D.settings.highViz ? 'High-Viz On' : 'High-Viz Off'}</button>
+      </div>
+    </div>`,
+    `<button class="btn btn-outline" type="button" onclick="closeModal()">Close</button>
+     <button class="btn btn-primary" type="button" onclick="saveSettings()">Save Settings</button>`
+  );
+}
+function saveSettings(){
+  clearModalError();
+  const ranchName = byId('set-ranch').value.trim();
+  if(!ranchName) return showModalError('Ranch name is required.');
+  D.settings.ranchName = ranchName;
+  D.settings.pid = byId('set-pid').value.trim();
+  saveData();
+  applyBranding();
+  render();
+  closeModal();
+}
+function addVet(){
+  const input = byId('set-newvet');
+  if(!input) return;
+  const name = input.value.trim();
+  if(!name) return;
+  D.settings.vets.push(name);
+  saveData();
+  openSettings();
+}
+function removeVet(idx){
+  D.settings.vets.splice(idx,1);
+  saveData();
+  openSettings();
+}
+function exportData(){
+  const blob = new Blob([JSON.stringify(D,null,2)], {type:'application/json'});
+  const a = document.createElement('a');
+  a.href = URL.createObjectURL(blob);
+  a.download = `mcmahon-ranch-backup-${today()}.json`;
+  document.body.appendChild(a);
+  a.click();
+  a.remove();
+  URL.revokeObjectURL(a.href);
+}
+function triggerImport(){
+  byId('import-file').click();
+}
+function importData(event){
+  const file = event.target.files && event.target.files[0];
+  if(!file) return;
+  const reader = new FileReader();
+  reader.onload = function(e){
+    try{
+      const parsed = JSON.parse(e.target.result);
+      D = normalizeData(parsed);
+      saveData();
+      applyBranding();
+      render();
+      closeModal();
+      showToast('info','Import complete', 'Backup file imported successfully.');
+    }catch(err){
+      showToast('danger','Import failed', 'That file is not a valid ranch backup.');
+    }
+  };
+  reader.readAsText(file);
+  event.target.value = '';
+}
+
+function exportCattleCSV(){
+  const headers = ['Tag','CCIA / RFID','Name','Type','Breed','DOB','Location','Status','Weight','Weight Date','Sire','Dam','Notes'];
+  const rows = [headers];
+  D.cattle.forEach(c => {
+    rows.push([c.tag,c.cciaTag || '',c.name || '',c.type,c.breed || '',c.dob || '',c.location || '',c.status,c.lastWeight || '',c.weightDate || '',c.sire || '',c.dam || '',c.notes || '']);
+  });
+  const csv = rows.map(row => row.map(cell => {
+    const value = String(cell == null ? '' : cell);
+    return /[",\n]/.test(value) ? `"${value.replace(/"/g,'""')}"` : value;
+  }).join(',')).join('\n');
+  const blob = new Blob([csv], {type:'text/csv'});
+  const a = document.createElement('a');
+  a.href = URL.createObjectURL(blob);
+  a.download = `mcmahon-ranch-cattle-${today()}.csv`;
+  document.body.appendChild(a);
+  a.click();
+  a.remove();
+  URL.revokeObjectURL(a.href);
+}
+
+byId('modal-ov').addEventListener('click', function(event){
+  if(event.target === this) closeModal();
+});
+document.addEventListener('keydown', function(event){
+  if(event.key === 'Escape') closeModal();
+});
+
+function registerServiceWorker(){
+  if('serviceWorker' in navigator){
+    window.addEventListener('load', function(){
+      navigator.serviceWorker.register('./sw.js').catch(function(){});
+    });
+  }
+}
+function init(){
+  loadData();
+  applyBranding();
+  render();
+  registerServiceWorker();
+}
+init();
+</script>
+</body>
+</html>

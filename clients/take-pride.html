@@ -1,0 +1,2617 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Take Pride</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Laila:wght@400;600;700&family=DM+Sans:wght@400;500;700&display=swap" rel="stylesheet">
+<style>
+:root {
+  --navy: #182059;
+  --lime: #5DD600;
+  --lime-dark: #4ab800;
+  --white: #fff;
+  --off-white: #f5f6fa;
+  --border: #dde1ee;
+  --text: #1a1a2e;
+  --muted: #6b7280;
+  --danger: #dc2626;
+  --warn: #d97706;
+  --info: #1d4ed8;
+  --success: #166534;
+  --status-scheduled: #1d4ed8;
+  --status-inprogress: #d97706;
+  --status-done: #166534;
+  --status-cancelled: #6b7280;
+}
+*, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+body { font-family: 'DM Sans', sans-serif; background: var(--off-white); color: var(--text); min-height: 100vh; }
+h1,h2,h3,h4,h5 { font-family: 'Laila', serif; }
+button { cursor: pointer; font-family: 'DM Sans', sans-serif; }
+input, select, textarea { font-family: 'DM Sans', sans-serif; }
+
+/* ── SPLASH ── */
+#splash {
+  display: flex; flex-direction: column; align-items: center; justify-content: center;
+  min-height: 100vh; background: var(--navy); padding: 2rem; gap: 1.5rem;
+}
+#splash img.logo { max-width: 280px; width: 100%; }
+#splash .tagline { color: var(--white); font-size: 1.05rem; opacity: .8; letter-spacing: .04em; }
+.splash-btns { display: flex; gap: 1rem; flex-wrap: wrap; justify-content: center; }
+.splash-btn {
+  background: var(--lime); color: var(--navy); font-family: 'Laila', serif;
+  font-size: 1.1rem; font-weight: 700; padding: .85rem 2rem; border: none;
+  border-radius: 6px; cursor: pointer; transition: background .15s;
+}
+.splash-btn:hover { background: var(--lime-dark); }
+.splash-link { color: var(--lime); font-size: .85rem; opacity: .8; background: none; border: none; text-decoration: underline; cursor: pointer; }
+.splash-link:hover { opacity: 1; }
+
+/* ── APP SHELL ── */
+#app { display: none; flex-direction: column; min-height: 100vh; }
+header {
+  background: var(--navy); padding: .75rem 1.25rem;
+  display: flex; align-items: center; gap: 1rem; flex-wrap: wrap;
+}
+header img.logo { height: 44px; }
+.mode-badge {
+  font-family: 'Laila', serif; font-size: .75rem; font-weight: 700;
+  padding: .2rem .55rem; border-radius: 4px; letter-spacing: .06em;
+}
+.mode-badge.admin { background: var(--lime); color: var(--navy); }
+.mode-badge.staff { background: #4b5563; color: #d1d5db; }
+.file-name { color: #9ca3af; font-size: .82rem; flex: 1; min-width: 0; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+#btn-export-header {
+  background: var(--lime); color: var(--navy); border: none; font-weight: 700;
+  padding: .45rem .9rem; border-radius: 5px; font-size: .82rem; white-space: nowrap;
+}
+#btn-export-header:hover { background: var(--lime-dark); }
+
+nav {
+  background: var(--white); border-bottom: 2px solid var(--border);
+  display: flex; align-items: center; gap: .25rem; padding: 0 1rem;
+  overflow-x: auto;
+}
+.nav-divider { width: 1px; height: 28px; background: var(--border); margin: 0 .4rem; flex-shrink: 0; }
+.nav-btn {
+  background: none; border: none; padding: .7rem .9rem;
+  font-size: .9rem; font-weight: 500; color: var(--muted);
+  border-bottom: 3px solid transparent; white-space: nowrap; transition: color .12s;
+  margin-bottom: -2px;
+}
+.nav-btn:hover { color: var(--navy); }
+.nav-btn.active { color: var(--navy); border-bottom-color: var(--lime); font-weight: 700; }
+
+main { flex: 1; padding: 1.25rem; max-width: 1200px; margin: 0 auto; width: 100%; }
+.panel { display: none; }
+.panel.active { display: block; }
+
+/* ── CARDS ── */
+.card { background: var(--white); border: 1px solid var(--border); border-radius: 8px; padding: 1.25rem; margin-bottom: 1.25rem; }
+.card-header { display: flex; align-items: center; gap: .75rem; margin-bottom: 1rem; flex-wrap: wrap; }
+.card-title { font-size: 1.05rem; font-family: 'Laila', serif; color: var(--navy); }
+
+/* ── BUTTONS ── */
+.btn { border: none; border-radius: 5px; padding: .45rem .9rem; font-size: .88rem; font-weight: 600; cursor: pointer; transition: background .12s; }
+.btn-primary { background: var(--navy); color: var(--white); }
+.btn-primary:hover { background: #1e2d6b; }
+.btn-lime { background: var(--lime); color: var(--navy); }
+.btn-lime:hover { background: var(--lime-dark); }
+.btn-danger { background: #fee2e2; color: var(--danger); }
+.btn-danger:hover { background: #fecaca; }
+.btn-ghost { background: var(--off-white); color: var(--text); border: 1px solid var(--border); }
+.btn-ghost:hover { background: #e9ebf3; }
+.btn-sm { padding: .3rem .65rem; font-size: .8rem; }
+
+/* ── FORMS ── */
+.form-row { display: grid; grid-template-columns: 1fr 1fr; gap: .75rem; margin-bottom: .75rem; }
+.form-row.single { grid-template-columns: 1fr; }
+.form-row.triple { grid-template-columns: 1fr 1fr 1fr; }
+.form-group { display: flex; flex-direction: column; gap: .3rem; }
+label { font-size: .82rem; font-weight: 600; color: var(--muted); }
+input[type=text], input[type=number], input[type=email], input[type=tel], input[type=date],
+input[type=time], select, textarea {
+  border: 1px solid var(--border); border-radius: 5px; padding: .45rem .65rem;
+  font-size: .9rem; width: 100%; color: var(--text); background: var(--white);
+}
+input:focus, select:focus, textarea:focus { outline: none; border-color: var(--navy); }
+textarea { resize: vertical; min-height: 80px; }
+
+/* ── TABLES ── */
+.tbl-wrap { overflow-x: auto; }
+table { width: 100%; border-collapse: collapse; font-size: .88rem; }
+th { background: var(--navy); color: var(--white); font-family: 'Laila', serif; font-weight: 600; padding: .55rem .75rem; text-align: left; white-space: nowrap; }
+td { padding: .5rem .75rem; border-bottom: 1px solid var(--border); vertical-align: middle; }
+tr:last-child td { border-bottom: none; }
+tr:hover td { background: var(--off-white); }
+.cat-row td { background: #edf0fb; font-weight: 700; font-family: 'Laila', serif; color: var(--navy); font-size: .82rem; text-transform: uppercase; letter-spacing: .05em; }
+.editing-row td { background: #fffbe6; }
+
+/* ── SEARCH ── */
+.search-input { position: relative; }
+.search-input input { padding-left: 2rem; }
+.search-input::before { content: '⌕'; position: absolute; left: .55rem; top: 50%; transform: translateY(-50%); color: var(--muted); font-size: 1rem; }
+
+/* ── PILLS ── */
+.pill-wrap { display: flex; gap: .4rem; flex-wrap: wrap; margin-bottom: 1rem; }
+.pill { border: 1px solid var(--border); border-radius: 20px; padding: .25rem .75rem; font-size: .8rem; font-weight: 600; cursor: pointer; background: var(--white); color: var(--muted); }
+.pill.active { background: var(--navy); color: var(--white); border-color: var(--navy); }
+
+/* ── MODALS ── */
+.overlay {
+  display: none; position: fixed; inset: 0; background: rgba(0,0,0,.45);
+  z-index: 100; align-items: center; justify-content: center; padding: 1rem;
+}
+.overlay.open { display: flex; }
+.modal {
+  background: var(--white); border-radius: 10px; padding: 1.5rem;
+  max-width: 580px; width: 100%; max-height: 90vh; overflow-y: auto;
+  box-shadow: 0 8px 32px rgba(0,0,0,.18);
+}
+.modal-wide { max-width: 780px; }
+.modal-header { display: flex; align-items: center; justify-content: space-between; margin-bottom: 1.25rem; }
+.modal-title { font-size: 1.15rem; color: var(--navy); }
+.modal-close { background: none; border: none; font-size: 1.4rem; color: var(--muted); cursor: pointer; line-height: 1; }
+.modal-footer { display: flex; justify-content: flex-end; gap: .75rem; margin-top: 1.25rem; padding-top: 1rem; border-top: 1px solid var(--border); }
+
+/* ── INVOICE TAB ── */
+.doc-toggle { display: flex; gap: 0; border: 1px solid var(--border); border-radius: 6px; overflow: hidden; }
+.doc-toggle button { flex: 1; padding: .5rem 1.25rem; border: none; background: var(--off-white); color: var(--muted); font-weight: 700; font-size: .9rem; }
+.doc-toggle button.active { background: var(--lime); color: var(--navy); }
+.meta-row { display: flex; gap: .75rem; flex-wrap: wrap; align-items: flex-end; margin-bottom: 1rem; }
+.meta-row .form-group { flex: 1; min-width: 140px; }
+.product-picker { max-height: 260px; overflow-y: auto; border: 1px solid var(--border); border-radius: 6px; }
+.picker-item { display: flex; align-items: center; gap: .75rem; padding: .5rem .75rem; border-bottom: 1px solid var(--border); font-size: .85rem; }
+.picker-item:last-child { border-bottom: none; }
+.picker-item:hover { background: var(--off-white); }
+.picker-num { color: var(--muted); font-size: .78rem; white-space: nowrap; }
+.picker-desc { flex: 1; }
+.picker-price { color: var(--navy); font-weight: 700; white-space: nowrap; }
+.totals-block { text-align: right; margin-top: .75rem; }
+.totals-block .total-row { display: flex; justify-content: flex-end; gap: 2rem; padding: .2rem 0; font-size: .9rem; }
+.totals-block .total-row.grand { font-family: 'Laila', serif; font-size: 1.15rem; color: var(--navy); font-weight: 700; border-top: 2px solid var(--navy); padding-top: .4rem; margin-top: .2rem; }
+.total-label { color: var(--muted); }
+.total-val { width: 90px; }
+
+/* ── SCHEDULE ── */
+.week-nav { display: flex; align-items: center; gap: 1rem; margin-bottom: 1rem; }
+.week-label { font-family: 'Laila', serif; font-size: 1.05rem; color: var(--navy); flex: 1; text-align: center; }
+.week-board { display: grid; grid-template-columns: repeat(7, 1fr); gap: .5rem; }
+.day-col { background: var(--white); border: 1px solid var(--border); border-radius: 6px; min-height: 120px; }
+.day-header { background: var(--navy); color: var(--white); padding: .4rem .6rem; font-size: .8rem; font-weight: 700; border-radius: 5px 5px 0 0; text-align: center; }
+.day-body { padding: .4rem; display: flex; flex-direction: column; gap: .35rem; }
+.job-card { background: var(--off-white); border-left: 3px solid var(--navy); border-radius: 4px; padding: .35rem .5rem; cursor: pointer; font-size: .78rem; }
+.job-card:hover { background: #edf0fb; }
+.job-card .jc-client { font-weight: 700; color: var(--navy); white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+.job-card .jc-time { color: var(--muted); }
+.job-card .jc-loc { color: var(--muted); font-size: .72rem; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+.job-card .jc-chips { display: flex; gap: .2rem; flex-wrap: wrap; margin-top: .2rem; }
+.emp-chip { width: 22px; height: 22px; border-radius: 50%; display: inline-flex; align-items: center; justify-content: center; font-size: .6rem; font-weight: 700; color: var(--white); flex-shrink: 0; }
+.status-badge { display: inline-block; font-size: .68rem; font-weight: 700; padding: .1rem .35rem; border-radius: 3px; margin-top: .2rem; }
+.status-badge.scheduled { background: #dbeafe; color: var(--status-scheduled); }
+.status-badge.inprogress { background: #fef3c7; color: var(--status-inprogress); }
+.status-badge.done { background: #dcfce7; color: var(--status-done); }
+.status-badge.cancelled { background: #f3f4f6; color: var(--status-cancelled); }
+.add-day-placeholder { color: var(--muted); font-size: .75rem; text-align: center; padding: .5rem; cursor: pointer; border: 1px dashed var(--border); border-radius: 4px; }
+.add-day-placeholder:hover { background: var(--off-white); }
+
+/* ── COLOR SWATCHES ── */
+.color-swatches { display: flex; gap: .5rem; flex-wrap: wrap; }
+.color-swatch { width: 30px; height: 30px; border-radius: 50%; cursor: pointer; border: 3px solid transparent; }
+.color-swatch.selected { border-color: var(--navy); }
+.color-swatch input { display: none; }
+
+/* ── HISTORY ── */
+.empty-state { text-align: center; color: var(--muted); padding: 2rem; font-size: .95rem; }
+
+/* ── CHECKBOX EMPLOYEES ── */
+.emp-checkbox-list { display: flex; flex-direction: column; gap: .4rem; max-height: 180px; overflow-y: auto; }
+.emp-checkbox-item { display: flex; align-items: center; gap: .6rem; font-size: .9rem; }
+
+/* ── DATA TAB ── */
+.data-stat { display: flex; gap: .5rem; flex-wrap: wrap; margin-bottom: 1rem; }
+.stat-chip { background: var(--off-white); border: 1px solid var(--border); border-radius: 6px; padding: .4rem .9rem; font-size: .88rem; }
+.stat-chip strong { color: var(--navy); }
+
+/* ── OVERRIDE LIST ── */
+.override-list { display: flex; flex-direction: column; gap: .4rem; max-height: 380px; overflow-y: auto; }
+.override-item { display: flex; align-items: center; gap: .75rem; font-size: .85rem; padding: .3rem 0; border-bottom: 1px solid var(--border); }
+.override-item:last-child { border-bottom: none; }
+.override-item .oi-num { color: var(--muted); font-size: .78rem; width: 90px; flex-shrink: 0; }
+.override-item .oi-desc { flex: 1; }
+.override-item input[type=number] { width: 90px; padding: .3rem .5rem; font-size: .85rem; }
+
+/* Responsive */
+@media (max-width: 768px) {
+  .week-board { grid-template-columns: repeat(3, 1fr); }
+  .form-row { grid-template-columns: 1fr; }
+  .form-row.triple { grid-template-columns: 1fr; }
+}
+@media (max-width: 480px) {
+  .week-board { grid-template-columns: 1fr 1fr; }
+}
+</style>
+</head>
+<body>
+
+<!-- ══ SPLASH ══ -->
+<div id="splash">
+  <img class="logo" id="splash-logo" alt="Take Pride logo">
+  <p class="tagline">Products · Invoicing · Scheduling</p>
+  <div class="splash-btns">
+    <button class="splash-btn" onclick="triggerLoad('admin')">Open as Admin</button>
+    <button class="splash-btn" style="background:#fff;color:var(--navy);" onclick="triggerLoad('staff')">Open as Staff</button>
+  </div>
+  <button class="splash-link" onclick="startFresh()">First time? Start fresh (Admin only)</button>
+  <input type="file" id="file-input" accept=".json" style="display:none" onchange="loadFile(event)">
+</div>
+
+<!-- ══ APP ══ -->
+<div id="app">
+  <header>
+    <img class="logo" id="app-logo" alt="Take Pride logo">
+    <span class="mode-badge" id="mode-badge"></span>
+    <span class="file-name" id="file-name-display"></span>
+    <button id="btn-export-header" onclick="exportData()" style="display:none">Export Data File</button>
+  </header>
+  <nav id="main-nav"></nav>
+  <main id="main-content"></main>
+</div>
+
+<!-- ══ MODALS ══ -->
+
+<!-- Product modal -->
+<div class="overlay" id="modal-product">
+  <div class="modal">
+    <div class="modal-header">
+      <h3 class="modal-title" id="product-modal-title">Add Product</h3>
+      <button class="modal-close" onclick="closeModal('modal-product')">&times;</button>
+    </div>
+    <div class="form-row">
+      <div class="form-group">
+        <label>Category</label>
+        <select id="pm-cat"></select>
+      </div>
+      <div class="form-group">
+        <label>Product #</label>
+        <input type="text" id="pm-num" placeholder="e.g. CG115">
+      </div>
+    </div>
+    <div class="form-row single">
+      <div class="form-group">
+        <label>Description</label>
+        <input type="text" id="pm-desc" placeholder="Product description">
+      </div>
+    </div>
+    <div class="form-row single">
+      <div class="form-group">
+        <label>Notes</label>
+        <input type="text" id="pm-notes" placeholder="Optional notes">
+      </div>
+    </div>
+    <div class="form-row">
+      <div class="form-group">
+        <label>Price ($)</label>
+        <input type="number" id="pm-price" placeholder="0.00" step="0.01" min="0">
+      </div>
+      <div class="form-group">
+        <label>Unit</label>
+        <input type="text" id="pm-unit" placeholder="e.g. Case, Each">
+      </div>
+    </div>
+    <div class="modal-footer">
+      <button class="btn btn-ghost" onclick="closeModal('modal-product')">Cancel</button>
+      <button class="btn btn-primary" onclick="saveProduct()">Save Product</button>
+    </div>
+  </div>
+</div>
+
+<!-- Client modal -->
+<div class="overlay" id="modal-client">
+  <div class="modal">
+    <div class="modal-header">
+      <h3 class="modal-title" id="client-modal-title">Add Client</h3>
+      <button class="modal-close" onclick="closeModal('modal-client')">&times;</button>
+    </div>
+    <div class="form-row">
+      <div class="form-group">
+        <label>Business Name</label>
+        <input type="text" id="cm-name" placeholder="Client name">
+      </div>
+      <div class="form-group">
+        <label>Contact Name</label>
+        <input type="text" id="cm-contact" placeholder="Contact person">
+      </div>
+    </div>
+    <div class="form-row">
+      <div class="form-group">
+        <label>Email</label>
+        <input type="email" id="cm-email" placeholder="email@example.com">
+      </div>
+      <div class="form-group">
+        <label>Phone</label>
+        <input type="tel" id="cm-phone" placeholder="(204) 000-0000">
+      </div>
+    </div>
+    <div class="form-row single">
+      <div class="form-group">
+        <label>Notes</label>
+        <textarea id="cm-notes" placeholder="Optional notes"></textarea>
+      </div>
+    </div>
+    <div class="modal-footer">
+      <button class="btn btn-ghost" onclick="closeModal('modal-client')">Cancel</button>
+      <button class="btn btn-primary" onclick="saveClient()">Save Client</button>
+    </div>
+  </div>
+</div>
+
+<!-- Employee modal -->
+<div class="overlay" id="modal-employee">
+  <div class="modal">
+    <div class="modal-header">
+      <h3 class="modal-title" id="emp-modal-title">Add Employee</h3>
+      <button class="modal-close" onclick="closeModal('modal-employee')">&times;</button>
+    </div>
+    <div class="form-row single">
+      <div class="form-group">
+        <label>Name</label>
+        <input type="text" id="em-name" placeholder="Full name">
+      </div>
+    </div>
+    <div class="form-row single">
+      <div class="form-group">
+        <label>Role</label>
+        <input type="text" id="em-role" placeholder="e.g. Cleaner, Supervisor">
+      </div>
+    </div>
+    <div class="form-row single">
+      <div class="form-group">
+        <label>Color</label>
+        <div class="color-swatches" id="em-colors"></div>
+      </div>
+    </div>
+    <div class="modal-footer">
+      <button class="btn btn-ghost" onclick="closeModal('modal-employee')">Cancel</button>
+      <button class="btn btn-primary" onclick="saveEmployee()">Save Employee</button>
+    </div>
+  </div>
+</div>
+
+<!-- Price Overrides modal -->
+<div class="overlay" id="modal-overrides">
+  <div class="modal modal-wide">
+    <div class="modal-header">
+      <h3 class="modal-title" id="overrides-modal-title">Price Overrides</h3>
+      <button class="modal-close" onclick="closeModal('modal-overrides')">&times;</button>
+    </div>
+    <p style="font-size:.85rem;color:var(--muted);margin-bottom:.75rem">Leave blank to use the master price. Enter a custom price to override for this client.</p>
+    <div class="override-list" id="overrides-list"></div>
+    <div class="modal-footer">
+      <button class="btn btn-ghost" onclick="closeModal('modal-overrides')">Cancel</button>
+      <button class="btn btn-primary" onclick="saveOverrides()">Save Overrides</button>
+    </div>
+  </div>
+</div>
+
+<!-- Job modal -->
+<div class="overlay" id="modal-job">
+  <div class="modal modal-wide">
+    <div class="modal-header">
+      <h3 class="modal-title" id="job-modal-title">Add Job</h3>
+      <button class="modal-close" onclick="closeModal('modal-job')">&times;</button>
+    </div>
+    <div class="form-row">
+      <div class="form-group">
+        <label>Client</label>
+        <select id="jm-client"></select>
+      </div>
+      <div class="form-group">
+        <label>Title (optional)</label>
+        <input type="text" id="jm-title" placeholder="Custom job title">
+      </div>
+    </div>
+    <div class="form-row single">
+      <div class="form-group">
+        <label>Location</label>
+        <input type="text" id="jm-location" placeholder="Address or location name">
+      </div>
+    </div>
+    <div class="form-row triple">
+      <div class="form-group">
+        <label>Date</label>
+        <input type="date" id="jm-date">
+      </div>
+      <div class="form-group">
+        <label>Start Time</label>
+        <input type="time" id="jm-start">
+      </div>
+      <div class="form-group">
+        <label>End Time</label>
+        <input type="time" id="jm-end">
+      </div>
+    </div>
+    <div class="form-row">
+      <div class="form-group">
+        <label>Status</label>
+        <select id="jm-status">
+          <option value="scheduled">Scheduled</option>
+          <option value="inprogress">In Progress</option>
+          <option value="done">Done</option>
+          <option value="cancelled">Cancelled</option>
+        </select>
+      </div>
+      <div class="form-group"></div>
+    </div>
+    <div class="form-row single">
+      <div class="form-group">
+        <label>Assigned Employees</label>
+        <div class="emp-checkbox-list" id="jm-employees"></div>
+      </div>
+    </div>
+    <div class="form-row single">
+      <div class="form-group">
+        <label>Notes</label>
+        <textarea id="jm-notes" placeholder="Optional notes"></textarea>
+      </div>
+    </div>
+    <div id="jm-delete-row" style="display:none;margin-top:.5rem;">
+      <button class="btn btn-danger btn-sm" onclick="deleteJob()">Delete Job</button>
+    </div>
+    <div class="modal-footer">
+      <button class="btn btn-ghost" onclick="closeModal('modal-job')">Cancel</button>
+      <button class="btn btn-primary" id="jm-save-btn" onclick="saveJob()">Save Job</button>
+    </div>
+  </div>
+</div>
+
+<!-- Job View (staff) modal -->
+<div class="overlay" id="modal-job-view">
+  <div class="modal">
+    <div class="modal-header">
+      <h3 class="modal-title" id="jv-title"></h3>
+      <button class="modal-close" onclick="closeModal('modal-job-view')">&times;</button>
+    </div>
+    <div id="jv-body"></div>
+    <div class="modal-footer">
+      <label style="font-size:.88rem;font-weight:600;color:var(--muted)">Update Status:</label>
+      <select id="jv-status-select" onchange="updateJobStatus()">
+        <option value="scheduled">Scheduled</option>
+        <option value="inprogress">In Progress</option>
+        <option value="done">Done</option>
+        <option value="cancelled">Cancelled</option>
+      </select>
+      <button class="btn btn-ghost" onclick="closeModal('modal-job-view')">Close</button>
+    </div>
+  </div>
+</div>
+
+<!-- Confirm modal -->
+<div class="overlay" id="modal-confirm">
+  <div class="modal" style="max-width:380px">
+    <div class="modal-header">
+      <h3 class="modal-title" id="confirm-title">Confirm</h3>
+      <button class="modal-close" onclick="closeModal('modal-confirm')">&times;</button>
+    </div>
+    <p id="confirm-msg" style="font-size:.92rem;line-height:1.5;margin-bottom:.75rem"></p>
+    <div class="modal-footer">
+      <button class="btn btn-ghost" onclick="closeModal('modal-confirm')">Cancel</button>
+      <button class="btn btn-danger" id="confirm-ok-btn">Confirm</button>
+    </div>
+  </div>
+</div>
+
+<script>
+// ══════════════════════════════════
+// CONSTANTS & DEFAULTS
+// ══════════════════════════════════
+
+const LOGO_B64 = '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';
+
+const EMP_COLORS = ['#e53935','#8e24aa','#1e88e5','#00897b','#43a047','#fb8c00','#d81b60','#546e7a','#f4511e','#33691e'];
+
+const DEFAULT_PRODUCTS = [
+  {cat:'PAPER',num:'CG115',desc:'Single Fold Paper Towels – Natural 1 Ply 16x260 sheets (Brown)',notes:'',price:39.75,unit:'Case'},
+  {cat:'PAPER',num:'H170',desc:'Cascades PRO Select Multifold Paper Towel – White 1-Ply 16 x 250 Sheets',notes:'',price:42.48,unit:'Case'},
+  {cat:'PAPER',num:'H085',desc:'Cascades PRO Select Roll Towel – Nat 1 Ply – 6x800',notes:'',price:43.51,unit:'Case'},
+  {cat:'PAPER',num:'B042',desc:'Clean & Green Bath Tissue – White – 2 Ply – 48x500 sheets',notes:'',price:43.51,unit:'Case'},
+  {cat:'PAPER',num:'F950',desc:'Cascades PRO Select Flat-Box Facial Tissue – White 2-Ply 30 x 100 sheets',notes:'',price:49.75,unit:'Case'},
+  {cat:'CLOTHS',num:'M915101B/G/R/Y/P',desc:'Globe Microfiber Cloth in Blue/Green/Red/Yellow/Pink 16"x16"',notes:'',price:1.92,unit:'Each'},
+  {cat:'CLOTHS',num:'3129',desc:'Globe Glass/Mirror Microfiber Cloth Blue 14"x14"',notes:'',price:1.92,unit:'Each'},
+  {cat:'LIQUID PRODUCTS',num:'65319-1',desc:'Clean & Green Toilet Bowl Cleaner 946ml',notes:'',price:8.48,unit:'Each'},
+  {cat:'LIQUID PRODUCTS',num:'65312-1',desc:'Clean & Green Cream Lotion Cleanser 946ml',notes:'',price:8.38,unit:'Each'},
+  {cat:'LIQUID PRODUCTS',num:'65301-4',desc:'Clean & Green All Purpose Cleaner 3.78L Jug',notes:'',price:16.49,unit:'Gallon'},
+  {cat:'LIQUID PRODUCTS',num:'65301-1',desc:'Clean & Green All-Purpose Cleaner 946ml',notes:'',price:8.38,unit:'Each'},
+  {cat:'LIQUID PRODUCTS',num:'65302-4',desc:'Clean & Green Glass and Surface Cleaner 3.78L',notes:'',price:16.49,unit:'Gallon'},
+  {cat:'LIQUID PRODUCTS',num:'65302-1',desc:'Clean & Green Glass and Surface Cleaner 946ml',notes:'',price:8.38,unit:'Each'},
+  {cat:'LIQUID PRODUCTS',num:'202',desc:'Shadazzle Polishing Cream all purpose',notes:'',price:21.99,unit:'Each'},
+  {cat:'LIQUID PRODUCTS',num:'65313-1',desc:'Bathroom and Kitchen Sanitizer 946ml',notes:'',price:8.38,unit:'Each'},
+  {cat:'BUCKEYE ECO',num:'B-60111400',desc:'Buckeye Eco All Purpose Cleaner E11 1.25L',notes:'Dispenser free with purchase, 4/case. Floors, walls, fixtures.',price:56.99,unit:'Each'},
+  {cat:'BUCKEYE ECO',num:'B-60141400',desc:'Buckeye Eco Muscle Cleaner E14 1.25L',notes:'Dispenser free with purchase, 4/case. Removes graffiti, ink, marker.',price:50.99,unit:'Each'},
+  {cat:'BUCKEYE ECO',num:'B-60151400',desc:'Buckeye Eco Hydrogen Peroxide E15 1.25L',notes:'Dispenser free with purchase, 4/case. Green Seal certified.',price:50.99,unit:'Each'},
+  {cat:'BUCKEYE ECO',num:'B-60231400',desc:'Buckeye Eco Neutral Disinfectant E23 1.25L',notes:'Dispenser free with purchase, 4/case. pH-neutral germicidal.',price:47.23,unit:'Each'},
+  {cat:'BUCKEYE ECO',num:'B-60321400',desc:'Buckeye Eco Floor Cleaner E32 1.25L',notes:'Dispenser free with purchase, 4/case. All floor types, pH neutral.',price:58.99,unit:'Each'},
+  {cat:'BUCKEYE ECO',num:'B-60411400',desc:'Buckeye Eco Odor Eliminator 1.25L',notes:'Dispenser free with purchase, 4/case. Long-lasting action.',price:51.99,unit:'Each'},
+  {cat:'GARBAGE LINERS',num:'15050047',desc:'20x22 Utility Bag Black 500/cs',notes:'',price:35.35,unit:'Case'},
+  {cat:'GARBAGE LINERS',num:'15050046',desc:'26x36 Regular Black Bag 250/cs',notes:'',price:35.35,unit:'Case'},
+  {cat:'GARBAGE LINERS',num:'15050055',desc:'35x50 Strong Black Bag 125/cs',notes:'',price:39.10,unit:'Case'},
+  {cat:'DUSTER',num:'AG 310',desc:'32"-60" Super Flex Wooly Wonder Duster',notes:'',price:30.25,unit:'Each'},
+  {cat:'MOPS',num:'AG 1601',desc:'AG Tuff Stuff W/B Small Mop Green',notes:'',price:14.60,unit:'Each'},
+  {cat:'MOPS',num:'05250063',desc:'Wet Mop Micro Eco Looped W/B Lg',notes:'',price:16.38,unit:'Each'},
+  {cat:'MOPS',num:'05250062',desc:'Wet Mop Micro Eco Looped W/B Sm',notes:'',price:9.99,unit:'Each'},
+  {cat:'MOPS',num:'BRO-MFM-700018',desc:'18" LOCK Mop Holder',notes:'',price:null,unit:'Each'},
+  {cat:'MOPS',num:'BRO-MFM-830018B',desc:'18" LOOP Wet Pad Blue (floor pad) Machine washable',notes:'',price:10.50,unit:'Each'},
+  {cat:'MOPS',num:'BRO-MFM-830018G',desc:'18" LOOP Wet Pad Green (floor pad) Machine washable',notes:'',price:10.50,unit:'Each'},
+  {cat:'URINAL',num:'20CM',desc:'Wave 3D Urinal Screen Cucumber Melon 2/PK',notes:'',price:10.99,unit:'Each'},
+];
+
+// ══════════════════════════════════
+// STATE
+// ══════════════════════════════════
+
+let MODE = null; // 'admin' | 'staff'
+let FILE_NAME = '';
+let db = { version:1, products:[], clients:[], employees:[], templates:[], jobs:[] };
+let currentTab = '';
+let pendingLoadMode = null;
+
+// Invoice state
+let invItems = [];
+let invClient = null;
+let invType = 'invoice';
+let invNumCommitted = false;
+let invNotes = '';
+
+// Schedule state
+let schedWeekStart = null;
+let editingJobId = null;
+let viewingJobId = null;
+
+// Modal state
+let editingProductId = null;
+let editingClientId = null;
+let editingEmployeeId = null;
+let overridesClientId = null;
+
+// ══════════════════════════════════
+// UTILITIES
+// ══════════════════════════════════
+
+function esc(s) {
+  if (s === null || s === undefined) return '';
+  return String(s).replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;');
+}
+
+function fmt$(n) {
+  if (n === null || n === undefined || n === '') return '$—';
+  const num = parseFloat(n);
+  if (isNaN(num)) return '$—';
+  return '$' + num.toFixed(2);
+}
+
+function uid() {
+  return Date.now().toString(36) + Math.random().toString(36).slice(2,7);
+}
+
+function today() {
+  return new Date().toISOString().slice(0,10);
+}
+
+function fmtDate(d) {
+  if (!d) return '';
+  const [y,m,dd] = d.split('-');
+  const months = ['Jan','Feb','Mar','Apr','May','Jun','Jul','Aug','Sep','Oct','Nov','Dec'];
+  return months[parseInt(m)-1] + ' ' + parseInt(dd) + ', ' + y;
+}
+
+function fmtTime(t) {
+  if (!t) return '';
+  const [h,m] = t.split(':');
+  let hr = parseInt(h), ampm = 'am';
+  if (hr >= 12) { ampm = 'pm'; if (hr > 12) hr -= 12; }
+  if (hr === 0) hr = 12;
+  return hr + ':' + m + ' ' + ampm;
+}
+
+function getMondayOf(d) {
+  let dt = new Date(d + 'T00:00:00');
+  let day = dt.getDay();
+  let diff = day === 0 ? -6 : 1 - day;
+  dt.setDate(dt.getDate() + diff);
+  return dt.toISOString().slice(0,10);
+}
+
+function addDays(dateStr, n) {
+  let d = new Date(dateStr + 'T00:00:00');
+  d.setDate(d.getDate() + n);
+  return d.toISOString().slice(0,10);
+}
+
+function shortDay(dateStr) {
+  const days = ['Sun','Mon','Tue','Wed','Thu','Fri','Sat'];
+  let d = new Date(dateStr + 'T00:00:00');
+  return days[d.getDay()];
+}
+
+function fullDayHeader(dateStr) {
+  const days = ['Sun','Mon','Tue','Wed','Thu','Fri','Sat'];
+  const months = ['Jan','Feb','Mar','Apr','May','Jun','Jul','Aug','Sep','Oct','Nov','Dec'];
+  let d = new Date(dateStr + 'T00:00:00');
+  return days[d.getDay()] + ' ' + months[d.getMonth()] + ' ' + d.getDate();
+}
+
+function getInitials(name) {
+  if (!name) return '?';
+  return name.split(' ').map(w => w[0]).join('').toUpperCase().slice(0,2);
+}
+
+function closeModal(id) {
+  document.getElementById(id).classList.remove('open');
+}
+
+function openModal(id) {
+  document.getElementById(id).classList.add('open');
+}
+
+function confirm2(title, msg, cb) {
+  document.getElementById('confirm-title').textContent = title;
+  document.getElementById('confirm-msg').textContent = msg;
+  const btn = document.getElementById('confirm-ok-btn');
+  btn.onclick = () => { closeModal('modal-confirm'); cb(); };
+  openModal('modal-confirm');
+}
+
+// ══════════════════════════════════
+// INVOICE NUMBER LOGIC
+// ══════════════════════════════════
+
+function peekNum(type) {
+  const key = type === 'invoice' ? 'tp_inv_num' : 'tp_quo_num';
+  const prefix = type === 'invoice' ? 'INV' : 'QT';
+  const n = parseInt(localStorage.getItem(key) || '0') + 1;
+  return prefix + '-' + String(n).padStart(4,'0');
+}
+
+function commitNum(type) {
+  const key = type === 'invoice' ? 'tp_inv_num' : 'tp_quo_num';
+  const n = parseInt(localStorage.getItem(key) || '0') + 1;
+  localStorage.setItem(key, n);
+}
+
+// ══════════════════════════════════
+// DATA: LOAD / SAVE / EXPORT
+// ══════════════════════════════════
+
+function makeBlankDb() {
+  return {
+    version: 1,
+    products: DEFAULT_PRODUCTS.map(p => ({...p, id: uid()})),
+    clients: [],
+    employees: [],
+    templates: [],
+    jobs: []
+  };
+}
+
+function triggerLoad(mode) {
+  pendingLoadMode = mode;
+  document.getElementById('file-input').click();
+}
+
+function loadFile(e) {
+  const file = e.target.files[0];
+  if (!file) return;
+  const reader = new FileReader();
+  reader.onload = ev => {
+    try {
+      const parsed = JSON.parse(ev.target.result);
+      db = parsed;
+      // Ensure arrays exist
+      db.products = db.products || [];
+      db.clients = db.clients || [];
+      db.employees = db.employees || [];
+      db.templates = db.templates || [];
+      db.jobs = db.jobs || [];
+      FILE_NAME = file.name;
+      launchApp(pendingLoadMode);
+    } catch(err) {
+      alert('Could not read that file. Make sure it is a valid takepride-data.json file.');
+    }
+  };
+  reader.readAsText(file);
+  e.target.value = '';
+}
+
+function startFresh() {
+  db = makeBlankDb();
+  FILE_NAME = 'New Database';
+  launchApp('admin');
+}
+
+function exportData() {
+  const blob = new Blob([JSON.stringify(db, null, 2)], {type:'application/json'});
+  const a = document.createElement('a');
+  a.href = URL.createObjectURL(blob);
+  a.download = 'takepride-data.json';
+  a.click();
+  URL.revokeObjectURL(a.href);
+}
+
+// ══════════════════════════════════
+// APP LAUNCH
+// ══════════════════════════════════
+
+function launchApp(mode) {
+  MODE = mode;
+  document.getElementById('splash').style.display = 'none';
+  const app = document.getElementById('app');
+  app.style.display = 'flex';
+
+  // Logo
+  document.getElementById('app-logo').src = 'data:image/webp;base64,' + LOGO_B64;
+
+  // Mode badge
+  const badge = document.getElementById('mode-badge');
+  badge.textContent = mode === 'admin' ? 'ADMIN' : 'STAFF';
+  badge.className = 'mode-badge ' + mode;
+
+  // File name
+  document.getElementById('file-name-display').textContent = FILE_NAME;
+
+  // Export button
+  document.getElementById('btn-export-header').style.display = mode === 'admin' ? '' : 'none';
+
+  buildNav();
+  const defaultTab = mode === 'admin' ? 'products' : 'invoice';
+  showTab(defaultTab);
+}
+
+function buildNav() {
+  const nav = document.getElementById('main-nav');
+  nav.innerHTML = '';
+
+  const adminTabs = [
+    {id:'products',label:'Products'},
+    {id:'clients',label:'Clients'},
+    {id:'employees',label:'Employees'},
+    {id:'data',label:'Data'},
+  ];
+  const sharedTabs = [
+    {id:'invoice',label:'Invoice / Quote'},
+    {id:'history',label:'History'},
+    {id:'schedule',label:'Schedule'},
+  ];
+
+  if (MODE === 'admin') {
+    adminTabs.forEach(t => {
+      const b = document.createElement('button');
+      b.className = 'nav-btn';
+      b.dataset.tab = t.id;
+      b.textContent = t.label;
+      b.onclick = () => showTab(t.id);
+      nav.appendChild(b);
+    });
+    const div = document.createElement('span');
+    div.className = 'nav-divider';
+    nav.appendChild(div);
+  }
+
+  sharedTabs.forEach(t => {
+    const b = document.createElement('button');
+    b.className = 'nav-btn';
+    b.dataset.tab = t.id;
+    b.textContent = t.label;
+    b.onclick = () => showTab(t.id);
+    nav.appendChild(b);
+  });
+}
+
+function showTab(id) {
+  currentTab = id;
+  // Update nav
+  document.querySelectorAll('.nav-btn').forEach(b => {
+    b.classList.toggle('active', b.dataset.tab === id);
+  });
+  // Render content
+  const main = document.getElementById('main-content');
+  main.innerHTML = '';
+  const panel = document.createElement('div');
+  panel.className = 'panel active';
+  main.appendChild(panel);
+
+  switch(id) {
+    case 'products':   renderProducts(panel); break;
+    case 'clients':    renderClients(panel); break;
+    case 'employees':  renderEmployees(panel); break;
+    case 'data':       renderData(panel); break;
+    case 'invoice':    renderInvoice(panel); break;
+    case 'history':    renderHistory(panel); break;
+    case 'schedule':   renderSchedule(panel); break;
+  }
+}
+
+// ══════════════════════════════════
+// PRODUCTS TAB
+// ══════════════════════════════════
+
+let prodSearch = '';
+let prodCatFilter = 'All';
+let editingProdRowId = null;
+
+function renderProducts(panel) {
+  const cats = getCategories();
+
+  // Card header
+  const hdr = document.createElement('div');
+  hdr.className = 'card';
+
+  const ch = document.createElement('div');
+  ch.className = 'card-header';
+  ch.innerHTML = '<span class="card-title">Products</span>';
+
+  const srchWrap = document.createElement('div');
+  srchWrap.className = 'search-input';
+  srchWrap.style.flex = '1';
+  srchWrap.style.maxWidth = '280px';
+  const srchIn = document.createElement('input');
+  srchIn.type = 'text';
+  srchIn.placeholder = 'Search products...';
+  srchIn.value = prodSearch;
+  srchIn.oninput = e => { prodSearch = e.target.value; rerenderProducts(); };
+  srchWrap.appendChild(srchIn);
+  ch.appendChild(srchWrap);
+
+  const addBtn = document.createElement('button');
+  addBtn.className = 'btn btn-lime';
+  addBtn.textContent = '+ Add Product';
+  addBtn.onclick = () => openProductModal(null);
+  ch.appendChild(addBtn);
+
+  hdr.appendChild(ch);
+
+  // Category pills
+  const pillWrap = document.createElement('div');
+  pillWrap.className = 'pill-wrap';
+  ['All', ...cats].forEach(cat => {
+    const p = document.createElement('button');
+    p.className = 'pill' + (prodCatFilter === cat ? ' active' : '');
+    p.textContent = cat;
+    p.onclick = () => { prodCatFilter = cat; rerenderProducts(); };
+    pillWrap.appendChild(p);
+  });
+  hdr.appendChild(pillWrap);
+
+  // Table
+  const tblWrap = document.createElement('div');
+  tblWrap.className = 'tbl-wrap';
+  tblWrap.id = 'products-table-wrap';
+  hdr.appendChild(tblWrap);
+
+  panel.appendChild(hdr);
+  buildProductsTable(tblWrap);
+}
+
+function rerenderProducts() {
+  const wrap = document.getElementById('products-table-wrap');
+  if (wrap) buildProductsTable(wrap);
+  // Rebuild pills
+  const cats = getCategories();
+  const pillWraps = document.querySelectorAll('.pill-wrap');
+  if (pillWraps.length) {
+    const pw = pillWraps[0];
+    pw.innerHTML = '';
+    ['All', ...cats].forEach(cat => {
+      const p = document.createElement('button');
+      p.className = 'pill' + (prodCatFilter === cat ? ' active' : '');
+      p.textContent = cat;
+      p.onclick = () => { prodCatFilter = cat; rerenderProducts(); };
+      pw.appendChild(p);
+    });
+  }
+}
+
+function getCategories() {
+  return [...new Set(db.products.map(p => p.cat))].filter(Boolean);
+}
+
+function getFilteredProducts() {
+  let prods = db.products;
+  if (prodCatFilter !== 'All') prods = prods.filter(p => p.cat === prodCatFilter);
+  if (prodSearch.trim()) {
+    const q = prodSearch.toLowerCase();
+    prods = prods.filter(p =>
+      (p.num||'').toLowerCase().includes(q) ||
+      (p.desc||'').toLowerCase().includes(q) ||
+      (p.cat||'').toLowerCase().includes(q)
+    );
+  }
+  return prods;
+}
+
+function buildProductsTable(wrap) {
+  wrap.innerHTML = '';
+  const prods = getFilteredProducts();
+  if (!prods.length) {
+    const em = document.createElement('div');
+    em.className = 'empty-state';
+    em.textContent = 'No products found.';
+    wrap.appendChild(em);
+    return;
+  }
+
+  const table = document.createElement('table');
+  const thead = document.createElement('thead');
+  thead.innerHTML = '<tr><th>Product #</th><th>Description</th><th>Notes</th><th>Price</th><th>Unit</th><th>Actions</th></tr>';
+  table.appendChild(thead);
+
+  const tbody = document.createElement('tbody');
+
+  // Group by category
+  let lastCat = null;
+  prods.forEach(p => {
+    if (p.cat !== lastCat) {
+      lastCat = p.cat;
+      const catRow = document.createElement('tr');
+      catRow.className = 'cat-row';
+      const td = document.createElement('td');
+      td.colSpan = 6;
+      td.textContent = p.cat;
+      catRow.appendChild(td);
+      tbody.appendChild(catRow);
+    }
+
+    if (editingProdRowId === p.id) {
+      tbody.appendChild(buildEditRow(p));
+    } else {
+      const tr = document.createElement('tr');
+      tr.dataset.id = p.id;
+
+      const tdNum = document.createElement('td');
+      tdNum.textContent = p.num;
+      tr.appendChild(tdNum);
+
+      const tdDesc = document.createElement('td');
+      tdDesc.textContent = p.desc;
+      tr.appendChild(tdDesc);
+
+      const tdNotes = document.createElement('td');
+      tdNotes.textContent = p.notes || '';
+      tdNotes.style.fontSize = '.8rem';
+      tdNotes.style.color = 'var(--muted)';
+      tr.appendChild(tdNotes);
+
+      const tdPrice = document.createElement('td');
+      tdPrice.textContent = fmt$(p.price);
+      tr.appendChild(tdPrice);
+
+      const tdUnit = document.createElement('td');
+      tdUnit.textContent = p.unit;
+      tr.appendChild(tdUnit);
+
+      const tdAct = document.createElement('td');
+      const editBtn = document.createElement('button');
+      editBtn.className = 'btn btn-ghost btn-sm';
+      editBtn.textContent = 'Edit';
+      editBtn.onclick = () => { editingProdRowId = p.id; rerenderProducts(); };
+      tdAct.appendChild(editBtn);
+      tdAct.appendChild(document.createTextNode(' '));
+      const delBtn = document.createElement('button');
+      delBtn.className = 'btn btn-danger btn-sm';
+      delBtn.textContent = 'Delete';
+      delBtn.onclick = () => confirm2('Delete Product', 'Delete "' + p.desc + '"? This cannot be undone.', () => {
+        db.products = db.products.filter(x => x.id !== p.id);
+        rerenderProducts();
+      });
+      tdAct.appendChild(delBtn);
+      tr.appendChild(tdAct);
+
+      tbody.appendChild(tr);
+    }
+  });
+
+  table.appendChild(tbody);
+  wrap.appendChild(table);
+}
+
+function buildEditRow(p) {
+  const tr = document.createElement('tr');
+  tr.className = 'editing-row';
+
+  const inputs = {};
+
+  function makeCell(type, val, key, placeholder) {
+    const td = document.createElement('td');
+    const inp = document.createElement('input');
+    inp.type = type;
+    if (type === 'number') { inp.step = '0.01'; inp.min = '0'; }
+    inp.value = val !== null && val !== undefined ? val : '';
+    inp.placeholder = placeholder || '';
+    inp.style.width = '100%';
+    inp.style.minWidth = key === 'desc' ? '160px' : key === 'num' ? '80px' : '80px';
+    inputs[key] = inp;
+    td.appendChild(inp);
+    return td;
+  }
+
+  tr.appendChild(makeCell('text', p.num, 'num', 'Product #'));
+  tr.appendChild(makeCell('text', p.desc, 'desc', 'Description'));
+  tr.appendChild(makeCell('text', p.notes, 'notes', 'Notes'));
+  tr.appendChild(makeCell('number', p.price, 'price', '0.00'));
+  tr.appendChild(makeCell('text', p.unit, 'unit', 'Unit'));
+
+  const tdAct = document.createElement('td');
+
+  const saveBtn = document.createElement('button');
+  saveBtn.className = 'btn btn-lime btn-sm';
+  saveBtn.textContent = 'Save';
+  saveBtn.onclick = () => {
+    const idx = db.products.findIndex(x => x.id === p.id);
+    if (idx === -1) return;
+    db.products[idx].num = inputs.num.value.trim();
+    db.products[idx].desc = inputs.desc.value.trim();
+    db.products[idx].notes = inputs.notes.value.trim();
+    db.products[idx].price = inputs.price.value !== '' ? parseFloat(inputs.price.value) : null;
+    db.products[idx].unit = inputs.unit.value.trim();
+    editingProdRowId = null;
+    rerenderProducts();
+  };
+  tdAct.appendChild(saveBtn);
+  tdAct.appendChild(document.createTextNode(' '));
+
+  const cancelBtn = document.createElement('button');
+  cancelBtn.className = 'btn btn-ghost btn-sm';
+  cancelBtn.textContent = 'Cancel';
+  cancelBtn.onclick = () => { editingProdRowId = null; rerenderProducts(); };
+  tdAct.appendChild(cancelBtn);
+
+  tr.appendChild(tdAct);
+  return tr;
+}
+
+function openProductModal(id) {
+  editingProductId = id;
+  const p = id ? db.products.find(x => x.id === id) : null;
+  document.getElementById('product-modal-title').textContent = id ? 'Edit Product' : 'Add Product';
+
+  // Build category select
+  const sel = document.getElementById('pm-cat');
+  sel.innerHTML = '';
+  const cats = getCategories();
+  cats.forEach(c => {
+    const opt = document.createElement('option');
+    opt.value = c;
+    opt.textContent = c;
+    sel.appendChild(opt);
+  });
+  const newOpt = document.createElement('option');
+  newOpt.value = '__new__';
+  newOpt.textContent = 'Add new...';
+  sel.appendChild(newOpt);
+
+  sel.onchange = () => {
+    if (sel.value === '__new__') {
+      const nc = prompt('New category name:');
+      if (nc && nc.trim()) {
+        const opt = document.createElement('option');
+        opt.value = nc.trim();
+        opt.textContent = nc.trim();
+        sel.insertBefore(opt, newOpt);
+        sel.value = nc.trim();
+      } else {
+        sel.value = cats[0] || '';
+      }
+    }
+  };
+
+  document.getElementById('pm-num').value = p ? p.num : '';
+  document.getElementById('pm-desc').value = p ? p.desc : '';
+  document.getElementById('pm-notes').value = p ? (p.notes||'') : '';
+  document.getElementById('pm-price').value = p && p.price !== null ? p.price : '';
+  document.getElementById('pm-unit').value = p ? p.unit : '';
+  if (p) sel.value = p.cat;
+
+  openModal('modal-product');
+}
+
+function saveProduct() {
+  const cat = document.getElementById('pm-cat').value.trim();
+  const num = document.getElementById('pm-num').value.trim();
+  const desc = document.getElementById('pm-desc').value.trim();
+  const notes = document.getElementById('pm-notes').value.trim();
+  const priceVal = document.getElementById('pm-price').value;
+  const price = priceVal !== '' ? parseFloat(priceVal) : null;
+  const unit = document.getElementById('pm-unit').value.trim();
+
+  if (!desc) { alert('Description is required.'); return; }
+
+  if (editingProductId) {
+    const idx = db.products.findIndex(x => x.id === editingProductId);
+    if (idx !== -1) Object.assign(db.products[idx], {cat,num,desc,notes,price,unit});
+  } else {
+    db.products.push({id:uid(),cat,num,desc,notes,price,unit});
+  }
+  closeModal('modal-product');
+  rerenderProducts();
+}
+
+// ══════════════════════════════════
+// CLIENTS TAB
+// ══════════════════════════════════
+
+function renderClients(panel) {
+  const card = document.createElement('div');
+  card.className = 'card';
+
+  const ch = document.createElement('div');
+  ch.className = 'card-header';
+  ch.innerHTML = '<span class="card-title">Clients</span>';
+  const addBtn = document.createElement('button');
+  addBtn.className = 'btn btn-lime';
+  addBtn.textContent = '+ Add Client';
+  addBtn.onclick = () => openClientModal(null);
+  ch.appendChild(addBtn);
+  card.appendChild(ch);
+
+  const wrap = document.createElement('div');
+  wrap.className = 'tbl-wrap';
+  wrap.id = 'clients-table-wrap';
+  card.appendChild(wrap);
+  panel.appendChild(card);
+  buildClientsTable(wrap);
+}
+
+function buildClientsTable(wrap) {
+  wrap.innerHTML = '';
+  if (!db.clients.length) {
+    const em = document.createElement('div');
+    em.className = 'empty-state';
+    em.textContent = 'No clients yet. Add one to get started.';
+    wrap.appendChild(em);
+    return;
+  }
+
+  const table = document.createElement('table');
+  const thead = document.createElement('thead');
+  thead.innerHTML = '<tr><th>Name</th><th>Contact</th><th>Email</th><th>Phone</th><th>Overrides</th><th>Actions</th></tr>';
+  table.appendChild(thead);
+
+  const tbody = document.createElement('tbody');
+  db.clients.forEach(c => {
+    const tr = document.createElement('tr');
+
+    const tdName = document.createElement('td');
+    tdName.textContent = c.name;
+    tdName.style.fontWeight = '600';
+    tr.appendChild(tdName);
+
+    const tdContact = document.createElement('td');
+    tdContact.textContent = c.contact || '';
+    tr.appendChild(tdContact);
+
+    const tdEmail = document.createElement('td');
+    tdEmail.textContent = c.email || '';
+    tr.appendChild(tdEmail);
+
+    const tdPhone = document.createElement('td');
+    tdPhone.textContent = c.phone || '';
+    tr.appendChild(tdPhone);
+
+    const tdOv = document.createElement('td');
+    const oCount = Object.keys(c.priceOverrides || {}).length;
+    tdOv.textContent = oCount || '—';
+    tr.appendChild(tdOv);
+
+    const tdAct = document.createElement('td');
+    tdAct.style.whiteSpace = 'nowrap';
+
+    [
+      ['Edit', () => openClientModal(c.id)],
+      ['Prices', () => openOverridesModal(c.id)],
+      ['Price List', () => printClientPriceList(c.id)],
+      ['Delete', () => confirm2('Delete Client', 'Delete client "' + c.name + '"? This cannot be undone.', () => {
+        db.clients = db.clients.filter(x => x.id !== c.id);
+        buildClientsTable(document.getElementById('clients-table-wrap'));
+      })],
+    ].forEach(([label, cb]) => {
+      const btn = document.createElement('button');
+      btn.className = 'btn btn-ghost btn-sm';
+      if (label === 'Delete') btn.className = 'btn btn-danger btn-sm';
+      btn.textContent = label;
+      btn.onclick = cb;
+      btn.style.marginRight = '.25rem';
+      tdAct.appendChild(btn);
+    });
+
+    tr.appendChild(tdAct);
+    tbody.appendChild(tr);
+  });
+
+  table.appendChild(tbody);
+  wrap.appendChild(table);
+}
+
+function openClientModal(id) {
+  editingClientId = id;
+  const c = id ? db.clients.find(x => x.id === id) : null;
+  document.getElementById('client-modal-title').textContent = id ? 'Edit Client' : 'Add Client';
+  document.getElementById('cm-name').value = c ? c.name : '';
+  document.getElementById('cm-contact').value = c ? (c.contact||'') : '';
+  document.getElementById('cm-email').value = c ? (c.email||'') : '';
+  document.getElementById('cm-phone').value = c ? (c.phone||'') : '';
+  document.getElementById('cm-notes').value = c ? (c.notes||'') : '';
+  openModal('modal-client');
+}
+
+function saveClient() {
+  const name = document.getElementById('cm-name').value.trim();
+  if (!name) { alert('Client name is required.'); return; }
+  const obj = {
+    name,
+    contact: document.getElementById('cm-contact').value.trim(),
+    email: document.getElementById('cm-email').value.trim(),
+    phone: document.getElementById('cm-phone').value.trim(),
+    notes: document.getElementById('cm-notes').value.trim(),
+  };
+
+  if (editingClientId) {
+    const idx = db.clients.findIndex(x => x.id === editingClientId);
+    if (idx !== -1) {
+      db.clients[idx] = {...db.clients[idx], ...obj};
+    }
+  } else {
+    db.clients.push({id:uid(), ...obj, priceOverrides:{}});
+  }
+
+  closeModal('modal-client');
+  const wrap = document.getElementById('clients-table-wrap');
+  if (wrap) buildClientsTable(wrap);
+}
+
+// Price Overrides
+function openOverridesModal(clientId) {
+  overridesClientId = clientId;
+  const c = db.clients.find(x => x.id === clientId);
+  document.getElementById('overrides-modal-title').textContent = 'Price Overrides — ' + c.name;
+  const list = document.getElementById('overrides-list');
+  list.innerHTML = '';
+
+  db.products.forEach(p => {
+    const item = document.createElement('div');
+    item.className = 'override-item';
+
+    const num = document.createElement('span');
+    num.className = 'oi-num';
+    num.textContent = p.num;
+    item.appendChild(num);
+
+    const desc = document.createElement('span');
+    desc.className = 'oi-desc';
+    desc.textContent = p.desc;
+    item.appendChild(desc);
+
+    const masterSpan = document.createElement('span');
+    masterSpan.style.cssText = 'color:var(--muted);font-size:.78rem;white-space:nowrap';
+    masterSpan.textContent = 'Master: ' + fmt$(p.price);
+    item.appendChild(masterSpan);
+
+    const inp = document.createElement('input');
+    inp.type = 'number';
+    inp.step = '0.01';
+    inp.min = '0';
+    inp.placeholder = p.price !== null ? p.price.toFixed(2) : '—';
+    inp.dataset.pid = p.id;
+    const existing = (c.priceOverrides || {})[p.id];
+    inp.value = existing !== undefined ? existing : '';
+    item.appendChild(inp);
+
+    list.appendChild(item);
+  });
+
+  openModal('modal-overrides');
+}
+
+function saveOverrides() {
+  const c = db.clients.find(x => x.id === overridesClientId);
+  if (!c) return;
+  const overrides = {};
+  document.querySelectorAll('#overrides-list input[data-pid]').forEach(inp => {
+    if (inp.value !== '') {
+      overrides[inp.dataset.pid] = parseFloat(inp.value);
+    }
+  });
+  c.priceOverrides = overrides;
+  closeModal('modal-overrides');
+  const wrap = document.getElementById('clients-table-wrap');
+  if (wrap) buildClientsTable(wrap);
+}
+
+// ══════════════════════════════════
+// EMPLOYEES TAB
+// ══════════════════════════════════
+
+function renderEmployees(panel) {
+  const card = document.createElement('div');
+  card.className = 'card';
+
+  const ch = document.createElement('div');
+  ch.className = 'card-header';
+  ch.innerHTML = '<span class="card-title">Employees</span>';
+  const addBtn = document.createElement('button');
+  addBtn.className = 'btn btn-lime';
+  addBtn.textContent = '+ Add Employee';
+  addBtn.onclick = () => openEmployeeModal(null);
+  ch.appendChild(addBtn);
+  card.appendChild(ch);
+
+  const wrap = document.createElement('div');
+  wrap.className = 'tbl-wrap';
+  wrap.id = 'employees-table-wrap';
+  card.appendChild(wrap);
+  panel.appendChild(card);
+  buildEmployeesTable(wrap);
+}
+
+function buildEmployeesTable(wrap) {
+  wrap.innerHTML = '';
+  if (!db.employees.length) {
+    const em = document.createElement('div');
+    em.className = 'empty-state';
+    em.textContent = 'No employees yet.';
+    wrap.appendChild(em);
+    return;
+  }
+
+  const table = document.createElement('table');
+  const thead = document.createElement('thead');
+  thead.innerHTML = '<tr><th>Name</th><th>Role</th><th>Color</th><th>Actions</th></tr>';
+  table.appendChild(thead);
+
+  const tbody = document.createElement('tbody');
+  db.employees.forEach(e => {
+    const tr = document.createElement('tr');
+
+    const tdName = document.createElement('td');
+    tdName.textContent = e.name;
+    tr.appendChild(tdName);
+
+    const tdRole = document.createElement('td');
+    tdRole.textContent = e.role || '';
+    tr.appendChild(tdRole);
+
+    const tdColor = document.createElement('td');
+    const chip = document.createElement('span');
+    chip.className = 'emp-chip';
+    chip.style.background = e.color;
+    chip.textContent = getInitials(e.name);
+    tdColor.appendChild(chip);
+    tr.appendChild(tdColor);
+
+    const tdAct = document.createElement('td');
+    const editBtn = document.createElement('button');
+    editBtn.className = 'btn btn-ghost btn-sm';
+    editBtn.textContent = 'Edit';
+    editBtn.onclick = () => openEmployeeModal(e.id);
+    tdAct.appendChild(editBtn);
+    tdAct.appendChild(document.createTextNode(' '));
+    const delBtn = document.createElement('button');
+    delBtn.className = 'btn btn-danger btn-sm';
+    delBtn.textContent = 'Delete';
+    delBtn.onclick = () => confirm2('Delete Employee', 'Delete "' + e.name + '"?', () => {
+      db.employees = db.employees.filter(x => x.id !== e.id);
+      buildEmployeesTable(document.getElementById('employees-table-wrap'));
+    });
+    tdAct.appendChild(delBtn);
+    tr.appendChild(tdAct);
+
+    tbody.appendChild(tr);
+  });
+
+  table.appendChild(tbody);
+  wrap.appendChild(table);
+}
+
+function openEmployeeModal(id) {
+  editingEmployeeId = id;
+  const e = id ? db.employees.find(x => x.id === id) : null;
+  document.getElementById('emp-modal-title').textContent = id ? 'Edit Employee' : 'Add Employee';
+  document.getElementById('em-name').value = e ? e.name : '';
+  document.getElementById('em-role').value = e ? (e.role||'') : '';
+
+  const colorWrap = document.getElementById('em-colors');
+  colorWrap.innerHTML = '';
+  let selectedColor = e ? e.color : EMP_COLORS[0];
+  EMP_COLORS.forEach(c => {
+    const sw = document.createElement('div');
+    sw.className = 'color-swatch' + (c === selectedColor ? ' selected' : '');
+    sw.style.background = c;
+    sw.dataset.color = c;
+    sw.onclick = () => {
+      selectedColor = c;
+      colorWrap.querySelectorAll('.color-swatch').forEach(s => s.classList.toggle('selected', s.dataset.color === c));
+    };
+    colorWrap.appendChild(sw);
+  });
+
+  openModal('modal-employee');
+}
+
+function saveEmployee() {
+  const name = document.getElementById('em-name').value.trim();
+  if (!name) { alert('Name is required.'); return; }
+  const role = document.getElementById('em-role').value.trim();
+  const selSwatch = document.querySelector('#em-colors .color-swatch.selected');
+  const color = selSwatch ? selSwatch.dataset.color : EMP_COLORS[0];
+
+  if (editingEmployeeId) {
+    const idx = db.employees.findIndex(x => x.id === editingEmployeeId);
+    if (idx !== -1) Object.assign(db.employees[idx], {name,role,color});
+  } else {
+    db.employees.push({id:uid(),name,role,color});
+  }
+
+  closeModal('modal-employee');
+  const wrap = document.getElementById('employees-table-wrap');
+  if (wrap) buildEmployeesTable(wrap);
+}
+
+// ══════════════════════════════════
+// DATA TAB
+// ══════════════════════════════════
+
+function renderData(panel) {
+  const card = document.createElement('div');
+  card.className = 'card';
+  card.innerHTML = '<div class="card-header"><span class="card-title">Data Management</span></div>';
+
+  const stats = document.createElement('div');
+  stats.className = 'data-stat';
+  [
+    ['File', FILE_NAME],
+    ['Products', db.products.length],
+    ['Clients', db.clients.length],
+    ['Employees', db.employees.length],
+    ['Templates', db.templates.length],
+    ['Jobs', db.jobs.length],
+  ].forEach(([label, val]) => {
+    const chip = document.createElement('div');
+    chip.className = 'stat-chip';
+    chip.innerHTML = '<strong>' + esc(String(val)) + '</strong> ' + esc(label);
+    stats.appendChild(chip);
+  });
+  card.appendChild(stats);
+
+  const note = document.createElement('p');
+  note.style.cssText = 'font-size:.82rem;color:var(--muted);margin-bottom:1rem;line-height:1.5;';
+  note.textContent = 'Invoice history is stored on this device and is not included in the data file.';
+  card.appendChild(note);
+
+  const btnRow = document.createElement('div');
+  btnRow.style.display = 'flex';
+  btnRow.style.gap = '.75rem';
+  btnRow.style.flexWrap = 'wrap';
+
+  const expBtn = document.createElement('button');
+  expBtn.className = 'btn btn-primary';
+  expBtn.textContent = 'Export Data File';
+  expBtn.onclick = exportData;
+  btnRow.appendChild(expBtn);
+
+  const loadBtn = document.createElement('button');
+  loadBtn.className = 'btn btn-ghost';
+  loadBtn.textContent = 'Load Different File';
+  loadBtn.onclick = () => {
+    document.getElementById('file-input').onchange = (e) => {
+      pendingLoadMode = MODE;
+      loadFile(e);
+    };
+    document.getElementById('file-input').click();
+  };
+  btnRow.appendChild(loadBtn);
+
+  const resetBtn = document.createElement('button');
+  resetBtn.className = 'btn btn-danger';
+  resetBtn.textContent = 'Reset to Defaults';
+  resetBtn.onclick = () => confirm2('Reset to Defaults', 'This will reset all products to defaults and clear all clients, employees, templates, and jobs. Are you sure?', () => {
+    db = makeBlankDb();
+    showTab('data');
+  });
+  btnRow.appendChild(resetBtn);
+
+  card.appendChild(btnRow);
+  panel.appendChild(card);
+}
+
+// ══════════════════════════════════
+// INVOICE / QUOTE TAB
+// ══════════════════════════════════
+
+function renderInvoice(panel) {
+  // Type toggle
+  const topCard = document.createElement('div');
+  topCard.className = 'card';
+
+  const topRow = document.createElement('div');
+  topRow.style.cssText = 'display:flex;align-items:center;gap:1rem;flex-wrap:wrap;margin-bottom:1rem;';
+
+  const toggle = document.createElement('div');
+  toggle.className = 'doc-toggle';
+  ['invoice','quote'].forEach(t => {
+    const btn = document.createElement('button');
+    btn.textContent = t === 'invoice' ? 'Invoice' : 'Quote';
+    btn.className = invType === t ? 'active' : '';
+    btn.onclick = () => {
+      invType = t;
+      if (!invNumCommitted) renderInvoice(panel.parentElement.querySelector('.panel'));
+      else renderInvoice(panel.parentElement.querySelector('.panel'));
+    };
+    toggle.appendChild(btn);
+  });
+  topRow.appendChild(toggle);
+
+  // Client dropdown
+  const clientGroup = document.createElement('div');
+  clientGroup.className = 'form-group';
+  clientGroup.style.flex = '1';
+  clientGroup.style.minWidth = '180px';
+  const clientLabel = document.createElement('label');
+  clientLabel.textContent = 'Client';
+  const clientSel = document.createElement('select');
+  clientSel.id = 'inv-client-sel';
+  const noneOpt = document.createElement('option');
+  noneOpt.value = '';
+  noneOpt.textContent = 'No client selected';
+  clientSel.appendChild(noneOpt);
+  db.clients.forEach(c => {
+    const opt = document.createElement('option');
+    opt.value = c.id;
+    opt.textContent = c.name;
+    clientSel.appendChild(opt);
+  });
+  if (invClient) clientSel.value = invClient;
+  clientSel.onchange = () => {
+    invClient = clientSel.value || null;
+    // Update prices in line items
+    invItems = invItems.map(item => ({
+      ...item,
+      price: getEffectivePrice(item.pid, item.masterPrice)
+    }));
+    refreshInvoiceItems();
+    refreshTotals();
+  };
+  clientGroup.appendChild(clientLabel);
+  clientGroup.appendChild(clientSel);
+  topRow.appendChild(clientGroup);
+
+  topCard.appendChild(topRow);
+
+  // Meta row
+  const metaRow = document.createElement('div');
+  metaRow.className = 'meta-row';
+
+  const prepGroup = document.createElement('div');
+  prepGroup.className = 'form-group';
+  const prepLabel = document.createElement('label');
+  prepLabel.textContent = 'Prepared By';
+  const prepIn = document.createElement('input');
+  prepIn.type = 'text';
+  prepIn.id = 'inv-prepared-by';
+  prepIn.placeholder = 'Your name';
+  prepGroup.appendChild(prepLabel);
+  prepGroup.appendChild(prepIn);
+  metaRow.appendChild(prepGroup);
+
+  const dateGroup = document.createElement('div');
+  dateGroup.className = 'form-group';
+  const dateLabel = document.createElement('label');
+  dateLabel.textContent = 'Date';
+  const dateIn = document.createElement('input');
+  dateIn.type = 'date';
+  dateIn.id = 'inv-date';
+  dateIn.value = today();
+  dateGroup.appendChild(dateLabel);
+  dateGroup.appendChild(dateIn);
+  metaRow.appendChild(dateGroup);
+
+  const numGroup = document.createElement('div');
+  numGroup.className = 'form-group';
+  const numLabel = document.createElement('label');
+  numLabel.textContent = invType === 'invoice' ? 'Invoice #' : 'Quote #';
+  const numIn = document.createElement('input');
+  numIn.type = 'text';
+  numIn.id = 'inv-number';
+  numIn.value = peekNum(invType);
+  numGroup.appendChild(numLabel);
+  numGroup.appendChild(numIn);
+  metaRow.appendChild(numGroup);
+
+  topCard.appendChild(metaRow);
+
+  // Template buttons
+  const tplRow = document.createElement('div');
+  tplRow.style.cssText = 'display:flex;gap:.5rem;flex-wrap:wrap;margin-bottom:.25rem;';
+
+  const loadTplBtn = document.createElement('button');
+  loadTplBtn.className = 'btn btn-ghost btn-sm';
+  loadTplBtn.textContent = 'Load Template';
+  loadTplBtn.onclick = () => showTemplateMenu(loadTplBtn);
+  tplRow.appendChild(loadTplBtn);
+
+  const saveTplBtn = document.createElement('button');
+  saveTplBtn.className = 'btn btn-ghost btn-sm';
+  saveTplBtn.textContent = 'Save as Template';
+  saveTplBtn.onclick = () => {
+    const name = prompt('Template name:');
+    if (!name || !name.trim()) return;
+    const cid = document.getElementById('inv-client-sel').value || null;
+    db.templates.push({
+      id: uid(),
+      name: name.trim(),
+      clientId: cid,
+      items: invItems.map(i => ({pid:i.pid,num:i.num,desc:i.desc,qty:i.qty,unit:i.unit,price:i.price}))
+    });
+    alert('Template saved.');
+  };
+  tplRow.appendChild(saveTplBtn);
+
+  topCard.appendChild(tplRow);
+  panel.appendChild(topCard);
+
+  // Product picker
+  const pickerCard = document.createElement('div');
+  pickerCard.className = 'card';
+  const pickerHeader = document.createElement('div');
+  pickerHeader.className = 'card-header';
+  pickerHeader.innerHTML = '<span class="card-title">Add Products</span>';
+
+  const pickerSearch = document.createElement('div');
+  pickerSearch.className = 'search-input';
+  pickerSearch.style.flex = '1';
+  pickerSearch.style.maxWidth = '320px';
+  const pickerSearchIn = document.createElement('input');
+  pickerSearchIn.type = 'text';
+  pickerSearchIn.placeholder = 'Search products to add...';
+  pickerSearchIn.id = 'picker-search';
+  pickerSearchIn.oninput = () => buildPickerList();
+  pickerSearch.appendChild(pickerSearchIn);
+  pickerHeader.appendChild(pickerSearch);
+  pickerCard.appendChild(pickerHeader);
+
+  const pickerList = document.createElement('div');
+  pickerList.className = 'product-picker';
+  pickerList.id = 'picker-list';
+  pickerCard.appendChild(pickerList);
+  panel.appendChild(pickerCard);
+
+  buildPickerList();
+
+  // Line items
+  const itemsCard = document.createElement('div');
+  itemsCard.className = 'card';
+  const itemsHeader = document.createElement('div');
+  itemsHeader.className = 'card-header';
+  itemsHeader.innerHTML = '<span class="card-title">Line Items</span>';
+  itemsCard.appendChild(itemsHeader);
+
+  const itemsWrap = document.createElement('div');
+  itemsWrap.className = 'tbl-wrap';
+  itemsWrap.id = 'inv-items-wrap';
+  itemsCard.appendChild(itemsWrap);
+
+  // Notes
+  const notesGroup = document.createElement('div');
+  notesGroup.className = 'form-group';
+  notesGroup.style.marginTop = '.75rem';
+  const notesLabel = document.createElement('label');
+  notesLabel.textContent = 'Notes';
+  const notesTA = document.createElement('textarea');
+  notesTA.id = 'inv-notes';
+  notesTA.placeholder = 'Optional notes for this document...';
+  notesTA.value = invNotes;
+  notesTA.oninput = () => { invNotes = notesTA.value; };
+  notesGroup.appendChild(notesLabel);
+  notesGroup.appendChild(notesTA);
+  itemsCard.appendChild(notesGroup);
+
+  // Totals
+  const totalsDiv = document.createElement('div');
+  totalsDiv.className = 'totals-block';
+  totalsDiv.id = 'inv-totals';
+  itemsCard.appendChild(totalsDiv);
+
+  // Action buttons
+  const actRow = document.createElement('div');
+  actRow.style.cssText = 'display:flex;gap:.75rem;margin-top:1rem;justify-content:flex-end;';
+  const clearBtn = document.createElement('button');
+  clearBtn.className = 'btn btn-ghost';
+  clearBtn.textContent = 'Clear';
+  clearBtn.onclick = () => {
+    invItems = [];
+    invNotes = '';
+    invClient = null;
+    invNumCommitted = false;
+    showTab('invoice');
+  };
+  actRow.appendChild(clearBtn);
+  const previewBtn = document.createElement('button');
+  previewBtn.className = 'btn btn-lime';
+  previewBtn.textContent = 'Preview & Print';
+  previewBtn.onclick = () => previewInvoice();
+  actRow.appendChild(previewBtn);
+  itemsCard.appendChild(actRow);
+
+  panel.appendChild(itemsCard);
+  refreshInvoiceItems();
+  refreshTotals();
+}
+
+function getEffectivePrice(pid, masterPrice) {
+  if (!invClient) return masterPrice;
+  const c = db.clients.find(x => x.id === invClient);
+  if (!c) return masterPrice;
+  const ov = (c.priceOverrides || {})[pid];
+  return ov !== undefined ? ov : masterPrice;
+}
+
+function buildPickerList() {
+  const list = document.getElementById('picker-list');
+  if (!list) return;
+  list.innerHTML = '';
+  const q = (document.getElementById('picker-search')?.value || '').toLowerCase();
+  let prods = db.products;
+  if (q) prods = prods.filter(p =>
+    (p.num||'').toLowerCase().includes(q) ||
+    (p.desc||'').toLowerCase().includes(q)
+  );
+
+  if (!prods.length) {
+    const em = document.createElement('div');
+    em.className = 'empty-state';
+    em.style.padding = '1rem';
+    em.textContent = 'No products found.';
+    list.appendChild(em);
+    return;
+  }
+
+  prods.forEach(p => {
+    const item = document.createElement('div');
+    item.className = 'picker-item';
+
+    const num = document.createElement('span');
+    num.className = 'picker-num';
+    num.textContent = p.num;
+    item.appendChild(num);
+
+    const desc = document.createElement('span');
+    desc.className = 'picker-desc';
+    desc.textContent = p.desc;
+    item.appendChild(desc);
+
+    const eff = getEffectivePrice(p.id, p.price);
+    const priceSpan = document.createElement('span');
+    priceSpan.className = 'picker-price';
+    priceSpan.textContent = fmt$(eff);
+    item.appendChild(priceSpan);
+
+    const addBtn = document.createElement('button');
+    addBtn.className = 'btn btn-lime btn-sm';
+    addBtn.textContent = '+ Add';
+    addBtn.onclick = () => {
+      invItems.push({
+        id: uid(),
+        pid: p.id,
+        num: p.num,
+        desc: p.desc,
+        qty: 1,
+        unit: p.unit,
+        masterPrice: p.price,
+        price: getEffectivePrice(p.id, p.price)
+      });
+      refreshInvoiceItems();
+      refreshTotals();
+    };
+    item.appendChild(addBtn);
+    list.appendChild(item);
+  });
+}
+
+function refreshInvoiceItems() {
+  const wrap = document.getElementById('inv-items-wrap');
+  if (!wrap) return;
+  wrap.innerHTML = '';
+
+  if (!invItems.length) {
+    const em = document.createElement('div');
+    em.className = 'empty-state';
+    em.textContent = 'No items added yet.';
+    wrap.appendChild(em);
+    return;
+  }
+
+  const table = document.createElement('table');
+  const thead = document.createElement('thead');
+  thead.innerHTML = '<tr><th>Product #</th><th>Description</th><th>Qty</th><th>Unit</th><th>Unit Price</th><th>Total</th><th></th></tr>';
+  table.appendChild(thead);
+
+  const tbody = document.createElement('tbody');
+  invItems.forEach((item, idx) => {
+    const tr = document.createElement('tr');
+
+    const tdNum = document.createElement('td');
+    tdNum.textContent = item.num;
+    tr.appendChild(tdNum);
+
+    const tdDesc = document.createElement('td');
+    tdDesc.textContent = item.desc;
+    tr.appendChild(tdDesc);
+
+    const tdQty = document.createElement('td');
+    const qtyIn = document.createElement('input');
+    qtyIn.type = 'number';
+    qtyIn.min = '0';
+    qtyIn.step = '0.01';
+    qtyIn.value = item.qty;
+    qtyIn.style.width = '70px';
+    qtyIn.oninput = e => {
+      invItems[idx].qty = parseFloat(e.target.value) || 0;
+      refreshTotals();
+    };
+    tdQty.appendChild(qtyIn);
+    tr.appendChild(tdQty);
+
+    const tdUnit = document.createElement('td');
+    tdUnit.textContent = item.unit;
+    tr.appendChild(tdUnit);
+
+    const tdPrice = document.createElement('td');
+    const priceIn = document.createElement('input');
+    priceIn.type = 'number';
+    priceIn.min = '0';
+    priceIn.step = '0.01';
+    priceIn.value = item.price !== null && item.price !== undefined ? item.price : '';
+    priceIn.style.width = '80px';
+    priceIn.oninput = e => {
+      invItems[idx].price = parseFloat(e.target.value) || 0;
+      refreshTotals();
+    };
+    tdPrice.appendChild(priceIn);
+    tr.appendChild(tdPrice);
+
+    const tdTotal = document.createElement('td');
+    tdTotal.id = 'item-total-' + item.id;
+    const lineTotal = (item.price || 0) * (item.qty || 0);
+    tdTotal.textContent = fmt$(lineTotal);
+    tr.appendChild(tdTotal);
+
+    const tdDel = document.createElement('td');
+    const delBtn = document.createElement('button');
+    delBtn.textContent = '×';
+    delBtn.className = 'btn btn-danger btn-sm';
+    delBtn.onclick = () => {
+      invItems.splice(idx, 1);
+      refreshInvoiceItems();
+      refreshTotals();
+    };
+    tdDel.appendChild(delBtn);
+    tr.appendChild(tdDel);
+
+    tbody.appendChild(tr);
+  });
+
+  table.appendChild(tbody);
+  wrap.appendChild(table);
+}
+
+function refreshTotals() {
+  const totalsDiv = document.getElementById('inv-totals');
+  if (!totalsDiv) return;
+  const subtotal = invItems.reduce((s, i) => s + (i.price||0) * (i.qty||0), 0);
+  const pst = subtotal * 0.07;
+  const gst = subtotal * 0.05;
+  const total = subtotal + pst + gst;
+
+  totalsDiv.innerHTML = '';
+  [
+    ['Subtotal', subtotal],
+    ['PST 7%', pst],
+    ['GST 5%', gst],
+  ].forEach(([label, val]) => {
+    const row = document.createElement('div');
+    row.className = 'total-row';
+    const lbl = document.createElement('span');
+    lbl.className = 'total-label';
+    lbl.textContent = label;
+    const v = document.createElement('span');
+    v.className = 'total-val';
+    v.textContent = fmt$(val);
+    row.appendChild(lbl);
+    row.appendChild(v);
+    totalsDiv.appendChild(row);
+  });
+
+  const grandRow = document.createElement('div');
+  grandRow.className = 'total-row grand';
+  const gl = document.createElement('span');
+  gl.className = 'total-label';
+  gl.textContent = 'Total';
+  const gv = document.createElement('span');
+  gv.className = 'total-val';
+  gv.textContent = fmt$(total);
+  grandRow.appendChild(gl);
+  grandRow.appendChild(gv);
+  totalsDiv.appendChild(grandRow);
+}
+
+function showTemplateMenu(btn) {
+  if (!db.templates.length) { alert('No templates saved yet.'); return; }
+  // Simple select prompt
+  const names = db.templates.map((t,i) => i + ': ' + t.name).join('\n');
+  const choice = prompt('Select template number:\n' + names);
+  if (choice === null) return;
+  const idx = parseInt(choice);
+  if (isNaN(idx) || idx < 0 || idx >= db.templates.length) { alert('Invalid selection.'); return; }
+  const tpl = db.templates[idx];
+  invItems = tpl.items.map(i => ({
+    id: uid(),
+    pid: i.pid,
+    num: i.num,
+    desc: i.desc,
+    qty: i.qty,
+    unit: i.unit,
+    masterPrice: i.price,
+    price: getEffectivePrice(i.pid, i.price)
+  }));
+  if (tpl.clientId) {
+    invClient = tpl.clientId;
+    const sel = document.getElementById('inv-client-sel');
+    if (sel) sel.value = tpl.clientId;
+  }
+  refreshInvoiceItems();
+  refreshTotals();
+}
+
+function previewInvoice() {
+  if (!invNumCommitted) {
+    commitNum(invType);
+    invNumCommitted = true;
+  }
+
+  const numEl = document.getElementById('inv-number');
+  const docNum = numEl ? numEl.value : peekNum(invType);
+  const prepBy = (document.getElementById('inv-prepared-by')?.value || '').trim();
+  const dateVal = document.getElementById('inv-date')?.value || today();
+  const clientObj = invClient ? db.clients.find(c => c.id === invClient) : null;
+
+  const subtotal = invItems.reduce((s, i) => s + (i.price||0) * (i.qty||0), 0);
+  const pst = subtotal * 0.07;
+  const gst = subtotal * 0.05;
+  const total = subtotal + pst + gst;
+
+  const logEntry = {
+    id: uid(),
+    type: invType,
+    num: docNum,
+    clientId: invClient,
+    clientName: clientObj ? clientObj.name : '',
+    date: dateVal,
+    preparedBy: prepBy,
+    total: total,
+    items: JSON.parse(JSON.stringify(invItems)),
+    notes: invNotes,
+    savedAt: new Date().toISOString()
+  };
+
+  const printHtml = buildPrintHtml(logEntry, clientObj);
+  logEntry.printHtml = printHtml;
+
+  const log = JSON.parse(localStorage.getItem('tp_log') || '[]');
+  log.unshift(logEntry);
+  localStorage.setItem('tp_log', JSON.stringify(log));
+
+  const win = window.open('', '_blank');
+  win.document.write(printHtml);
+  win.document.close();
+}
+
+function buildPrintHtml(entry, clientObj) {
+  const logoSrc = 'data:image/webp;base64,' + LOGO_B64;
+  const isQuote = entry.type === 'quote';
+  const label = isQuote ? 'QUOTE' : 'INVOICE';
+  const subtotal = entry.items.reduce((s, i) => s + (i.price||0) * (i.qty||0), 0);
+  const pst = subtotal * 0.07;
+  const gst = subtotal * 0.05;
+  const total = subtotal + pst + gst;
+
+  let itemRows = '';
+  entry.items.forEach(item => {
+    const lineTotal = (item.price||0) * (item.qty||0);
+    itemRows += '<tr><td>' + esc(item.num) + '</td><td>' + esc(item.desc) + '</td><td style="text-align:center">' + esc(String(item.qty)) + '</td><td>' + esc(item.unit) + '</td><td style="text-align:right">' + esc(fmt$(item.price)) + '</td><td style="text-align:right">' + esc(fmt$(lineTotal)) + '</td></tr>';
+  });
+
+  const notesSection = entry.notes ? '<div class="section"><strong>Notes:</strong><p>' + esc(entry.notes) + '</p></div>' : '';
+  const quoteNote = isQuote ? '<p style="margin:0;font-size:.82rem;color:#666">This quote is valid for 30 days from the date issued.</p>' : '';
+
+  return `<!DOCTYPE html><html lang="en"><head><meta charset="UTF-8"><title>${esc(label)} ${esc(entry.num)}</title>
+<link href="https://fonts.googleapis.com/css2?family=Laila:wght@400;700&family=DM+Sans:wght@400;700&display=swap" rel="stylesheet">
+<style>
+*{box-sizing:border-box;margin:0;padding:0}
+body{font-family:'DM Sans',sans-serif;color:#1a1a2e;padding:2rem;max-width:800px;margin:0 auto;font-size:14px}
+h1,h2,h3{font-family:'Laila',serif}
+.header{display:flex;justify-content:space-between;align-items:flex-start;margin-bottom:2rem}
+.header img{max-height:60px}
+.doc-type{font-family:'Laila',serif;font-size:2.5rem;color:#182059;font-weight:700}
+.meta{display:flex;justify-content:space-between;margin-bottom:1.5rem;gap:2rem}
+.meta-block p{margin:.2rem 0;font-size:.9rem}
+.meta-label{color:#6b7280;font-size:.78rem;font-weight:700;text-transform:uppercase;letter-spacing:.04em}
+table{width:100%;border-collapse:collapse;margin-bottom:1.5rem}
+thead tr{background:#182059;color:#fff}
+thead th{padding:.55rem .75rem;text-align:left;font-family:'Laila',serif;font-size:.85rem}
+tbody td{padding:.45rem .75rem;border-bottom:1px solid #dde1ee;font-size:.88rem}
+.totals{display:flex;justify-content:flex-end;margin-bottom:1.5rem}
+.totals-inner{min-width:240px}
+.t-row{display:flex;justify-content:space-between;padding:.2rem 0;font-size:.9rem}
+.t-row.grand{border-top:2px solid #182059;padding-top:.4rem;margin-top:.25rem;font-family:'Laila',serif;font-size:1.1rem;color:#182059;font-weight:700}
+.t-label{color:#6b7280}
+.section{margin-bottom:1rem;font-size:.9rem;line-height:1.5}
+.footer{border-top:1px solid #dde1ee;padding-top:.75rem;font-size:.78rem;color:#6b7280;margin-top:1.5rem}
+.print-btn{position:fixed;bottom:1.5rem;right:1.5rem;background:#5DD600;color:#182059;font-family:'Laila',serif;font-weight:700;font-size:1rem;padding:.65rem 1.5rem;border:none;border-radius:6px;cursor:pointer;box-shadow:0 2px 8px rgba(0,0,0,.15)}
+@media print{.print-btn{display:none}}
+</style></head><body>
+<div class="header">
+  <img src="${logoSrc}" alt="Take Pride">
+  <div class="doc-type">${esc(label)}</div>
+</div>
+<div class="meta">
+  <div class="meta-block">
+    ${clientObj ? '<p class="meta-label">Prepared For</p><p><strong>' + esc(clientObj.name) + '</strong></p>' + (clientObj.contact ? '<p>' + esc(clientObj.contact) + '</p>' : '') + (clientObj.phone ? '<p>' + esc(clientObj.phone) + '</p>' : '') + (clientObj.email ? '<p>' + esc(clientObj.email) + '</p>' : '') : ''}
+  </div>
+  <div class="meta-block" style="text-align:right">
+    <p class="meta-label">${esc(label)} Number</p>
+    <p><strong>${esc(entry.num)}</strong></p>
+    <p class="meta-label" style="margin-top:.5rem">Date</p>
+    <p>${esc(fmtDate(entry.date))}</p>
+    ${entry.preparedBy ? '<p class="meta-label" style="margin-top:.5rem">Prepared By</p><p>' + esc(entry.preparedBy) + '</p>' : ''}
+  </div>
+</div>
+<table>
+<thead><tr><th>Product #</th><th>Description</th><th style="text-align:center">Qty</th><th>Unit</th><th style="text-align:right">Unit Price</th><th style="text-align:right">Total</th></tr></thead>
+<tbody>${itemRows}</tbody>
+</table>
+<div class="totals">
+  <div class="totals-inner">
+    <div class="t-row"><span class="t-label">Subtotal</span><span>${esc(fmt$(subtotal))}</span></div>
+    <div class="t-row"><span class="t-label">PST 7%</span><span>${esc(fmt$(pst))}</span></div>
+    <div class="t-row"><span class="t-label">GST 5%</span><span>${esc(fmt$(gst))}</span></div>
+    <div class="t-row grand"><span>Total</span><span>${esc(fmt$(total))}</span></div>
+  </div>
+</div>
+${notesSection}
+<div class="footer">
+  <p>Prices subject to Manitoba taxes: PST 7% + GST 5% (included above).</p>
+  ${quoteNote}
+</div>
+<button class="print-btn" onclick="window.print()">Print / Save as PDF</button>
+</body></html>`;
+}
+
+// ══════════════════════════════════
+// HISTORY TAB
+// ══════════════════════════════════
+
+function renderHistory(panel) {
+  const card = document.createElement('div');
+  card.className = 'card';
+  card.innerHTML = '<div class="card-header"><span class="card-title">Invoice & Quote History</span></div>';
+
+  const wrap = document.createElement('div');
+  wrap.className = 'tbl-wrap';
+  wrap.id = 'history-table-wrap';
+  card.appendChild(wrap);
+  panel.appendChild(card);
+  buildHistoryTable(wrap);
+}
+
+function buildHistoryTable(wrap) {
+  wrap.innerHTML = '';
+  const log = JSON.parse(localStorage.getItem('tp_log') || '[]');
+
+  if (!log.length) {
+    const em = document.createElement('div');
+    em.className = 'empty-state';
+    em.textContent = 'No history yet. Preview an invoice or quote to save it here.';
+    wrap.appendChild(em);
+    return;
+  }
+
+  const table = document.createElement('table');
+  const thead = document.createElement('thead');
+  thead.innerHTML = '<tr><th>Type</th><th>#</th><th>Client</th><th>Date</th><th>Prepared By</th><th>Total</th><th>Actions</th></tr>';
+  table.appendChild(thead);
+
+  const tbody = document.createElement('tbody');
+  log.forEach((entry, idx) => {
+    const tr = document.createElement('tr');
+
+    const tdType = document.createElement('td');
+    tdType.textContent = entry.type === 'quote' ? 'Quote' : 'Invoice';
+    tr.appendChild(tdType);
+
+    const tdNum = document.createElement('td');
+    tdNum.textContent = entry.num;
+    tr.appendChild(tdNum);
+
+    const tdClient = document.createElement('td');
+    tdClient.textContent = entry.clientName || '—';
+    tr.appendChild(tdClient);
+
+    const tdDate = document.createElement('td');
+    tdDate.textContent = fmtDate(entry.date);
+    tr.appendChild(tdDate);
+
+    const tdPrep = document.createElement('td');
+    tdPrep.textContent = entry.preparedBy || '—';
+    tr.appendChild(tdPrep);
+
+    const tdTotal = document.createElement('td');
+    tdTotal.textContent = fmt$(entry.total);
+    tr.appendChild(tdTotal);
+
+    const tdAct = document.createElement('td');
+    const viewBtn = document.createElement('button');
+    viewBtn.className = 'btn btn-ghost btn-sm';
+    viewBtn.textContent = 'View';
+    viewBtn.onclick = () => {
+      if (entry.printHtml) {
+        const win = window.open('', '_blank');
+        win.document.write(entry.printHtml);
+        win.document.close();
+      } else {
+        alert('No print preview saved for this entry.');
+      }
+    };
+    tdAct.appendChild(viewBtn);
+    tdAct.appendChild(document.createTextNode(' '));
+    const delBtn = document.createElement('button');
+    delBtn.className = 'btn btn-danger btn-sm';
+    delBtn.textContent = 'Delete';
+    delBtn.onclick = () => confirm2('Delete Entry', 'Delete this history entry?', () => {
+      const log2 = JSON.parse(localStorage.getItem('tp_log') || '[]');
+      log2.splice(idx, 1);
+      localStorage.setItem('tp_log', JSON.stringify(log2));
+      buildHistoryTable(document.getElementById('history-table-wrap'));
+    });
+    tdAct.appendChild(delBtn);
+    tr.appendChild(tdAct);
+
+    tbody.appendChild(tr);
+  });
+
+  table.appendChild(tbody);
+  wrap.appendChild(table);
+}
+
+// ══════════════════════════════════
+// SCHEDULE TAB
+// ══════════════════════════════════
+
+function renderSchedule(panel) {
+  if (!schedWeekStart) schedWeekStart = getMondayOf(today());
+
+  const card = document.createElement('div');
+  card.className = 'card';
+
+  // Week nav
+  const weekNav = document.createElement('div');
+  weekNav.className = 'week-nav';
+
+  const prevBtn = document.createElement('button');
+  prevBtn.className = 'btn btn-ghost btn-sm';
+  prevBtn.textContent = '< Prev';
+  prevBtn.onclick = () => { schedWeekStart = addDays(schedWeekStart, -7); renderSchedule(panel); };
+  weekNav.appendChild(prevBtn);
+
+  const weekEnd = addDays(schedWeekStart, 6);
+  const weekLabel = document.createElement('span');
+  weekLabel.className = 'week-label';
+  weekLabel.textContent = fmtDate(schedWeekStart).replace(/,.*/, '') + ' – ' + fmtDate(weekEnd).replace(/,.*/, '') + ', ' + schedWeekStart.slice(0,4);
+  weekNav.appendChild(weekLabel);
+
+  const nextBtn = document.createElement('button');
+  nextBtn.className = 'btn btn-ghost btn-sm';
+  nextBtn.textContent = 'Next >';
+  nextBtn.onclick = () => { schedWeekStart = addDays(schedWeekStart, 7); renderSchedule(panel); };
+  weekNav.appendChild(nextBtn);
+
+  if (MODE === 'admin') {
+    const addJobBtn = document.createElement('button');
+    addJobBtn.className = 'btn btn-lime btn-sm';
+    addJobBtn.textContent = '+ Add Job';
+    addJobBtn.onclick = () => openJobModal(null, null);
+    weekNav.appendChild(addJobBtn);
+  }
+
+  card.appendChild(weekNav);
+
+  // Week board
+  const board = document.createElement('div');
+  board.className = 'week-board';
+
+  const jobStatuses = JSON.parse(localStorage.getItem('tp_job_status') || '{}');
+
+  for (let i = 0; i < 7; i++) {
+    const dateStr = addDays(schedWeekStart, i);
+    const col = document.createElement('div');
+    col.className = 'day-col';
+
+    const hdr = document.createElement('div');
+    hdr.className = 'day-header';
+    hdr.textContent = fullDayHeader(dateStr);
+    col.appendChild(hdr);
+
+    const body = document.createElement('div');
+    body.className = 'day-body';
+
+    const dayJobs = db.jobs.filter(j => j.date === dateStr);
+    dayJobs.forEach(job => {
+      const status = jobStatuses[job.id] || job.status || 'scheduled';
+      const card2 = document.createElement('div');
+      card2.className = 'job-card';
+      card2.style.borderLeftColor = getStatusColor(status);
+
+      const clientName = job.clientId ? (db.clients.find(c => c.id === job.clientId)?.name || 'Unknown') : (job.title || 'Job');
+      const displayTitle = job.title || clientName;
+
+      const jcTitle = document.createElement('div');
+      jcTitle.className = 'jc-client';
+      jcTitle.textContent = displayTitle;
+      card2.appendChild(jcTitle);
+
+      if (job.startTime) {
+        const jcTime = document.createElement('div');
+        jcTime.className = 'jc-time';
+        jcTime.textContent = fmtTime(job.startTime) + (job.endTime ? ' – ' + fmtTime(job.endTime) : '');
+        card2.appendChild(jcTime);
+      }
+
+      if (job.location) {
+        const jcLoc = document.createElement('div');
+        jcLoc.className = 'jc-loc';
+        jcLoc.textContent = job.location;
+        card2.appendChild(jcLoc);
+      }
+
+      const chips = document.createElement('div');
+      chips.className = 'jc-chips';
+      (job.assignedTo || []).forEach(empId => {
+        const emp = db.employees.find(e => e.id === empId);
+        if (emp) {
+          const chip = document.createElement('span');
+          chip.className = 'emp-chip';
+          chip.style.background = emp.color;
+          chip.title = emp.name;
+          chip.textContent = getInitials(emp.name);
+          chips.appendChild(chip);
+        }
+      });
+      card2.appendChild(chips);
+
+      const badge = document.createElement('div');
+      badge.className = 'status-badge ' + status;
+      badge.textContent = statusLabel(status);
+      card2.appendChild(badge);
+
+      card2.onclick = () => {
+        if (MODE === 'admin') {
+          openJobModal(job.id, null);
+        } else {
+          openJobViewModal(job.id);
+        }
+      };
+
+      body.appendChild(card2);
+    });
+
+    if (MODE === 'admin') {
+      const addPh = document.createElement('div');
+      addPh.className = 'add-day-placeholder';
+      addPh.textContent = '+ Add';
+      addPh.onclick = () => openJobModal(null, dateStr);
+      body.appendChild(addPh);
+    }
+
+    col.appendChild(body);
+    board.appendChild(col);
+  }
+
+  card.appendChild(board);
+  panel.innerHTML = '';
+  panel.appendChild(card);
+}
+
+function getStatusColor(status) {
+  switch(status) {
+    case 'scheduled': return 'var(--status-scheduled)';
+    case 'inprogress': return 'var(--status-inprogress)';
+    case 'done': return 'var(--status-done)';
+    case 'cancelled': return 'var(--status-cancelled)';
+    default: return 'var(--navy)';
+  }
+}
+
+function statusLabel(status) {
+  switch(status) {
+    case 'scheduled': return 'Scheduled';
+    case 'inprogress': return 'In Progress';
+    case 'done': return 'Done';
+    case 'cancelled': return 'Cancelled';
+    default: return status;
+  }
+}
+
+function openJobModal(jobId, prefillDate) {
+  editingJobId = jobId;
+  const job = jobId ? db.jobs.find(j => j.id === jobId) : null;
+  document.getElementById('job-modal-title').textContent = jobId ? 'Edit Job' : 'Add Job';
+
+  // Client select
+  const clientSel = document.getElementById('jm-client');
+  clientSel.innerHTML = '';
+  const noneOpt = document.createElement('option');
+  noneOpt.value = '';
+  noneOpt.textContent = 'No client';
+  clientSel.appendChild(noneOpt);
+  db.clients.forEach(c => {
+    const opt = document.createElement('option');
+    opt.value = c.id;
+    opt.textContent = c.name;
+    clientSel.appendChild(opt);
+  });
+  clientSel.value = job ? (job.clientId || '') : '';
+
+  document.getElementById('jm-title').value = job ? (job.title||'') : '';
+  document.getElementById('jm-location').value = job ? (job.location||'') : '';
+  document.getElementById('jm-date').value = job ? job.date : (prefillDate || today());
+  document.getElementById('jm-start').value = job ? (job.startTime||'') : '';
+  document.getElementById('jm-end').value = job ? (job.endTime||'') : '';
+  document.getElementById('jm-status').value = job ? (job.status||'scheduled') : 'scheduled';
+  document.getElementById('jm-notes').value = job ? (job.notes||'') : '';
+
+  // Employees
+  const empList = document.getElementById('jm-employees');
+  empList.innerHTML = '';
+  db.employees.forEach(e => {
+    const item = document.createElement('div');
+    item.className = 'emp-checkbox-item';
+    const cb = document.createElement('input');
+    cb.type = 'checkbox';
+    cb.value = e.id;
+    cb.id = 'jm-emp-' + e.id;
+    cb.checked = job ? (job.assignedTo||[]).includes(e.id) : false;
+    const chip = document.createElement('span');
+    chip.className = 'emp-chip';
+    chip.style.background = e.color;
+    chip.textContent = getInitials(e.name);
+    const lbl = document.createElement('label');
+    lbl.htmlFor = 'jm-emp-' + e.id;
+    lbl.textContent = e.name + (e.role ? ' (' + e.role + ')' : '');
+    item.appendChild(cb);
+    item.appendChild(chip);
+    item.appendChild(lbl);
+    empList.appendChild(item);
+  });
+
+  const deleteRow = document.getElementById('jm-delete-row');
+  deleteRow.style.display = jobId ? 'block' : 'none';
+  document.getElementById('jm-save-btn').textContent = jobId ? 'Update Job' : 'Add Job';
+
+  openModal('modal-job');
+}
+
+function saveJob() {
+  const clientId = document.getElementById('jm-client').value || null;
+  const title = document.getElementById('jm-title').value.trim();
+  const location = document.getElementById('jm-location').value.trim();
+  const date = document.getElementById('jm-date').value;
+  const startTime = document.getElementById('jm-start').value;
+  const endTime = document.getElementById('jm-end').value;
+  const status = document.getElementById('jm-status').value;
+  const notes = document.getElementById('jm-notes').value.trim();
+
+  if (!date) { alert('Date is required.'); return; }
+
+  const assignedTo = [];
+  document.querySelectorAll('#jm-employees input[type=checkbox]:checked').forEach(cb => assignedTo.push(cb.value));
+
+  const obj = {clientId, title, location, date, startTime, endTime, assignedTo, status, notes};
+
+  if (editingJobId) {
+    const idx = db.jobs.findIndex(j => j.id === editingJobId);
+    if (idx !== -1) Object.assign(db.jobs[idx], obj);
+  } else {
+    db.jobs.push({id: uid(), ...obj});
+  }
+
+  closeModal('modal-job');
+  showTab('schedule');
+}
+
+function deleteJob() {
+  if (!editingJobId) return;
+  const job = db.jobs.find(j => j.id === editingJobId);
+  const label = job ? (job.title || (job.clientId && db.clients.find(c => c.id === job.clientId)?.name) || 'this job') : 'this job';
+  confirm2('Delete Job', 'Delete "' + label + '"?', () => {
+    db.jobs = db.jobs.filter(j => j.id !== editingJobId);
+    closeModal('modal-job');
+    showTab('schedule');
+  });
+}
+
+function openJobViewModal(jobId) {
+  viewingJobId = jobId;
+  const job = db.jobs.find(j => j.id === jobId);
+  if (!job) return;
+
+  const jobStatuses = JSON.parse(localStorage.getItem('tp_job_status') || '{}');
+  const status = jobStatuses[jobId] || job.status || 'scheduled';
+
+  const clientObj = job.clientId ? db.clients.find(c => c.id === job.clientId) : null;
+  const title = job.title || (clientObj ? clientObj.name : 'Job');
+  document.getElementById('jv-title').textContent = title;
+
+  const body = document.getElementById('jv-body');
+  body.innerHTML = '';
+
+  function addInfoRow(label, val) {
+    if (!val) return;
+    const row = document.createElement('div');
+    row.style.cssText = 'display:flex;gap:.5rem;padding:.3rem 0;font-size:.9rem;';
+    const lbl = document.createElement('span');
+    lbl.style.cssText = 'color:var(--muted);min-width:100px;font-size:.82rem;font-weight:600;';
+    lbl.textContent = label;
+    const v = document.createElement('span');
+    v.textContent = val;
+    row.appendChild(lbl);
+    row.appendChild(v);
+    body.appendChild(row);
+  }
+
+  if (clientObj) addInfoRow('Client:', clientObj.name);
+  addInfoRow('Date:', fmtDate(job.date));
+  addInfoRow('Time:', job.startTime ? fmtTime(job.startTime) + (job.endTime ? ' – ' + fmtTime(job.endTime) : '') : '');
+  addInfoRow('Location:', job.location);
+  addInfoRow('Notes:', job.notes);
+
+  if (job.assignedTo && job.assignedTo.length) {
+    const row = document.createElement('div');
+    row.style.cssText = 'display:flex;gap:.5rem;align-items:center;padding:.3rem 0;';
+    const lbl = document.createElement('span');
+    lbl.style.cssText = 'color:var(--muted);min-width:100px;font-size:.82rem;font-weight:600;';
+    lbl.textContent = 'Assigned:';
+    row.appendChild(lbl);
+    const chips = document.createElement('div');
+    chips.style.display = 'flex';
+    chips.style.gap = '.3rem';
+    chips.style.flexWrap = 'wrap';
+    job.assignedTo.forEach(empId => {
+      const emp = db.employees.find(e => e.id === empId);
+      if (emp) {
+        const chip = document.createElement('span');
+        chip.className = 'emp-chip';
+        chip.style.background = emp.color;
+        chip.textContent = getInitials(emp.name);
+        chip.title = emp.name;
+        const name = document.createElement('span');
+        name.style.fontSize = '.85rem';
+        name.textContent = emp.name;
+        chips.appendChild(chip);
+        chips.appendChild(name);
+        chips.appendChild(document.createTextNode(' '));
+      }
+    });
+    row.appendChild(chips);
+    body.appendChild(row);
+  }
+
+  const sel = document.getElementById('jv-status-select');
+  sel.value = status;
+
+  openModal('modal-job-view');
+}
+
+function updateJobStatus() {
+  if (!viewingJobId) return;
+  const sel = document.getElementById('jv-status-select');
+  const statuses = JSON.parse(localStorage.getItem('tp_job_status') || '{}');
+  statuses[viewingJobId] = sel.value;
+  localStorage.setItem('tp_job_status', JSON.stringify(statuses));
+}
+
+// ══════════════════════════════════
+// CLIENT PRICE LIST PRINT
+// ══════════════════════════════════
+
+function printClientPriceList(clientId) {
+  const c = db.clients.find(x => x.id === clientId);
+  if (!c) return;
+  const logoSrc = 'data:image/webp;base64,' + LOGO_B64;
+  const overrides = c.priceOverrides || {};
+
+  // Group products by category
+  const cats = [...new Set(db.products.map(p => p.cat))];
+  let rows = '';
+  cats.forEach(cat => {
+    const catProds = db.products.filter(p => p.cat === cat);
+    rows += '<tr class="cat-hdr"><td colspan="4">' + esc(cat) + '</td></tr>';
+    catProds.forEach(p => {
+      const effPrice = overrides[p.id] !== undefined ? overrides[p.id] : p.price;
+      const isOverride = overrides[p.id] !== undefined;
+      rows += '<tr>'
+        + '<td>' + esc(p.num) + '</td>'
+        + '<td>' + esc(p.desc) + (p.notes ? '<br><span class="note">' + esc(p.notes) + '</span>' : '') + '</td>'
+        + '<td>' + esc(p.unit) + '</td>'
+        + '<td style="text-align:right' + (isOverride ? ';color:#182059;font-weight:700' : '') + '">' + esc(fmt$(effPrice)) + (isOverride ? ' <span title="Custom price">*</span>' : '') + '</td>'
+        + '</tr>';
+    });
+  });
+
+  const html = `<!DOCTYPE html><html lang="en"><head><meta charset="UTF-8"><title>Price List — ${esc(c.name)}</title>
+<link href="https://fonts.googleapis.com/css2?family=Laila:wght@400;700&family=DM+Sans:wght@400;700&display=swap" rel="stylesheet">
+<style>
+*{box-sizing:border-box;margin:0;padding:0}
+body{font-family:'DM Sans',sans-serif;color:#1a1a2e;padding:2rem;max-width:800px;margin:0 auto;font-size:13px}
+h1,h2,h3{font-family:'Laila',serif}
+.header{display:flex;justify-content:space-between;align-items:flex-start;margin-bottom:1.5rem}
+.header img{max-height:55px}
+.title-block h2{font-size:1.4rem;color:#182059}
+.title-block p{color:#6b7280;font-size:.85rem;margin-top:.25rem}
+table{width:100%;border-collapse:collapse;margin-bottom:1.5rem}
+th{background:#182059;color:#fff;padding:.45rem .65rem;text-align:left;font-family:'Laila',serif;font-size:.82rem}
+td{padding:.4rem .65rem;border-bottom:1px solid #dde1ee;font-size:.85rem;vertical-align:top}
+.cat-hdr td{background:#edf0fb;font-weight:700;font-family:'Laila',serif;color:#182059;font-size:.78rem;text-transform:uppercase;letter-spacing:.05em}
+.note{color:#6b7280;font-size:.75rem}
+.footer{border-top:1px solid #dde1ee;padding-top:.75rem;font-size:.78rem;color:#6b7280;margin-top:1rem}
+.print-btn{position:fixed;bottom:1.5rem;right:1.5rem;background:#5DD600;color:#182059;font-family:'Laila',serif;font-weight:700;font-size:1rem;padding:.65rem 1.5rem;border:none;border-radius:6px;cursor:pointer}
+.legend{font-size:.75rem;color:#6b7280;margin-bottom:.75rem}
+@media print{.print-btn{display:none}}
+</style></head><body>
+<div class="header">
+  <img src="${logoSrc}" alt="Take Pride">
+  <div class="title-block">
+    <h2>Price List</h2>
+    <p>${esc(c.name)}</p>
+    <p>Generated: ${esc(fmtDate(today()))}</p>
+  </div>
+</div>
+<p class="legend">* Custom price for this client</p>
+<table>
+<thead><tr><th>Product #</th><th>Description</th><th>Unit</th><th style="text-align:right">Price</th></tr></thead>
+<tbody>${rows}</tbody>
+</table>
+<div class="footer">
+  <p>Prices current as of ${esc(fmtDate(today()))}. Excludes Manitoba taxes: PST 7% + GST 5%.</p>
+</div>
+<button class="print-btn" onclick="window.print()">Print / Save as PDF</button>
+</body></html>`;
+
+  const win = window.open('', '_blank');
+  win.document.write(html);
+  win.document.close();
+}
+
+// ══════════════════════════════════
+// INIT
+// ══════════════════════════════════
+
+// Set logo on splash
+document.getElementById('splash-logo').src = 'data:image/webp;base64,' + LOGO_B64;
+
+// Close modals on overlay click
+document.querySelectorAll('.overlay').forEach(ov => {
+  ov.addEventListener('click', e => {
+    if (e.target === ov) closeModal(ov.id);
+  });
+});
+
+</script>
+</body>
+</html>

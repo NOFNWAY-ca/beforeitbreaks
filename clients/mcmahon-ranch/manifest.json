@@ -1,0 +1,9 @@
+{
+  "name": "McMahon Ranch",
+  "short_name": "McMahon Ranch",
+  "start_url": "./mcmahon-ranch.html",
+  "display": "standalone",
+  "background_color": "#f6f2eb",
+  "theme_color": "#2c1a0e",
+  "description": "Offline-first ranch management for cattle, inventory, health, and reporting."
+}

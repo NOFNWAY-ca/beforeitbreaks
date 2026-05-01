@@ -1,0 +1,2327 @@
+<!DOCTYPE html>
+<html lang="en" data-theme="dark">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>[FN] Festival Command</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Oswald:wght@400;500;600;700&family=Source+Sans+3:wght@400;500;600&display=swap" rel="stylesheet">
+  <style>
+    /* ── Reset ─────────────────────────────────────────── */
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+    /* ── Color system ───────────────────────────────────── */
+    :root {
+      --bg: #1a1612;
+      --surface: #241f1a;
+      --surface2: #2e2720;
+      --border: #3d3529;
+      --border2: #4a4035;
+      --text: #f0ebe4;
+      --muted: #8a7d6e;
+      --brand: #c8841a;
+      --brand-lit: #e89f3a;
+      --success: #4a9e6a;
+      --warn: #c8841a;
+      --danger: #c84040;
+      --danger-bg: #3d1a1a;
+      --success-bg: #1a3d2a;
+      --shadow: rgba(0,0,0,0.4);
+    }
+    [data-theme="light"] {
+      --bg: #f5f0eb;
+      --surface: #ffffff;
+      --surface2: #f0ebe4;
+      --border: #ddd5c8;
+      --border2: #ccc4b5;
+      --text: #2a2018;
+      --muted: #7a6e60;
+      --brand: #b07015;
+      --brand-lit: #c8841a;
+      --success: #2e7a4a;
+      --warn: #b07015;
+      --danger: #b03030;
+      --danger-bg: #fde8e8;
+      --success-bg: #e8f5ee;
+      --shadow: rgba(0,0,0,0.15);
+    }
+
+    /* ── Base ───────────────────────────────────────────── */
+    body {
+      font-family: 'Source Sans 3', sans-serif;
+      font-size: 15px;
+      background: var(--bg);
+      color: var(--text);
+      min-height: 100vh;
+      line-height: 1.4;
+    }
+
+    /* ── Header ─────────────────────────────────────────── */
+    #site-header {
+      background: var(--bg);
+      border-bottom: 2px solid var(--brand);
+      padding: 12px 20px;
+      display: flex;
+      align-items: center;
+      gap: 16px;
+      position: sticky;
+      top: 0;
+      z-index: 100;
+    }
+    [data-theme="light"] #site-header { background: var(--surface); }
+
+    .header-brand { flex: 1; min-width: 0; }
+    .header-brand .fn    { color: var(--brand); font-family: 'Oswald', sans-serif; font-size: 22px; font-weight: 700; }
+    .header-brand .title { font-family: 'Oswald', sans-serif; font-size: 22px; font-weight: 700; color: var(--text); }
+    .header-brand .subtitle { font-size: 12px; color: var(--muted); margin-top: 1px; }
+
+    .header-clock {
+      font-family: 'Oswald', sans-serif;
+      font-size: 22px;
+      font-weight: 500;
+      letter-spacing: 2px;
+      min-width: 110px;
+      text-align: center;
+    }
+
+    .header-controls { display: flex; gap: 8px; align-items: center; }
+
+    .icon-btn {
+      background: none;
+      border: 1px solid var(--border);
+      color: var(--muted);
+      border-radius: 4px;
+      width: 34px;
+      height: 34px;
+      cursor: pointer;
+      font-size: 16px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      transition: border-color 0.15s, color 0.15s;
+    }
+    .icon-btn:hover { border-color: var(--brand); color: var(--brand); }
+
+    /* ── Nav ────────────────────────────────────────────── */
+    #site-nav {
+      background: var(--surface);
+      border-bottom: 1px solid var(--border);
+      padding: 0 20px;
+      display: flex;
+    }
+
+    .nav-tab {
+      font-family: 'Oswald', sans-serif;
+      font-size: 13px;
+      font-weight: 500;
+      letter-spacing: 0.08em;
+      text-transform: uppercase;
+      padding: 12px 18px;
+      cursor: pointer;
+      color: var(--muted);
+      border: none;
+      background: none;
+      border-bottom: 2px solid transparent;
+      margin-bottom: -1px;
+      transition: color 0.15s, border-color 0.15s;
+    }
+    .nav-tab:hover { color: var(--text); }
+    .nav-tab.active { color: var(--brand); border-bottom-color: var(--brand); }
+
+    /* ── Main ───────────────────────────────────────────── */
+    #main { padding: 20px; max-width: 1400px; margin: 0 auto; }
+    .module { display: none; }
+    .module.active { display: block; }
+
+    /* ── Cards ──────────────────────────────────────────── */
+    .card {
+      background: var(--surface);
+      border: 1px solid var(--border);
+      border-radius: 6px;
+      padding: 16px;
+    }
+
+    /* ── Stat cards ─────────────────────────────────────── */
+    .stats-row { display: flex; gap: 12px; margin-bottom: 16px; flex-wrap: wrap; }
+    .stat-card {
+      background: var(--surface);
+      border: 1px solid var(--border);
+      border-radius: 6px;
+      padding: 14px 20px;
+      min-width: 130px;
+    }
+    .stat-card .stat-value {
+      font-family: 'Oswald', sans-serif;
+      font-size: 28px;
+      font-weight: 600;
+      line-height: 1;
+    }
+    .stat-card .stat-label {
+      font-size: 11px;
+      font-family: 'Oswald', sans-serif;
+      text-transform: uppercase;
+      letter-spacing: 0.06em;
+      color: var(--muted);
+      margin-top: 4px;
+    }
+    .stat-card.brand   .stat-value { color: var(--brand); }
+    .stat-card.success .stat-value { color: var(--success); }
+    .stat-card.danger  .stat-value { color: var(--danger); }
+    .stat-card.warn    .stat-value { color: var(--warn); }
+
+    /* ── Buttons ─────────────────────────────────────────── */
+    .btn {
+      font-family: 'Source Sans 3', sans-serif;
+      font-size: 14px;
+      font-weight: 600;
+      padding: 8px 14px;
+      border-radius: 4px;
+      border: 1px solid transparent;
+      cursor: pointer;
+      transition: opacity 0.15s;
+      display: inline-flex;
+      align-items: center;
+      gap: 6px;
+      white-space: nowrap;
+    }
+    .btn:hover { opacity: 0.85; }
+    .btn-primary { background: var(--brand); color: #fff; border-color: var(--brand); }
+    .btn-ghost   { background: none; border-color: var(--border); color: var(--text); }
+    .btn-ghost:hover { border-color: var(--brand); color: var(--brand); opacity: 1; }
+    .btn-danger  { background: var(--danger); color: #fff; border-color: var(--danger); }
+    .btn-success { background: var(--success); color: #fff; border-color: var(--success); }
+    .btn-sm { font-size: 12px; padding: 5px 10px; }
+    .btn-lg { font-size: 16px; padding: 11px 20px; }
+
+    /* ── Tables ─────────────────────────────────────────── */
+    .table-wrap { overflow-x: auto; }
+    table { width: 100%; border-collapse: collapse; }
+    thead th {
+      background: var(--surface2);
+      font-family: 'Oswald', sans-serif;
+      font-size: 12px;
+      font-weight: 500;
+      text-transform: uppercase;
+      letter-spacing: 0.06em;
+      color: var(--muted);
+      padding: 10px 12px;
+      text-align: left;
+      border-bottom: 1px solid var(--border);
+      white-space: nowrap;
+    }
+    tbody td {
+      padding: 10px 12px;
+      border-bottom: 1px solid var(--border);
+      font-size: 14px;
+      vertical-align: middle;
+    }
+    tbody tr:last-child td { border-bottom: none; }
+    tbody tr:hover { background: var(--surface2); }
+
+    /* ── Toolbar ─────────────────────────────────────────── */
+    .toolbar {
+      display: flex;
+      gap: 8px;
+      align-items: center;
+      flex-wrap: wrap;
+      margin-bottom: 12px;
+    }
+    .toolbar-right { margin-left: auto; display: flex; gap: 8px; }
+
+    /* ── Forms ──────────────────────────────────────────── */
+    input[type="text"], input[type="number"], input[type="tel"],
+    input[type="time"], input[type="date"], input[type="datetime-local"],
+    select, textarea {
+      background: var(--surface2);
+      border: 1px solid var(--border);
+      color: var(--text);
+      font-family: 'Source Sans 3', sans-serif;
+      font-size: 14px;
+      padding: 8px 10px;
+      border-radius: 4px;
+      width: 100%;
+      outline: none;
+      transition: border-color 0.15s;
+    }
+    input:focus, select:focus, textarea:focus { border-color: var(--brand); }
+    textarea { resize: vertical; min-height: 72px; }
+    select option { background: var(--surface2); }
+
+    .form-group { margin-bottom: 14px; }
+    .form-group label {
+      display: block;
+      font-size: 11px;
+      font-family: 'Oswald', sans-serif;
+      text-transform: uppercase;
+      letter-spacing: 0.06em;
+      color: var(--muted);
+      margin-bottom: 5px;
+    }
+    .form-row { display: flex; gap: 12px; }
+    .form-row .form-group { flex: 1; }
+
+    /* ── Modals ─────────────────────────────────────────── */
+    .modal-overlay {
+      display: none;
+      position: fixed;
+      inset: 0;
+      background: rgba(0,0,0,0.65);
+      z-index: 200;
+      align-items: flex-start;
+      justify-content: center;
+      padding: 40px 16px;
+      overflow-y: auto;
+    }
+    .modal-overlay.open { display: flex; }
+    .modal {
+      background: var(--surface);
+      border: 1px solid var(--border);
+      border-radius: 8px;
+      width: 100%;
+      max-width: 520px;
+      padding: 24px;
+      position: relative;
+      margin: auto;
+    }
+    .modal-header {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      margin-bottom: 20px;
+    }
+    .modal-title {
+      font-family: 'Oswald', sans-serif;
+      font-size: 18px;
+      font-weight: 600;
+    }
+    .modal-close {
+      background: none;
+      border: none;
+      color: var(--muted);
+      font-size: 20px;
+      cursor: pointer;
+      padding: 2px 6px;
+      border-radius: 3px;
+      line-height: 1;
+    }
+    .modal-close:hover { color: var(--text); }
+    .modal-footer {
+      display: flex;
+      gap: 8px;
+      justify-content: flex-end;
+      margin-top: 20px;
+      padding-top: 16px;
+      border-top: 1px solid var(--border);
+      flex-wrap: wrap;
+    }
+    .modal-footer-left { margin-right: auto; }
+
+    /* ── Toast ──────────────────────────────────────────── */
+    #toast-container {
+      position: fixed;
+      bottom: 24px;
+      left: 50%;
+      transform: translateX(-50%);
+      z-index: 400;
+      display: flex;
+      flex-direction: column;
+      gap: 8px;
+      align-items: center;
+      pointer-events: none;
+    }
+    .toast {
+      background: var(--surface2);
+      border: 1px solid var(--border2);
+      color: var(--text);
+      padding: 10px 18px;
+      border-radius: 6px;
+      font-size: 14px;
+      box-shadow: 0 4px 12px var(--shadow);
+      animation: toast-in 0.2s ease;
+      white-space: nowrap;
+    }
+    @keyframes toast-in {
+      from { opacity: 0; transform: translateY(8px); }
+      to   { opacity: 1; transform: translateY(0); }
+    }
+
+    /* ── confirm2 ───────────────────────────────────────── */
+    #confirm2-overlay {
+      display: none;
+      position: fixed;
+      inset: 0;
+      background: rgba(0,0,0,0.65);
+      z-index: 500;
+      align-items: center;
+      justify-content: center;
+    }
+    #confirm2-overlay.open { display: flex; }
+    #confirm2-box {
+      background: var(--surface);
+      border: 1px solid var(--border);
+      border-radius: 8px;
+      padding: 28px 24px;
+      max-width: 360px;
+      width: 90%;
+    }
+    #confirm2-title { font-family: 'Oswald', sans-serif; font-size: 17px; font-weight: 600; margin-bottom: 10px; }
+    #confirm2-msg   { font-size: 14px; color: var(--muted); margin-bottom: 22px; line-height: 1.5; }
+    #confirm2-btns  { display: flex; gap: 10px; justify-content: flex-end; }
+
+    /* ── Settings panel ─────────────────────────────────── */
+    #settings-overlay {
+      display: none;
+      position: fixed;
+      inset: 0;
+      background: rgba(0,0,0,0.4);
+      z-index: 300;
+    }
+    #settings-overlay.open { display: block; }
+    #settings-panel {
+      position: fixed;
+      top: 0;
+      right: -340px;
+      width: 320px;
+      height: 100vh;
+      background: var(--surface);
+      border-left: 1px solid var(--border);
+      z-index: 301;
+      padding: 24px;
+      overflow-y: auto;
+      transition: right 0.25s ease;
+    }
+    #settings-panel.open { right: 0; }
+    .settings-header {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      margin-bottom: 24px;
+    }
+    .settings-title {
+      font-family: 'Oswald', sans-serif;
+      font-size: 16px;
+      font-weight: 600;
+      text-transform: uppercase;
+      letter-spacing: 0.06em;
+    }
+
+    /* ── Badges ─────────────────────────────────────────── */
+    .badge {
+      display: inline-block;
+      font-size: 11px;
+      font-family: 'Oswald', sans-serif;
+      font-weight: 500;
+      text-transform: uppercase;
+      letter-spacing: 0.04em;
+      padding: 2px 7px;
+      border-radius: 3px;
+    }
+    .badge-success { background: var(--success-bg); color: var(--success); }
+    .badge-warn    { background: var(--danger-bg);  color: var(--warn); }
+    .badge-danger  { background: var(--danger-bg);  color: var(--danger); border: 1px solid var(--danger); }
+    .badge-muted   { background: var(--surface2);   color: var(--muted); border: 1px solid var(--border); }
+    .badge-auto    { background: var(--surface2);   color: var(--brand); border: 1px solid var(--brand); font-size: 10px; }
+    .badge-open    { background: var(--danger-bg);  color: var(--danger); }
+    .badge-resolved { background: var(--success-bg); color: var(--success); }
+
+    /* ── Checkbox ───────────────────────────────────────── */
+    input[type="checkbox"] {
+      width: 16px;
+      height: 16px;
+      accent-color: var(--brand);
+      cursor: pointer;
+    }
+
+    /* ── Utilities ──────────────────────────────────────── */
+    .text-muted   { color: var(--muted); }
+    .text-brand   { color: var(--brand); }
+    .text-success { color: var(--success); }
+    .text-danger  { color: var(--danger); }
+    .text-warn    { color: var(--warn); }
+    hr.divider    { border: none; border-top: 1px solid var(--border); margin: 16px 0; }
+
+    /* ── Print ──────────────────────────────────────────── */
+    @media print {
+      #site-header, #site-nav, .no-print { display: none !important; }
+      body { background: white; color: black; font-size: 12px; }
+      .print-only { display: block !important; }
+      .card, .stat-card { background: white !important; border: 1px solid #ccc; page-break-inside: avoid; }
+      thead th { background: #f0f0f0 !important; color: black !important; }
+      tbody tr:hover { background: none !important; }
+    }
+    .print-only { display: none; }
+
+    /* ── Touch targets ──────────────────────────────────── */
+    @media (hover: none) and (pointer: coarse) {
+      .btn    { min-height: 44px; }
+      .nav-tab { min-height: 44px; }
+      input[type="checkbox"] { width: 20px; height: 20px; }
+    }
+
+    /* ── Mobile layout ───────────────────────────────────── */
+    @media (max-width: 768px) {
+      .budget-grid { grid-template-columns: 1fr; }
+      .stats-row { gap: 8px; }
+      .stat-card { min-width: 100px; padding: 10px 12px; }
+      .stat-card .stat-value { font-size: 22px; }
+      #main { padding: 12px; }
+      .toolbar { gap: 6px; }
+      .sched-grid-body { overflow-x: auto; -webkit-overflow-scrolling: touch; }
+      .sched-areas { min-width: 560px; }
+    }
+
+    /* ── Active now event ────────────────────────────────── */
+    .sched-event.active-now {
+      outline: 2px solid var(--brand-lit);
+      outline-offset: -1px;
+      z-index: 2;
+    }
+
+    /* ── Schedule grid ──────────────────────────────────── */
+    .sched-col-headers {
+      display: flex;
+      border-bottom: 1px solid var(--border);
+      background: var(--surface2);
+    }
+    .sched-col-hdr {
+      flex: 1;
+      font-family: 'Oswald', sans-serif;
+      font-size: 12px;
+      text-transform: uppercase;
+      letter-spacing: 0.06em;
+      color: var(--brand);
+      padding: 8px 10px;
+      text-align: center;
+      border-left: 1px solid var(--border);
+    }
+    .sched-grid-body {
+      display: flex;
+      overflow-y: auto;
+      max-height: 72vh;
+    }
+    .sched-time-col {
+      width: 52px;
+      flex-shrink: 0;
+      position: relative;
+    }
+    .sched-time-label {
+      position: absolute;
+      right: 6px;
+      font-size: 10px;
+      font-family: 'Oswald', sans-serif;
+      color: var(--muted);
+      transform: translateY(-50%);
+      white-space: nowrap;
+      line-height: 1;
+    }
+    .sched-areas {
+      flex: 1;
+      display: flex;
+      position: relative;
+    }
+    .sched-area-col {
+      flex: 1;
+      position: relative;
+      border-left: 1px solid var(--border);
+    }
+    .sched-grid-line {
+      position: absolute;
+      left: 0;
+      right: 0;
+      border-top: 1px solid var(--border);
+      pointer-events: none;
+    }
+    .sched-grid-line.hour { border-top-color: var(--border2); }
+    .sched-event {
+      position: absolute;
+      border-radius: 3px;
+      padding: 4px 6px;
+      cursor: pointer;
+      overflow: hidden;
+      transition: opacity 0.15s;
+      border-left: 3px solid transparent;
+      min-height: 22px;
+    }
+    .sched-event:hover { opacity: 0.75; }
+    .sched-event.confirmed { background: var(--success-bg); border-left-color: var(--success); color: var(--success); }
+    .sched-event.tentative { background: var(--danger-bg);  border-left-color: var(--warn);    color: var(--warn); }
+    .sched-event.cancelled { background: var(--surface2);   border-left-color: var(--danger);  color: var(--muted); }
+    .sched-event .ev-name  { font-weight: 600; font-size: 11px; line-height: 1.3; display: block; }
+    .sched-event .ev-time  { font-size: 10px; opacity: 0.75; display: block; }
+    .sched-event.cancelled .ev-name { text-decoration: line-through; }
+    .sched-now-line {
+      position: absolute;
+      left: 0;
+      right: 0;
+      height: 2px;
+      background: var(--danger);
+      z-index: 5;
+      pointer-events: none;
+    }
+    .sched-now-line::before {
+      content: '';
+      position: absolute;
+      left: -5px;
+      top: -4px;
+      width: 10px;
+      height: 10px;
+      background: var(--danger);
+      border-radius: 50%;
+    }
+    .day-tabs { display: flex; gap: 4px; }
+
+    /* ── Budget ─────────────────────────────────────────── */
+    .budget-grid {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 16px;
+      margin-bottom: 16px;
+    }
+    @media (max-width: 900px) { .budget-grid { grid-template-columns: 1fr; } }
+
+    /* ── Vendors ────────────────────────────────────────── */
+    tbody tr.row-unpaid { background: rgba(200, 132, 26, 0.06); }
+    tbody tr.row-unpaid td:first-child { box-shadow: inset 3px 0 0 var(--warn); }
+
+    @media print {
+      .sched-grid-body { display: none !important; }
+      .sched-print-table { display: table !important; width: 100%; border-collapse: collapse; margin-top: 12px; }
+      .sched-print-table th, .sched-print-table td { border: 1px solid #ccc; padding: 6px 10px; font-size: 11px; text-align: left; }
+      .sched-print-table th { font-family: 'Oswald', sans-serif; background: #f0f0f0; }
+    }
+
+  </style>
+</head>
+<body>
+
+<!-- ── Header ──────────────────────────────────────────── -->
+<header id="site-header">
+  <div class="header-brand">
+    <div><span class="fn">[FN]</span><span class="title"> FESTIVAL COMMAND</span></div>
+    <div class="subtitle" id="header-subtitle">Harvest &amp; Holler · Millwood, MB · Aug 9–10, 2025</div>
+  </div>
+  <div class="header-clock" id="clock">00:00:00</div>
+  <div class="header-controls">
+    <button class="icon-btn" id="theme-toggle" title="Toggle theme">☀</button>
+    <button class="icon-btn" id="settings-btn" title="Settings">⚙</button>
+  </div>
+</header>
+
+<!-- ── Nav ─────────────────────────────────────────────── -->
+<nav id="site-nav">
+  <button class="nav-tab active" data-tab="schedule">Schedule</button>
+  <button class="nav-tab" data-tab="vendors">Vendors</button>
+  <button class="nav-tab" data-tab="volunteers">Volunteers</button>
+  <button class="nav-tab" data-tab="budget">Budget</button>
+  <button class="nav-tab" data-tab="incidents">Incidents</button>
+</nav>
+
+<!-- ── Modules ─────────────────────────────────────────── -->
+<main id="main">
+  <div id="mod-schedule"   class="module active"></div>
+  <div id="mod-vendors"    class="module"></div>
+  <div id="mod-volunteers" class="module"></div>
+  <div id="mod-budget"     class="module"></div>
+  <div id="mod-incidents"  class="module"></div>
+</main>
+
+<!-- ── Settings panel ──────────────────────────────────── -->
+<div id="settings-overlay"></div>
+<aside id="settings-panel">
+  <div class="settings-header">
+    <div class="settings-title">Settings</div>
+    <button class="icon-btn" id="settings-close">✕</button>
+  </div>
+  <div class="form-group">
+    <label>Event Name</label>
+    <input type="text" id="s-event-name">
+  </div>
+  <div class="form-group">
+    <label>Subtitle / Location</label>
+    <input type="text" id="s-subtitle">
+  </div>
+  <div class="form-row">
+    <div class="form-group">
+      <label>Day 1 Date</label>
+      <input type="date" id="s-day1">
+    </div>
+    <div class="form-group">
+      <label>Day 2 Date</label>
+      <input type="date" id="s-day2">
+    </div>
+  </div>
+  <button class="btn btn-primary" style="width:100%;margin-bottom:10px;" id="s-save-btn">Save Changes</button>
+  <hr class="divider">
+  <button class="btn btn-ghost" style="width:100%;margin-bottom:10px;" id="s-export-btn">Export Data (JSON)</button>
+  <div style="margin-bottom:10px">
+    <label style="display:block;font-size:11px;font-family:'Oswald',sans-serif;text-transform:uppercase;letter-spacing:0.06em;color:var(--muted);margin-bottom:6px">Import Backup (.json)</label>
+    <input type="file" id="s-import-file" accept=".json" style="width:100%;margin-bottom:6px;font-size:13px;color:var(--text)">
+    <button class="btn btn-ghost" style="width:100%;" id="s-import-btn">Import Data</button>
+  </div>
+  <button class="btn btn-danger" style="width:100%;" id="s-reset-btn">Reset to Seed Data</button>
+</aside>
+
+<!-- ── Toast ───────────────────────────────────────────── -->
+<div id="toast-container"></div>
+
+<!-- ── confirm2 ────────────────────────────────────────── -->
+<div id="confirm2-overlay">
+  <div id="confirm2-box">
+    <div id="confirm2-title"></div>
+    <div id="confirm2-msg"></div>
+    <div id="confirm2-btns">
+      <button class="btn btn-ghost btn-sm" id="confirm2-cancel">Cancel</button>
+      <button class="btn btn-danger btn-sm" id="confirm2-ok">Confirm</button>
+    </div>
+  </div>
+</div>
+
+<script>
+'use strict';
+
+const DATA_VERSION = 1;
+const MAX_EVENTS   = 500;
+
+// ── Utilities ───────────────────────────────────────────
+
+function uid() { return Math.random().toString(16).slice(2, 10); }
+function today() { return new Date().toISOString().slice(0, 10); }
+
+function fmt$(n) {
+  n = Number(n) || 0;
+  return '$' + n.toLocaleString('en-CA', { minimumFractionDigits: 2, maximumFractionDigits: 2 });
+}
+
+function fmtTime(t) {
+  if (!t) return '';
+  const [h, m] = t.split(':').map(Number);
+  const ampm = h >= 12 ? 'PM' : 'AM';
+  const hour = h % 12 || 12;
+  return `${hour}:${String(m).padStart(2, '0')} ${ampm}`;
+}
+
+function toast(msg) {
+  const el = document.createElement('div');
+  el.className = 'toast';
+  el.textContent = msg;
+  document.getElementById('toast-container').appendChild(el);
+  setTimeout(() => el.remove(), 2600);
+}
+
+function openModal(id)  { document.getElementById(id).classList.add('open'); }
+function closeModal(id) { document.getElementById(id).classList.remove('open'); }
+
+let _c2cb = null;
+function confirm2(title, msg, onConfirm) {
+  document.getElementById('confirm2-title').textContent = title;
+  document.getElementById('confirm2-msg').textContent   = msg;
+  _c2cb = onConfirm;
+  document.getElementById('confirm2-overlay').classList.add('open');
+}
+document.getElementById('confirm2-ok').addEventListener('click', () => {
+  document.getElementById('confirm2-overlay').classList.remove('open');
+  if (_c2cb) { _c2cb(); _c2cb = null; }
+});
+document.getElementById('confirm2-cancel').addEventListener('click', () => {
+  document.getElementById('confirm2-overlay').classList.remove('open');
+  _c2cb = null;
+});
+
+
+// ── Storage ─────────────────────────────────────────────
+
+const KEYS = {
+  meta:       'fnfc_meta',
+  schedule:   'fnfc_schedule',
+  vendors:    'fnfc_vendors',
+  volunteers: 'fnfc_volunteers',
+  budget:     'fnfc_budget',
+  incidents:  'fnfc_incidents',
+  theme:      'fnfc_theme',
+};
+
+function load(key) {
+  try { return JSON.parse(localStorage.getItem(key)); } catch { return null; }
+}
+function save(key, val) {
+  localStorage.setItem(key, JSON.stringify(val));
+  if (key !== KEYS.theme) localStorage.setItem('fnfc_lastSaved', Date.now());
+}
+
+
+// ── Seed data ───────────────────────────────────────────
+
+const SEED_META = {
+  eventName: '[FN] Festival Command',
+  subtitle:  'Harvest & Holler · Millwood, MB · Aug 9–10, 2025',
+  day1: '2025-08-09',
+  day2: '2025-08-10',
+  version:   DATA_VERSION,
+};
+
+const SEED_SCHEDULE = [
+  // Day 1
+  { id:uid(), area:'Main Stage',     day:1, startTime:'12:00', endTime:'13:00', name:'Millwood Fiddle Club',             description:'', status:'confirmed' },
+  { id:uid(), area:'Main Stage',     day:1, startTime:'14:00', endTime:'15:30', name:'The Prairiefire Band',             description:'', status:'confirmed' },
+  { id:uid(), area:'Main Stage',     day:1, startTime:'17:00', endTime:'18:00', name:'Opening Ceremonies & Dignitaries', description:'', status:'confirmed' },
+  { id:uid(), area:'Main Stage',     day:1, startTime:'19:00', endTime:'21:00', name:'Dusty Creek',                      description:'', status:'confirmed' },
+  { id:uid(), area:'Main Stage',     day:1, startTime:'21:30', endTime:'23:00', name:'Late Night Jam',                  description:'', status:'tentative' },
+  { id:uid(), area:'Ag Ring',        day:1, startTime:'10:00', endTime:'11:30', name:'4-H Beef Showmanship',             description:'', status:'confirmed' },
+  { id:uid(), area:'Ag Ring',        day:1, startTime:'13:00', endTime:'15:00', name:'Draft Horse Pull',                 description:'', status:'confirmed' },
+  { id:uid(), area:'Ag Ring',        day:1, startTime:'16:00', endTime:'17:30', name:"Kids' Mutton Bustin'",             description:'', status:'confirmed' },
+  { id:uid(), area:'Community Hall', day:1, startTime:'09:00', endTime:'12:00', name:'Baking & Preserves Judging',       description:'', status:'confirmed' },
+  { id:uid(), area:'Community Hall', day:1, startTime:'13:00', endTime:'16:00', name:'Quilt Show & Silent Auction',      description:'', status:'confirmed' },
+  { id:uid(), area:'Community Hall', day:1, startTime:'18:00', endTime:'21:00', name:'Harvest Supper (ticketed)',        description:'', status:'confirmed' },
+  { id:uid(), area:'Midway',         day:1, startTime:'11:00', endTime:'22:00', name:'Midway & Rides Open',              description:'', status:'confirmed' },
+  // Day 2
+  { id:uid(), area:'Main Stage',     day:2, startTime:'11:00', endTime:'12:30', name:'The Steinbach String Quartet',     description:'', status:'confirmed' },
+  { id:uid(), area:'Main Stage',     day:2, startTime:'14:00', endTime:'15:30', name:'River Road Ramblers',              description:'', status:'confirmed' },
+  { id:uid(), area:'Main Stage',     day:2, startTime:'17:00', endTime:'18:30', name:'Local Talent Showcase',            description:'', status:'confirmed' },
+  { id:uid(), area:'Main Stage',     day:2, startTime:'19:30', endTime:'22:00', name:'Coral Wiebe & The Harvest Kings',  description:'', status:'confirmed' },
+  { id:uid(), area:'Ag Ring',        day:2, startTime:'09:00', endTime:'11:00', name:'Open Horse Show',                  description:'', status:'confirmed' },
+  { id:uid(), area:'Ag Ring',        day:2, startTime:'13:00', endTime:'14:30', name:'4-H Dairy Showmanship',            description:'', status:'confirmed' },
+  { id:uid(), area:'Ag Ring',        day:2, startTime:'15:00', endTime:'17:00', name:'Tractor Pull — Garden Tractor Class', description:'', status:'confirmed' },
+  { id:uid(), area:'Community Hall', day:2, startTime:'10:00', endTime:'12:00', name:'Pie Contest Judging',              description:'', status:'confirmed' },
+  { id:uid(), area:'Community Hall', day:2, startTime:'13:00', endTime:'16:00', name:'Photography & Art Exhibit',        description:'', status:'confirmed' },
+  { id:uid(), area:'Midway',         day:2, startTime:'11:00', endTime:'21:00', name:'Midway & Rides Open',              description:'', status:'confirmed' },
+];
+
+const SEED_VENDORS = [
+  { id:uid(), booth:'1',  name:"Friesen's Fry Shack",    category:'Food',    contactName:'Dale Friesen',   contactPhone:'', fee:175, paid:true,  notes:'Requires 20A power' },
+  { id:uid(), booth:'2',  name:'Klassen Kettle Corn',    category:'Food',    contactName:'Barb Klassen',   contactPhone:'', fee:175, paid:true,  notes:'' },
+  { id:uid(), booth:'3',  name:'Penner Perogies',        category:'Food',    contactName:'Tim Penner',     contactPhone:'', fee:175, paid:true,  notes:'Vegetarian options' },
+  { id:uid(), booth:'4',  name:"Reimer's Ribs",          category:'Food',    contactName:'Shawn Reimer',   contactPhone:'', fee:200, paid:true,  notes:'Needs large footprint' },
+  { id:uid(), booth:'5',  name:'Neufeld Lemonade',       category:'Food',    contactName:'Sara Neufeld',   contactPhone:'', fee:125, paid:false, notes:'First-time vendor' },
+  { id:uid(), booth:'6',  name:'Millwood Brewing',       category:'Food',    contactName:'Jake Unger',     contactPhone:'', fee:250, paid:true,  notes:'Requires licensed area' },
+  { id:uid(), booth:'7',  name:'Prairie Honey Co.',      category:'Craft',   contactName:'Lynn Dueck',     contactPhone:'', fee:100, paid:true,  notes:'' },
+  { id:uid(), booth:'8',  name:'Wiebe Woodcraft',        category:'Craft',   contactName:'Paul Wiebe',     contactPhone:'', fee:100, paid:true,  notes:'' },
+  { id:uid(), booth:'9',  name:'Hildebrand Quilts',      category:'Craft',   contactName:'Rose Hildebrand',contactPhone:'', fee:100, paid:false, notes:'' },
+  { id:uid(), booth:'10', name:'Sun & Seed Soaps',       category:'Craft',   contactName:'Marta Doell',    contactPhone:'', fee:100, paid:true,  notes:'' },
+  { id:uid(), booth:'11', name:'Cornelsen Candles',      category:'Craft',   contactName:'Amy Cornelsen',  contactPhone:'', fee:100, paid:false, notes:'Waiting on payment' },
+  { id:uid(), booth:'12', name:'Steinbach Seeds',        category:'Ag',      contactName:'Grant Peters',   contactPhone:'', fee:150, paid:true,  notes:'Display only' },
+  { id:uid(), booth:'13', name:'Red River Co-op',        category:'Ag',      contactName:'Co-op Rep TBD',  contactPhone:'', fee:200, paid:true,  notes:'Sponsor-level presence' },
+  { id:uid(), booth:'14', name:"MB Cattlemen's Assoc.",  category:'Ag',      contactName:'Don Toews',      contactPhone:'', fee:150, paid:true,  notes:'' },
+  { id:uid(), booth:'15', name:'Harvest Equipment Ltd.', category:'Ag',      contactName:'Ron Kehler',     contactPhone:'', fee:200, paid:false, notes:'Invoice sent' },
+  { id:uid(), booth:'16', name:'Community Credit Union', category:'Sponsor', contactName:'Linda Fehr',     contactPhone:'', fee:500, paid:true,  notes:'Premier sponsor — banner rights' },
+  { id:uid(), booth:'17', name:'Millwood Co-op Gas',     category:'Sponsor', contactName:'Steve Bergen',   contactPhone:'', fee:350, paid:true,  notes:'Fuel sponsor' },
+  { id:uid(), booth:'18', name:"Braun's Hardware",       category:'Sponsor', contactName:'Ed Braun',       contactPhone:'', fee:250, paid:false, notes:'Verbal commitment' },
+];
+
+const SEED_VOLUNTEERS = [
+  { id:uid(), name:'Kevin Doell',       role:'Setup',            shift:'Day 1 AM', phone:'204-555-0121', notes:'', checkedIn:false },
+  { id:uid(), name:'Sandra Wiebe',      role:'Gate',             shift:'Day 1 AM', phone:'204-555-0134', notes:'', checkedIn:false },
+  { id:uid(), name:'Brian Penner',      role:'Gate',             shift:'Day 1 AM', phone:'204-555-0145', notes:'', checkedIn:false },
+  { id:uid(), name:'Cheryl Reimer',     role:'Information Booth',shift:'Day 1 AM', phone:'204-555-0158', notes:'', checkedIn:false },
+  { id:uid(), name:'Dan Friesen',       role:'Stage Crew',       shift:'Day 1 AM', phone:'204-555-0162', notes:'', checkedIn:false },
+  { id:uid(), name:'Lori Peters',       role:'First Aid',        shift:'Day 1 AM', phone:'204-555-0177', notes:'', checkedIn:false },
+  { id:uid(), name:'Mark Klassen',      role:'First Aid',        shift:'Day 1 AM', phone:'204-555-0183', notes:'', checkedIn:false },
+  { id:uid(), name:'Tina Neufeld',      role:'Gate',             shift:'Day 1 PM', phone:'204-555-0191', notes:'', checkedIn:false },
+  { id:uid(), name:'Jim Bergen',        role:'Stage Crew',       shift:'Day 1 PM', phone:'204-555-0204', notes:'', checkedIn:false },
+  { id:uid(), name:'Angie Dueck',       role:'Information Booth',shift:'Day 1 PM', phone:'204-555-0215', notes:'', checkedIn:false },
+  { id:uid(), name:'Ron Toews',         role:'General',          shift:'Day 1 PM', phone:'204-555-0228', notes:'', checkedIn:false },
+  { id:uid(), name:'Elaine Hildebrand', role:'Gate',             shift:'Day 2 AM', phone:'204-555-0233', notes:'', checkedIn:false },
+  { id:uid(), name:'Paul Unger',        role:'Setup',            shift:'Day 2 AM', phone:'204-555-0246', notes:'', checkedIn:false },
+  { id:uid(), name:'Grace Kehler',      role:'First Aid',        shift:'Day 2 AM', phone:'204-555-0251', notes:'', checkedIn:false },
+  { id:uid(), name:'Walt Cornelsen',    role:'Stage Crew',       shift:'Day 2 AM', phone:'204-555-0264', notes:'', checkedIn:false },
+  { id:uid(), name:'Deb Doell',         role:'Information Booth',shift:'Day 2 AM', phone:'204-555-0277', notes:'', checkedIn:false },
+  { id:uid(), name:'Steve Fehr',        role:'Gate',             shift:'Day 2 PM', phone:'204-555-0283', notes:'', checkedIn:false },
+  { id:uid(), name:'Karen Braun',       role:'General',          shift:'Day 2 PM', phone:'204-555-0291', notes:'', checkedIn:false },
+  { id:uid(), name:'Tyler Funk',        role:'Stage Crew',       shift:'Day 2 PM', phone:'204-555-0305', notes:'', checkedIn:false },
+  { id:uid(), name:'Judy Peters',       role:'Teardown',         shift:'Both Days',phone:'204-555-0318', notes:'', checkedIn:false },
+];
+
+function buildSeedBudget() {
+  const vendors = SEED_VENDORS;
+  const totalFees     = vendors.reduce((s, v) => s + Number(v.fee), 0);
+  const collectedFees = vendors.filter(v => v.paid).reduce((s, v) => s + Number(v.fee), 0);
+  return {
+    income: [
+      { id:uid(), category:'Gate',        description:'General Admission — Day 1',    budgeted:4500, actual:4820, notes:'', auto:false },
+      { id:uid(), category:'Gate',        description:'General Admission — Day 2',    budgeted:4000, actual:0,    notes:'', auto:false },
+      { id:uid(), category:'Gate',        description:'Harvest Supper Tickets',       budgeted:2400, actual:2400, notes:'', auto:false },
+      { id:uid(), category:'Sponsorship', description:'Community Credit Union',       budgeted:500,  actual:500,  notes:'', auto:false },
+      { id:uid(), category:'Sponsorship', description:'Millwood Co-op Gas',           budgeted:350,  actual:350,  notes:'', auto:false },
+      { id:uid(), category:'Sponsorship', description:"Braun's Hardware",             budgeted:250,  actual:0,    notes:'', auto:false },
+      { id:uid(), category:'Sponsorship', description:'Additional Sponsors (misc)',   budgeted:400,  actual:150,  notes:'', auto:false },
+      { id:uid(), category:'Midway',      description:'Midway Concession Cut',        budgeted:800,  actual:0,    notes:'', auto:false },
+      { id:'vendor-fees', category:'Vendors', description:'Vendor Booth Fees',        budgeted:totalFees, actual:collectedFees, notes:'', auto:true },
+    ],
+    expenses: [
+      { id:uid(), category:'Venue',         description:'Fairgrounds Rental — 2 days',            budgeted:1200, actual:1200, notes:'', auto:false },
+      { id:uid(), category:'Venue',         description:'Power / Generator Rental',               budgeted:850,  actual:920,  notes:'', auto:false },
+      { id:uid(), category:'Venue',         description:'Portable Toilets (×8, 2 days)',           budgeted:640,  actual:640,  notes:'', auto:false },
+      { id:uid(), category:'Talent',        description:'Main Stage Acts — Day 1',                budgeted:2500, actual:2500, notes:'', auto:false },
+      { id:uid(), category:'Talent',        description:'Main Stage Acts — Day 2',                budgeted:2500, actual:2200, notes:'', auto:false },
+      { id:uid(), category:'Talent',        description:'Sound & Lighting Crew',                  budgeted:1200, actual:1200, notes:'', auto:false },
+      { id:uid(), category:'Marketing',     description:'Print (posters, programs)',               budgeted:600,  actual:575,  notes:'', auto:false },
+      { id:uid(), category:'Marketing',     description:'Social & Digital Ads',                   budgeted:400,  actual:380,  notes:'', auto:false },
+      { id:uid(), category:'Operations',    description:'Permits & Licensing',                    budgeted:350,  actual:350,  notes:'', auto:false },
+      { id:uid(), category:'Operations',    description:'Security (2 days)',                      budgeted:900,  actual:900,  notes:'', auto:false },
+      { id:uid(), category:'Operations',    description:'First Aid Station Supplies',             budgeted:200,  actual:145,  notes:'', auto:false },
+      { id:uid(), category:'Operations',    description:'Volunteer Appreciation (meals, shirts)', budgeted:750,  actual:720,  notes:'', auto:false },
+      { id:uid(), category:'Miscellaneous', description:'Contingency / Misc.',                    budgeted:500,  actual:210,  notes:'', auto:false },
+    ],
+  };
+}
+
+const SEED_INCIDENTS = [
+  { id:uid(), type:'Lost Item', description:"Child's backpack, blue, left near Ag Ring entrance",           reportedBy:'Sarah Klassen',         location:'Ag Ring',     datetime:'2025-08-09T10:42', status:'resolved', resolution:'Returned to owner at info booth 11:15 AM' },
+  { id:uid(), type:'Incident',  description:'Vendor tent (Booth 4) collapsed — no injuries, tent re-staked',reportedBy:'Dan Friesen',           location:'Booth 4',     datetime:'2025-08-09T13:15', status:'resolved', resolution:'Tent secured, vendor back open by 1:45 PM' },
+  { id:uid(), type:'Medical',   description:'Attendee reported heat exhaustion — first aid attended',       reportedBy:'Lori Peters',           location:'Midway',      datetime:'2025-08-09T15:30', status:'resolved', resolution:'Treated on site, family notified, declined transport' },
+  { id:uid(), type:'Noise',     description:'Complaint from neighbouring property re: bass levels',         reportedBy:'Kevin Doell (security)',location:'Main Stage',   datetime:'2025-08-09T18:50', status:'open', resolution:'' },
+  { id:uid(), type:'Lost Item', description:'Wallet (brown leather) found near beer gardens',               reportedBy:'Jim Bergen',            location:'Beer Gardens', datetime:'2025-08-09T20:20', status:'open', resolution:'' },
+  { id:uid(), type:'Incident',  description:'Minor slip near Ag Ring wash station — no injury reported',    reportedBy:'Walt Cornelsen',        location:'Ag Ring',     datetime:'2025-08-10T09:55', status:'open', resolution:'' },
+];
+
+
+// ── Seed init ───────────────────────────────────────────
+
+function initSeeds() {
+  if (!load(KEYS.meta))       save(KEYS.meta,       SEED_META);
+  if (!load(KEYS.schedule))   save(KEYS.schedule,   SEED_SCHEDULE);
+  if (!load(KEYS.vendors))    save(KEYS.vendors,    SEED_VENDORS);
+  if (!load(KEYS.volunteers)) save(KEYS.volunteers, SEED_VOLUNTEERS);
+  if (!load(KEYS.budget))     save(KEYS.budget,     buildSeedBudget());
+  if (!load(KEYS.incidents))  save(KEYS.incidents,  SEED_INCIDENTS);
+}
+
+
+// ── Clock ───────────────────────────────────────────────
+
+function tickClock() {
+  const now = new Date();
+  const h = String(now.getHours()).padStart(2, '0');
+  const m = String(now.getMinutes()).padStart(2, '0');
+  const s = String(now.getSeconds()).padStart(2, '0');
+  document.getElementById('clock').textContent = `${h}:${m}:${s}`;
+}
+
+
+// ── Theme ───────────────────────────────────────────────
+
+function initTheme() {
+  const saved = load(KEYS.theme) || 'dark';
+  document.documentElement.setAttribute('data-theme', saved);
+  document.getElementById('theme-toggle').textContent = saved === 'dark' ? '☀' : '🌙';
+}
+
+document.getElementById('theme-toggle').addEventListener('click', () => {
+  const cur  = document.documentElement.getAttribute('data-theme');
+  const next = cur === 'dark' ? 'light' : 'dark';
+  document.documentElement.setAttribute('data-theme', next);
+  document.getElementById('theme-toggle').textContent = next === 'dark' ? '☀' : '🌙';
+  save(KEYS.theme, next);
+});
+
+
+// ── Tab routing ─────────────────────────────────────────
+
+let activeTab = 'schedule';
+
+function showTab(name) {
+  document.querySelectorAll('.nav-tab').forEach(t => t.classList.toggle('active', t.dataset.tab === name));
+  document.querySelectorAll('.module').forEach(m => m.classList.toggle('active', m.id === 'mod-' + name));
+  activeTab = name;
+  renderActiveModule();
+}
+
+document.querySelectorAll('.nav-tab').forEach(btn => {
+  btn.addEventListener('click', () => showTab(btn.dataset.tab));
+});
+
+function renderActiveModule() {
+  switch (activeTab) {
+    case 'schedule':   renderSchedule();   break;
+    case 'vendors':    renderVendors();    break;
+    case 'volunteers': renderVolunteers(); break;
+    case 'budget':     renderBudget();     break;
+    case 'incidents':  renderIncidents();  break;
+  }
+}
+
+
+// ── Settings ────────────────────────────────────────────
+
+function openSettings() {
+  const meta = load(KEYS.meta) || SEED_META;
+  document.getElementById('s-event-name').value = meta.eventName || '';
+  document.getElementById('s-subtitle').value   = meta.subtitle  || '';
+  document.getElementById('s-day1').value        = meta.day1      || '';
+  document.getElementById('s-day2').value        = meta.day2      || '';
+  document.getElementById('settings-overlay').classList.add('open');
+  document.getElementById('settings-panel').classList.add('open');
+}
+
+function closeSettings() {
+  document.getElementById('settings-overlay').classList.remove('open');
+  document.getElementById('settings-panel').classList.remove('open');
+}
+
+document.getElementById('settings-btn').addEventListener('click', openSettings);
+document.getElementById('settings-close').addEventListener('click', closeSettings);
+document.getElementById('settings-overlay').addEventListener('click', closeSettings);
+
+document.getElementById('s-save-btn').addEventListener('click', () => {
+  const meta = {
+    eventName: document.getElementById('s-event-name').value.trim(),
+    subtitle:  document.getElementById('s-subtitle').value.trim(),
+    day1:      document.getElementById('s-day1').value,
+    day2:      document.getElementById('s-day2').value,
+  };
+  save(KEYS.meta, meta);
+  updateHeader();
+  toast('Settings saved.');
+  closeSettings();
+});
+
+document.getElementById('s-export-btn').addEventListener('click', () => {
+  const data = {};
+  Object.entries(KEYS).forEach(([, k]) => { data[k] = load(k); });
+  const blob = new Blob([JSON.stringify(data, null, 2)], { type: 'application/json' });
+  const a = document.createElement('a');
+  a.href = URL.createObjectURL(blob);
+  a.download = 'harvest-holler-backup.json';
+  a.click();
+  URL.revokeObjectURL(a.href);
+  toast('Data exported.');
+});
+
+document.getElementById('s-import-btn').addEventListener('click', () => {
+  const file = document.getElementById('s-import-file').files[0];
+  if (!file) { toast('Select a .json backup file first.'); return; }
+  const reader = new FileReader();
+  reader.onload = e => {
+    try {
+      const data = JSON.parse(e.target.result);
+      const validKeys = Object.values(KEYS);
+      let restored = 0;
+      Object.entries(data).forEach(([k, v]) => {
+        if (validKeys.includes(k) && v !== null) { localStorage.setItem(k, JSON.stringify(v)); restored++; }
+      });
+      if (restored === 0) { toast('No valid data found in file.'); return; }
+      updateHeader();
+      renderActiveModule();
+      toast(`Imported ${restored} data blocks.`);
+      closeSettings();
+    } catch {
+      toast('Import failed: invalid JSON file.');
+    }
+  };
+  reader.readAsText(file);
+});
+
+document.getElementById('s-reset-btn').addEventListener('click', () => {
+  confirm2(
+    'Reset to seed data',
+    'This will erase all data and reload defaults. Are you sure?',
+    () => {
+      Object.values(KEYS).forEach(k => localStorage.removeItem(k));
+      initSeeds();
+      updateHeader();
+      renderActiveModule();
+      toast('Data reset to defaults.');
+      closeSettings();
+    }
+  );
+});
+
+function updateHeader() {
+  const meta = load(KEYS.meta) || SEED_META;
+  document.getElementById('header-subtitle').textContent = meta.subtitle || '';
+}
+
+
+// ── Schedule module ─────────────────────────────────────
+
+const GRID_START = 8 * 60;
+const GRID_END   = 23 * 60;
+const PX_PER_MIN = 1.5;
+const TOTAL_H    = (GRID_END - GRID_START) * PX_PER_MIN;
+const AREAS      = ['Main Stage', 'Ag Ring', 'Community Hall', 'Midway'];
+
+let schedDay        = 1;
+let schedAreaFilter = 'all';
+let _schedEditId    = null;
+
+function timeToMin(t) {
+  const [h, m] = t.split(':').map(Number);
+  return h * 60 + m;
+}
+
+function minToHHMM(min) {
+  return String(Math.floor(min / 60)).padStart(2, '0') + ':' + String(min % 60).padStart(2, '0');
+}
+
+function assignCols(events) {
+  if (!events.length) return events;
+  const sorted = [...events].sort((a, b) => timeToMin(a.startTime) - timeToMin(b.startTime));
+  const slotEnds = [];
+  for (const ev of sorted) {
+    const start = timeToMin(ev.startTime);
+    const end   = timeToMin(ev.endTime);
+    let col = slotEnds.findIndex(e => e <= start);
+    if (col === -1) { col = slotEnds.length; slotEnds.push(end); }
+    else slotEnds[col] = end;
+    ev._col = col;
+  }
+  for (const ev of sorted) {
+    const start = timeToMin(ev.startTime);
+    const end   = timeToMin(ev.endTime);
+    let maxCol = 0;
+    for (const other of sorted) {
+      if (timeToMin(other.startTime) < end && timeToMin(other.endTime) > start) {
+        maxCol = Math.max(maxCol, other._col);
+      }
+    }
+    ev._span = maxCol + 1;
+  }
+  return sorted;
+}
+
+function overlaps(a, b) {
+  return timeToMin(a.startTime) < timeToMin(b.endTime)
+      && timeToMin(a.endTime)   > timeToMin(b.startTime);
+}
+
+function renderSchedule() {
+  const meta       = load(KEYS.meta) || SEED_META;
+  const dayDate    = schedDay === 1 ? meta.day1 : meta.day2;
+  const isToday    = today() === dayDate;
+  const nowMin     = new Date().getHours() * 60 + new Date().getMinutes();
+
+  const allSlots     = load(KEYS.schedule) || [];
+  const daySlots     = allSlots.filter(s => s.day === schedDay);
+  const visibleAreas = schedAreaFilter === 'all' ? AREAS : [schedAreaFilter];
+
+  // Time labels
+  const labels = [];
+  for (let min = GRID_START; min <= GRID_END; min += 30) {
+    const top = (min - GRID_START) * PX_PER_MIN;
+    labels.push(`<div class="sched-time-label" style="top:${top}px">${fmtTime(minToHHMM(min))}</div>`);
+  }
+
+  // Grid lines (rendered per area col)
+  const linesMemo = [];
+  for (let min = GRID_START; min <= GRID_END; min += 30) {
+    const top = (min - GRID_START) * PX_PER_MIN;
+    linesMemo.push(`<div class="sched-grid-line${min % 60 === 0 ? ' hour' : ''}" style="top:${top}px"></div>`);
+  }
+  const linesHtml = linesMemo.join('');
+
+  // Area columns
+  const colsHtml = visibleAreas.map(area => {
+    const areaSlots  = daySlots.filter(s => s.area === area);
+    const positioned = assignCols(areaSlots.map(s => ({ ...s })));
+
+    const blocks = positioned.map(ev => {
+      const top      = (timeToMin(ev.startTime) - GRID_START) * PX_PER_MIN;
+      const height   = Math.max((timeToMin(ev.endTime) - timeToMin(ev.startTime)) * PX_PER_MIN, 22);
+      const colPct   = 100 / ev._span;
+      const leftPct  = ev._col * colPct;
+      const isActive = isToday && nowMin >= timeToMin(ev.startTime) && nowMin < timeToMin(ev.endTime);
+      const badge = height > 55
+        ? (ev.status === 'confirmed' ? '<span class="badge badge-success" style="font-size:9px;padding:1px 5px">Confirmed</span>'
+         : ev.status === 'tentative' ? '<span class="badge badge-warn" style="font-size:9px;padding:1px 5px">Tentative</span>'
+         : '<span class="badge badge-danger" style="font-size:9px;padding:1px 5px">Cancelled</span>')
+        : '';
+      return `<div class="sched-event ${ev.status}${isActive ? ' active-now' : ''}" data-id="${ev.id}"
+        style="top:${top}px;height:${height}px;left:calc(${leftPct}% + 2px);width:calc(${colPct}% - 4px)"
+        title="${ev.name} · ${fmtTime(ev.startTime)} – ${fmtTime(ev.endTime)}">
+        <span class="ev-name">${ev.name}</span>
+        <span class="ev-time">${fmtTime(ev.startTime)} – ${fmtTime(ev.endTime)}</span>
+        ${badge}
+      </div>`;
+    }).join('');
+
+    return `<div class="sched-area-col">${linesHtml}${blocks}</div>`;
+  }).join('');
+
+  // Print table
+  const sortedPrint = [...daySlots].sort((a, b) =>
+    timeToMin(a.startTime) - timeToMin(b.startTime) || AREAS.indexOf(a.area) - AREAS.indexOf(b.area)
+  );
+  const printRows = sortedPrint.map(ev =>
+    `<tr><td>${fmtTime(ev.startTime)} – ${fmtTime(ev.endTime)}</td><td>${ev.area}</td><td>${ev.name}</td><td style="text-transform:capitalize">${ev.status}</td></tr>`
+  ).join('');
+
+  const dayLabel = schedDay === 1 ? `Day 1 — ${meta.day1}` : `Day 2 — ${meta.day2}`;
+
+  const el = document.getElementById('mod-schedule');
+  el.innerHTML = `
+    <div class="toolbar no-print" style="margin-bottom:12px;flex-wrap:wrap;gap:6px">
+      <div class="day-tabs">
+        <button class="btn ${schedDay===1?'btn-primary':'btn-ghost'} btn-sm" id="sd1">Day 1 — ${meta.day1}</button>
+        <button class="btn ${schedDay===2?'btn-primary':'btn-ghost'} btn-sm" id="sd2">Day 2 — ${meta.day2}</button>
+      </div>
+      <select id="sched-area-filter" style="width:auto;padding:5px 8px">
+        <option value="all">All Areas</option>
+        ${AREAS.map(a => `<option value="${a}"${schedAreaFilter===a?' selected':''}>${a}</option>`).join('')}
+      </select>
+      <div class="toolbar-right">
+        <button class="btn btn-ghost btn-sm no-print" id="sched-jump-now" title="Scroll to current time">↓ Now</button>
+        <button class="btn btn-ghost btn-sm no-print" id="sched-print-btn">Print</button>
+        <button class="btn btn-primary btn-sm no-print" id="sched-add-btn">+ Add Slot</button>
+      </div>
+    </div>
+    <div class="card" style="padding:0;overflow:hidden">
+      <div class="sched-col-headers">
+        <div style="width:52px;flex-shrink:0"></div>
+        ${visibleAreas.map(a => `<div class="sched-col-hdr">${a}</div>`).join('')}
+      </div>
+      <div class="sched-grid-body">
+        <div class="sched-time-col" style="height:${TOTAL_H}px">${labels.join('')}</div>
+        <div class="sched-areas" id="sched-areas" style="height:${TOTAL_H}px">
+          ${colsHtml}
+          <div class="sched-now-line" id="sched-now-line" style="display:none"></div>
+        </div>
+      </div>
+    </div>
+    <div class="print-only">
+      <h2 style="font-family:Oswald,sans-serif;margin-bottom:8px">[FN] Festival Command — Schedule · ${dayLabel}</h2>
+      <table class="sched-print-table">
+        <thead><tr><th>Time</th><th>Area</th><th>Act / Event</th><th>Status</th></tr></thead>
+        <tbody>${printRows}</tbody>
+      </table>
+    </div>
+  `;
+
+  document.getElementById('sd1').addEventListener('click', () => { schedDay = 1; renderSchedule(); });
+  document.getElementById('sd2').addEventListener('click', () => { schedDay = 2; renderSchedule(); });
+  document.getElementById('sched-area-filter').addEventListener('change', e => { schedAreaFilter = e.target.value; renderSchedule(); });
+  document.getElementById('sched-print-btn').addEventListener('click', () => window.print());
+  document.getElementById('sched-add-btn').addEventListener('click', () => openSchedModal(null));
+  document.getElementById('sched-jump-now').addEventListener('click', () => {
+    const line = document.getElementById('sched-now-line');
+    const body = document.querySelector('.sched-grid-body');
+    if (line && body && line.style.display !== 'none') {
+      body.scrollTop = Math.max(0, parseInt(line.style.top) - body.clientHeight / 2);
+    } else {
+      toast('Now indicator is not active for this day.');
+    }
+  });
+
+  document.querySelectorAll('.sched-event').forEach(block => {
+    block.addEventListener('click', () => {
+      const slots = load(KEYS.schedule) || [];
+      openSchedModal(slots.find(s => s.id === block.dataset.id) || null);
+    });
+  });
+
+  updateNowLine();
+}
+
+function updateNowLine() {
+  const line = document.getElementById('sched-now-line');
+  if (!line) return;
+  const meta    = load(KEYS.meta) || SEED_META;
+  const now     = new Date();
+  const nowMin  = now.getHours() * 60 + now.getMinutes();
+  const dayDate = schedDay === 1 ? meta.day1 : meta.day2;
+
+  if (today() === dayDate && nowMin >= GRID_START && nowMin <= GRID_END) {
+    line.style.display = 'block';
+    line.style.top = ((nowMin - GRID_START) * PX_PER_MIN) + 'px';
+  } else {
+    line.style.display = 'none';
+  }
+}
+
+function openSchedModal(slot) {
+  _schedEditId = slot ? slot.id : null;
+  document.getElementById('sched-modal-title').textContent = slot ? 'Edit Slot' : 'Add Slot';
+  document.getElementById('sm-area').value   = slot ? slot.area        : AREAS[0];
+  document.getElementById('sm-day').value    = slot ? String(slot.day) : String(schedDay);
+  document.getElementById('sm-start').value  = slot ? slot.startTime   : '';
+  document.getElementById('sm-end').value    = slot ? slot.endTime     : '';
+  document.getElementById('sm-name').value   = slot ? slot.name        : '';
+  document.getElementById('sm-desc').value   = slot ? slot.description : '';
+  document.getElementById('sm-status').value = slot ? slot.status      : 'confirmed';
+  document.getElementById('sm-delete-btn').style.display = slot ? 'inline-flex' : 'none';
+  openModal('sched-modal');
+}
+
+document.getElementById('sm-save-btn').addEventListener('click', () => {
+  const name  = document.getElementById('sm-name').value.trim();
+  const start = document.getElementById('sm-start').value;
+  const end   = document.getElementById('sm-end').value;
+  if (!name)         { toast('Act / Event name is required.'); return; }
+  if (!start || !end){ toast('Start and end times are required.'); return; }
+  if (timeToMin(end) <= timeToMin(start)) { toast('End time must be after start time.'); return; }
+
+  const slots = load(KEYS.schedule) || [];
+  const rec = {
+    id:          _schedEditId || uid(),
+    area:        document.getElementById('sm-area').value,
+    day:         Number(document.getElementById('sm-day').value),
+    startTime:   start,
+    endTime:     end,
+    name,
+    description: document.getElementById('sm-desc').value.trim(),
+    status:      document.getElementById('sm-status').value,
+  };
+
+  if (!_schedEditId && slots.length >= MAX_EVENTS) {
+    toast('Event limit reached. Delete some slots first.');
+    return;
+  }
+
+  if (_schedEditId) {
+    const idx = slots.findIndex(s => s.id === _schedEditId);
+    if (idx !== -1) slots[idx] = rec; else slots.push(rec);
+  } else {
+    slots.push(rec);
+  }
+
+  const sameArea = slots.filter(s => s.area === rec.area && s.day === rec.day && s.id !== rec.id);
+  if (sameArea.some(s => overlaps(s, rec))) toast('Warning: overlapping events detected in this area.');
+
+  save(KEYS.schedule, slots);
+  closeModal('sched-modal');
+  renderSchedule();
+  toast(_schedEditId ? 'Slot updated.' : 'Slot added.');
+});
+
+document.getElementById('sm-delete-btn').addEventListener('click', () => {
+  confirm2('Delete slot', 'Remove this slot from the schedule?', () => {
+    const slots = load(KEYS.schedule) || [];
+    save(KEYS.schedule, slots.filter(s => s.id !== _schedEditId));
+    closeModal('sched-modal');
+    renderSchedule();
+    toast('Slot deleted.');
+  });
+});
+
+
+// ── Module stubs (replaced in subsequent phases) ────────
+
+// ── Vendors module ──────────────────────────────────────
+
+const VENDOR_CATS = ['Food', 'Craft', 'Ag', 'Sponsor', 'Other'];
+let vendorFilter  = 'all';
+let vendorSearch  = '';
+let _vendorEditId = null;
+
+function syncVendorFees(vendors) {
+  const budget    = load(KEYS.budget) || { income: [], expenses: [] };
+  const total     = vendors.reduce((s, v) => s + Number(v.fee), 0);
+  const collected = vendors.filter(v => v.paid).reduce((s, v) => s + Number(v.fee), 0);
+  const lineIdx   = budget.income.findIndex(l => l.id === 'vendor-fees');
+  if (lineIdx === -1) {
+    budget.income.push({ id:'vendor-fees', category:'Vendors', description:'Vendor Booth Fees',
+      budgeted: total, actual: collected, notes: '', auto: true });
+  } else {
+    budget.income[lineIdx].budgeted = total;
+    budget.income[lineIdx].actual   = collected;
+  }
+  save(KEYS.budget, budget);
+}
+
+function renderVendors() {
+  const vendors  = load(KEYS.vendors) || [];
+  const q = vendorSearch.toLowerCase();
+  const filtered = vendors.filter(v => {
+    const catOk  = vendorFilter === 'all' || v.category === vendorFilter;
+    const srchOk = !q || v.name.toLowerCase().includes(q) || v.contactName.toLowerCase().includes(q) || String(v.booth).includes(q);
+    return catOk && srchOk;
+  });
+
+  const total      = vendors.reduce((s, v) => s + Number(v.fee), 0);
+  const collected  = vendors.filter(v => v.paid).reduce((s, v) => s + Number(v.fee), 0);
+  const outstanding = total - collected;
+  const unpaidCount = vendors.filter(v => !v.paid).length;
+
+  const rows = filtered.length ? filtered.map(v => `
+    <tr class="${v.paid ? '' : 'row-unpaid'}">
+      <td style="font-family:'Oswald',sans-serif;color:var(--muted)">${v.booth}</td>
+      <td><strong>${v.name}</strong></td>
+      <td><span class="badge badge-muted">${v.category}</span></td>
+      <td>${v.contactName}${v.contactPhone ? `<br><span class="text-muted" style="font-size:12px">${v.contactPhone}</span>` : ''}</td>
+      <td style="font-family:'Oswald',sans-serif">${fmt$(v.fee)}</td>
+      <td style="text-align:center">
+        <input type="checkbox" class="vendor-paid-toggle" data-id="${v.id}" ${v.paid ? 'checked' : ''}>
+      </td>
+      <td class="text-muted" style="font-size:13px;max-width:180px">${v.notes || ''}</td>
+      <td><button class="btn btn-ghost btn-sm vendor-edit-btn" data-id="${v.id}">Edit</button></td>
+    </tr>
+  `).join('') : '<tr><td colspan="8" style="text-align:center;padding:24px;color:var(--muted)">No vendors match this filter.</td></tr>';
+
+  const el = document.getElementById('mod-vendors');
+  el.innerHTML = `
+    <div class="stats-row">
+      <div class="stat-card"><div class="stat-value">${vendors.length}</div><div class="stat-label">Total Vendors</div></div>
+      <div class="stat-card success"><div class="stat-value">${fmt$(collected)}</div><div class="stat-label">Fees Collected</div></div>
+      <div class="stat-card ${outstanding > 0 ? 'warn' : ''}"><div class="stat-value">${fmt$(outstanding)}</div><div class="stat-label">Outstanding</div></div>
+      <div class="stat-card ${unpaidCount > 0 ? 'danger' : 'success'}"><div class="stat-value">${unpaidCount}</div><div class="stat-label">Unpaid</div></div>
+    </div>
+    <div class="toolbar" style="margin-bottom:12px">
+      <select id="vendor-cat-filter" style="width:auto;padding:5px 8px">
+        <option value="all">All Categories</option>
+        ${VENDOR_CATS.map(c => `<option value="${c}"${vendorFilter===c?' selected':''}>${c}</option>`).join('')}
+      </select>
+      <input type="text" id="vendor-search" placeholder="Search vendors…" style="width:auto;padding:5px 8px;flex:1;min-width:120px;max-width:220px" value="${vendorSearch}">
+      <div class="toolbar-right">
+        <button class="btn btn-primary btn-sm" id="vendor-add-btn">+ Add Vendor</button>
+      </div>
+    </div>
+    <div class="card" style="padding:0">
+      <div class="table-wrap">
+        <table>
+          <thead>
+            <tr>
+              <th>Booth #</th><th>Vendor</th><th>Category</th><th>Contact</th>
+              <th>Fee</th><th>Paid</th><th>Notes</th><th></th>
+            </tr>
+          </thead>
+          <tbody>${rows}</tbody>
+        </table>
+      </div>
+    </div>
+  `;
+
+  document.getElementById('vendor-cat-filter').addEventListener('change', e => { vendorFilter = e.target.value; renderVendors(); });
+  document.getElementById('vendor-search').addEventListener('input', e => { vendorSearch = e.target.value; renderVendors(); });
+  document.getElementById('vendor-add-btn').addEventListener('click', () => openVendorModal(null));
+
+  document.querySelectorAll('.vendor-paid-toggle').forEach(cb => {
+    cb.addEventListener('change', () => {
+      const vs = load(KEYS.vendors) || [];
+      const v  = vs.find(v => v.id === cb.dataset.id);
+      if (v) {
+        v.paid = cb.checked;
+        save(KEYS.vendors, vs);
+        syncVendorFees(vs);
+        renderVendors();
+        toast(v.paid ? `${v.name} marked as paid.` : `${v.name} marked as unpaid.`);
+      }
+    });
+  });
+
+  document.querySelectorAll('.vendor-edit-btn').forEach(btn => {
+    btn.addEventListener('click', () => {
+      const vs = load(KEYS.vendors) || [];
+      openVendorModal(vs.find(v => v.id === btn.dataset.id) || null);
+    });
+  });
+}
+
+function openVendorModal(vendor) {
+  _vendorEditId = vendor ? vendor.id : null;
+  document.getElementById('vend-modal-title').textContent = vendor ? 'Edit Vendor' : 'Add Vendor';
+  document.getElementById('vm-name').value    = vendor ? vendor.name        : '';
+  document.getElementById('vm-cat').value     = vendor ? vendor.category    : 'Food';
+  document.getElementById('vm-booth').value   = vendor ? vendor.booth       : '';
+  document.getElementById('vm-contact').value = vendor ? vendor.contactName : '';
+  document.getElementById('vm-phone').value   = vendor ? vendor.contactPhone: '';
+  document.getElementById('vm-fee').value     = vendor ? vendor.fee         : '';
+  document.getElementById('vm-paid').checked  = vendor ? vendor.paid        : false;
+  document.getElementById('vm-notes').value   = vendor ? vendor.notes       : '';
+  document.getElementById('vm-delete-btn').style.display = vendor ? 'inline-flex' : 'none';
+  openModal('vend-modal');
+}
+
+document.getElementById('vm-save-btn').addEventListener('click', () => {
+  const name = document.getElementById('vm-name').value.trim();
+  if (!name) { toast('Vendor name is required.'); return; }
+  const vs  = load(KEYS.vendors) || [];
+  const rec = {
+    id:          _vendorEditId || uid(),
+    name,
+    category:    document.getElementById('vm-cat').value,
+    booth:       document.getElementById('vm-booth').value.trim(),
+    contactName: document.getElementById('vm-contact').value.trim(),
+    contactPhone:document.getElementById('vm-phone').value.trim(),
+    fee:         Number(document.getElementById('vm-fee').value) || 0,
+    paid:        document.getElementById('vm-paid').checked,
+    notes:       document.getElementById('vm-notes').value.trim(),
+  };
+  if (_vendorEditId) {
+    const idx = vs.findIndex(v => v.id === _vendorEditId);
+    if (idx !== -1) vs[idx] = rec; else vs.push(rec);
+  } else {
+    vs.push(rec);
+  }
+  save(KEYS.vendors, vs);
+  syncVendorFees(vs);
+  closeModal('vend-modal');
+  renderVendors();
+  toast(_vendorEditId ? 'Vendor updated.' : 'Vendor added.');
+});
+
+document.getElementById('vm-delete-btn').addEventListener('click', () => {
+  confirm2('Delete vendor', 'Remove this vendor from the list?', () => {
+    const vs      = load(KEYS.vendors) || [];
+    const updated = vs.filter(v => v.id !== _vendorEditId);
+    save(KEYS.vendors, updated);
+    syncVendorFees(updated);
+    closeModal('vend-modal');
+    renderVendors();
+    toast('Vendor deleted.');
+  });
+});
+// ── Volunteers module ───────────────────────────────────
+
+const VOL_ROLES  = ['Gate', 'Setup', 'Teardown', 'Stage Crew', 'First Aid', 'Information Booth', 'General'];
+const VOL_SHIFTS = ['Day 1 AM', 'Day 1 PM', 'Day 2 AM', 'Day 2 PM', 'Both Days'];
+
+let volShiftFilter = 'all';
+let volRoleFilter  = 'all';
+let volSearch      = '';
+let _volEditId     = null;
+
+function renderVolunteers() {
+  const volunteers = load(KEYS.volunteers) || [];
+
+  const vq = volSearch.toLowerCase();
+  const filtered = volunteers.filter(v => {
+    const shiftOk = volShiftFilter === 'all' || v.shift === volShiftFilter || v.shift === 'Both Days';
+    const roleOk  = volRoleFilter  === 'all' || v.role  === volRoleFilter;
+    const srchOk  = !vq || v.name.toLowerCase().includes(vq) || v.role.toLowerCase().includes(vq) || v.phone.includes(vq);
+    return shiftOk && roleOk && srchOk;
+  });
+
+  const checkedInCount = volunteers.filter(v => v.checkedIn).length;
+
+  const rolePills = VOL_ROLES.map(r => {
+    const n = volunteers.filter(v => v.role === r).length;
+    return n > 0 ? `<span class="badge badge-muted" style="margin:2px 3px 2px 0">${r}: ${n}</span>` : '';
+  }).join('');
+
+  const rows = filtered.length ? filtered.map(v => `
+    <tr>
+      <td><strong>${v.name}</strong></td>
+      <td><span class="badge badge-muted">${v.role}</span></td>
+      <td style="white-space:nowrap">${v.shift}</td>
+      <td style="font-size:13px">${v.phone || '<span class="text-muted">—</span>'}</td>
+      <td style="text-align:center">
+        <input type="checkbox" class="vol-checkin-toggle" data-id="${v.id}" ${v.checkedIn ? 'checked' : ''}>
+      </td>
+      <td class="text-muted" style="font-size:13px">${v.notes || ''}</td>
+      <td><button class="btn btn-ghost btn-sm vol-edit-btn" data-id="${v.id}">Edit</button></td>
+    </tr>
+  `).join('') : '<tr><td colspan="7" style="text-align:center;padding:24px;color:var(--muted)">No volunteers match this filter.</td></tr>';
+
+  const printRows = filtered.map(v => `
+    <tr><td>${v.name}</td><td>${v.role}</td><td>${v.shift}</td><td>${v.phone || ''}</td><td style="text-align:center">☐</td></tr>
+  `).join('');
+
+  const shiftBtns = ['all', 'Day 1 AM', 'Day 1 PM', 'Day 2 AM', 'Day 2 PM'].map(s =>
+    `<button class="btn ${volShiftFilter===s?'btn-primary':'btn-ghost'} btn-sm vol-shift-btn" data-shift="${s}">${s === 'all' ? 'All Shifts' : s}</button>`
+  ).join('');
+
+  const el = document.getElementById('mod-volunteers');
+  el.innerHTML = `
+    <div class="stats-row">
+      <div class="stat-card"><div class="stat-value">${volunteers.length}</div><div class="stat-label">Total Volunteers</div></div>
+      <div class="stat-card ${checkedInCount > 0 ? 'success' : ''}"><div class="stat-value">${checkedInCount}</div><div class="stat-label">Checked In</div></div>
+      <div class="stat-card" style="flex:3;min-width:200px">
+        <div class="stat-label" style="margin-bottom:6px">By Role</div>
+        <div style="display:flex;flex-wrap:wrap">${rolePills}</div>
+      </div>
+    </div>
+    <div class="toolbar no-print" style="margin-bottom:12px;flex-wrap:wrap;gap:6px">
+      <div class="day-tabs" style="flex-wrap:wrap;gap:4px">${shiftBtns}</div>
+      <select id="vol-role-filter" style="width:auto;padding:5px 8px">
+        <option value="all">All Roles</option>
+        ${VOL_ROLES.map(r => `<option value="${r}"${volRoleFilter===r?' selected':''}>${r}</option>`).join('')}
+      </select>
+      <input type="text" id="vol-search" placeholder="Search volunteers…" style="width:auto;padding:5px 8px;flex:1;min-width:120px;max-width:220px" value="${volSearch}">
+      <div class="toolbar-right">
+        <button class="btn btn-ghost btn-sm no-print" id="vol-print-btn">Print Roster</button>
+        <button class="btn btn-primary btn-sm no-print" id="vol-add-btn">+ Add Volunteer</button>
+      </div>
+    </div>
+    <div class="card" style="padding:0">
+      <div class="table-wrap">
+        <table>
+          <thead>
+            <tr><th>Name</th><th>Role</th><th>Shift</th><th>Phone</th><th style="text-align:center">Checked In</th><th>Notes</th><th></th></tr>
+          </thead>
+          <tbody>${rows}</tbody>
+        </table>
+      </div>
+    </div>
+    <div class="print-only">
+      <h2 style="font-family:Oswald,sans-serif;margin-bottom:4px">[FN] Festival Command — Volunteer Roster</h2>
+      <p style="font-size:12px;margin-bottom:10px;color:#666">${volShiftFilter === 'all' ? 'All Shifts' : volShiftFilter}${volRoleFilter !== 'all' ? ' · ' + volRoleFilter : ''}</p>
+      <table class="sched-print-table">
+        <thead><tr><th>Name</th><th>Role</th><th>Shift</th><th>Phone</th><th style="text-align:center">Check In</th></tr></thead>
+        <tbody>${printRows}</tbody>
+      </table>
+    </div>
+  `;
+
+  document.querySelectorAll('.vol-shift-btn').forEach(btn => {
+    btn.addEventListener('click', () => { volShiftFilter = btn.dataset.shift; renderVolunteers(); });
+  });
+  document.getElementById('vol-role-filter').addEventListener('change', e => { volRoleFilter = e.target.value; renderVolunteers(); });
+  document.getElementById('vol-search').addEventListener('input', e => { volSearch = e.target.value; renderVolunteers(); });
+  document.getElementById('vol-print-btn').addEventListener('click', () => window.print());
+  document.getElementById('vol-add-btn').addEventListener('click', () => openVolModal(null));
+
+  document.querySelectorAll('.vol-checkin-toggle').forEach(cb => {
+    cb.addEventListener('change', () => {
+      const vs = load(KEYS.volunteers) || [];
+      const v  = vs.find(v => v.id === cb.dataset.id);
+      if (v) {
+        v.checkedIn = cb.checked;
+        save(KEYS.volunteers, vs);
+        renderVolunteers();
+        toast(v.checkedIn ? `${v.name} checked in.` : `${v.name} check-in cleared.`);
+      }
+    });
+  });
+
+  document.querySelectorAll('.vol-edit-btn').forEach(btn => {
+    btn.addEventListener('click', () => {
+      const vs = load(KEYS.volunteers) || [];
+      openVolModal(vs.find(v => v.id === btn.dataset.id) || null);
+    });
+  });
+}
+
+function openVolModal(vol) {
+  _volEditId = vol ? vol.id : null;
+  document.getElementById('vol-modal-title').textContent = vol ? 'Edit Volunteer' : 'Add Volunteer';
+  document.getElementById('volm-name').value  = vol ? vol.name  : '';
+  document.getElementById('volm-role').value  = vol ? vol.role  : 'Gate';
+  document.getElementById('volm-shift').value = vol ? vol.shift : 'Day 1 AM';
+  document.getElementById('volm-phone').value = vol ? vol.phone : '';
+  document.getElementById('volm-notes').value = vol ? vol.notes : '';
+  document.getElementById('volm-delete-btn').style.display = vol ? 'inline-flex' : 'none';
+  openModal('vol-modal');
+}
+
+document.getElementById('volm-save-btn').addEventListener('click', () => {
+  const name = document.getElementById('volm-name').value.trim();
+  if (!name) { toast('Name is required.'); return; }
+  const vs  = load(KEYS.volunteers) || [];
+  const rec = {
+    id:        _volEditId || uid(),
+    name,
+    role:      document.getElementById('volm-role').value,
+    shift:     document.getElementById('volm-shift').value,
+    phone:     document.getElementById('volm-phone').value.trim(),
+    notes:     document.getElementById('volm-notes').value.trim(),
+    checkedIn: false,
+  };
+  if (_volEditId) {
+    const idx = vs.findIndex(v => v.id === _volEditId);
+    if (idx !== -1) { rec.checkedIn = vs[idx].checkedIn; vs[idx] = rec; }
+    else vs.push(rec);
+  } else {
+    vs.push(rec);
+  }
+  save(KEYS.volunteers, vs);
+  closeModal('vol-modal');
+  renderVolunteers();
+  toast(_volEditId ? 'Volunteer updated.' : 'Volunteer added.');
+});
+
+document.getElementById('volm-delete-btn').addEventListener('click', () => {
+  confirm2('Delete volunteer', 'Remove this volunteer from the list?', () => {
+    const vs = load(KEYS.volunteers) || [];
+    save(KEYS.volunteers, vs.filter(v => v.id !== _volEditId));
+    closeModal('vol-modal');
+    renderVolunteers();
+    toast('Volunteer deleted.');
+  });
+});
+// ── Budget module ───────────────────────────────────────
+
+let _budgetEditId   = null;
+let _budgetEditType = 'income';
+
+function varHtml(actual, budgeted, type) {
+  if (!Number(actual)) return '<span class="text-muted">—</span>';
+  const v = Number(actual) - Number(budgeted);
+  if (v === 0) return `<span class="text-muted">${fmt$(0)}</span>`;
+  const cls = type === 'expense'
+    ? (v > 0 ? 'text-danger' : 'text-success')
+    : (v > 0 ? 'text-success' : 'text-danger');
+  return `<span class="${cls}">${v > 0 ? '+' : ''}${fmt$(v)}</span>`;
+}
+
+function renderBudget() {
+  const budget   = load(KEYS.budget) || { income: [], expenses: [] };
+  const income   = budget.income   || [];
+  const expenses = budget.expenses || [];
+
+  const totBudgInc  = income.reduce((s, l) => s + Number(l.budgeted), 0);
+  const totActInc   = income.reduce((s, l) => s + Number(l.actual),   0);
+  const totBudgExp  = expenses.reduce((s, l) => s + Number(l.budgeted), 0);
+  const totActExp   = expenses.reduce((s, l) => s + Number(l.actual),   0);
+  const budgNet     = totBudgInc - totBudgExp;
+  const actNet      = totActInc  - totActExp;
+
+  function incomeRows() {
+    return income.map(l => {
+      const auto = l.auto ? '<span class="badge badge-auto" style="margin-left:6px;vertical-align:middle">auto</span>' : '';
+      const editBtn = l.auto ? '' : `<button class="btn btn-ghost btn-sm budget-edit-btn" data-id="${l.id}" data-type="income">Edit</button>`;
+      return `<tr>
+        <td class="text-muted" style="font-size:12px;white-space:nowrap">${l.category}</td>
+        <td>${l.description}${auto}</td>
+        <td style="font-family:'Oswald',sans-serif;text-align:right;white-space:nowrap">${fmt$(l.budgeted)}</td>
+        <td style="font-family:'Oswald',sans-serif;text-align:right;white-space:nowrap">${Number(l.actual) > 0 ? fmt$(l.actual) : '<span class="text-muted">—</span>'}</td>
+        <td style="text-align:right;white-space:nowrap">${varHtml(l.actual, l.budgeted, 'income')}</td>
+        <td>${editBtn}</td>
+      </tr>`;
+    }).join('');
+  }
+
+  function expenseRows() {
+    return expenses.map(l => `<tr>
+      <td class="text-muted" style="font-size:12px;white-space:nowrap">${l.category}</td>
+      <td>${l.description}</td>
+      <td style="font-family:'Oswald',sans-serif;text-align:right;white-space:nowrap">${fmt$(l.budgeted)}</td>
+      <td style="font-family:'Oswald',sans-serif;text-align:right;white-space:nowrap">${Number(l.actual) > 0 ? fmt$(l.actual) : '<span class="text-muted">—</span>'}</td>
+      <td style="text-align:right;white-space:nowrap">${varHtml(l.actual, l.budgeted, 'expense')}</td>
+      <td><button class="btn btn-ghost btn-sm budget-edit-btn" data-id="${l.id}" data-type="expense">Edit</button></td>
+    </tr>`).join('');
+  }
+
+  const colTable = (rows, addId) => `
+    <div class="table-wrap">
+      <table>
+        <thead><tr>
+          <th>Category</th><th>Description</th>
+          <th style="text-align:right">Budgeted</th>
+          <th style="text-align:right">Actual</th>
+          <th style="text-align:right">Variance</th>
+          <th></th>
+        </tr></thead>
+        <tbody>${rows}</tbody>
+      </table>
+    </div>
+    <div class="no-print" style="padding:10px 16px;border-top:1px solid var(--border)">
+      <button class="btn btn-ghost btn-sm" id="${addId}">+ Add Line</button>
+    </div>`;
+
+  const el = document.getElementById('mod-budget');
+  el.innerHTML = `
+    <div class="budget-grid">
+      <div class="card" style="padding:0">
+        <div style="padding:12px 16px;border-bottom:1px solid var(--border);display:flex;align-items:center;justify-content:space-between;flex-wrap:wrap;gap:8px">
+          <div style="font-family:'Oswald',sans-serif;font-size:14px;font-weight:600;color:var(--success);letter-spacing:0.06em">INCOME</div>
+          <div style="font-size:12px;color:var(--muted)">Budgeted: <strong style="color:var(--text)">${fmt$(totBudgInc)}</strong>&ensp;Actual: <strong style="color:var(--success)">${fmt$(totActInc)}</strong></div>
+        </div>
+        ${colTable(incomeRows(), 'budget-add-income')}
+      </div>
+      <div class="card" style="padding:0">
+        <div style="padding:12px 16px;border-bottom:1px solid var(--border);display:flex;align-items:center;justify-content:space-between;flex-wrap:wrap;gap:8px">
+          <div style="font-family:'Oswald',sans-serif;font-size:14px;font-weight:600;color:var(--danger);letter-spacing:0.06em">EXPENSES</div>
+          <div style="font-size:12px;color:var(--muted)">Budgeted: <strong style="color:var(--text)">${fmt$(totBudgExp)}</strong>&ensp;Actual: <strong style="color:var(--danger)">${fmt$(totActExp)}</strong></div>
+        </div>
+        ${colTable(expenseRows(), 'budget-add-expense')}
+      </div>
+    </div>
+
+    <div class="card" style="padding:16px 20px">
+      <div class="stats-row" style="margin-bottom:16px">
+        <div class="stat-card" style="flex:1;min-width:120px">
+          <div class="stat-value" style="font-size:18px">${fmt$(totBudgInc)}</div>
+          <div class="stat-label">Budgeted Income</div>
+        </div>
+        <div class="stat-card success" style="flex:1;min-width:120px">
+          <div class="stat-value" style="font-size:18px">${fmt$(totActInc)}</div>
+          <div class="stat-label">Actual Income</div>
+        </div>
+        <div class="stat-card" style="flex:1;min-width:120px">
+          <div class="stat-value" style="font-size:18px">${fmt$(totBudgExp)}</div>
+          <div class="stat-label">Budgeted Expenses</div>
+        </div>
+        <div class="stat-card danger" style="flex:1;min-width:120px">
+          <div class="stat-value" style="font-size:18px">${fmt$(totActExp)}</div>
+          <div class="stat-label">Actual Expenses</div>
+        </div>
+      </div>
+      <div style="border-top:1px solid var(--border);padding-top:16px;display:grid;grid-template-columns:1fr 1px 1fr;gap:0">
+        <div style="text-align:center;padding:0 16px">
+          <div style="font-size:11px;font-family:'Oswald',sans-serif;text-transform:uppercase;letter-spacing:0.06em;color:var(--muted);margin-bottom:6px">Budgeted Net</div>
+          <div style="font-family:'Oswald',sans-serif;font-size:40px;font-weight:700;color:${budgNet >= 0 ? 'var(--success)' : 'var(--danger)'}">${budgNet >= 0 ? '+' : ''}${fmt$(budgNet)}</div>
+          <div style="font-size:12px;color:var(--muted);margin-top:2px">${budgNet >= 0 ? 'Projected Surplus' : 'Projected Deficit'}</div>
+        </div>
+        <div style="background:var(--border)"></div>
+        <div style="text-align:center;padding:0 16px">
+          <div style="font-size:11px;font-family:'Oswald',sans-serif;text-transform:uppercase;letter-spacing:0.06em;color:var(--muted);margin-bottom:6px">Actual Net</div>
+          <div style="font-family:'Oswald',sans-serif;font-size:40px;font-weight:700;color:${actNet >= 0 ? 'var(--success)' : 'var(--danger)'}">${actNet >= 0 ? '+' : ''}${fmt$(actNet)}</div>
+          <div style="font-size:12px;color:var(--muted);margin-top:2px">${actNet >= 0 ? 'Current Surplus' : 'Current Deficit'}</div>
+        </div>
+      </div>
+    </div>
+  `;
+
+  document.getElementById('budget-add-income').addEventListener('click',  () => openBudgetModal(null, 'income'));
+  document.getElementById('budget-add-expense').addEventListener('click', () => openBudgetModal(null, 'expense'));
+
+  document.querySelectorAll('.budget-edit-btn').forEach(btn => {
+    btn.addEventListener('click', () => {
+      const b    = load(KEYS.budget) || { income: [], expenses: [] };
+      const type = btn.dataset.type;
+      const arr  = type === 'income' ? b.income : b.expenses;
+      openBudgetModal(arr.find(l => l.id === btn.dataset.id) || null, type);
+    });
+  });
+}
+
+function openBudgetModal(line, type) {
+  _budgetEditId   = line ? line.id : null;
+  _budgetEditType = type;
+  document.getElementById('bud-modal-title').textContent = line ? 'Edit Line' : `Add ${type === 'income' ? 'Income' : 'Expense'} Line`;
+  document.getElementById('bud-type-label').textContent  = type === 'income' ? 'Income' : 'Expense';
+  document.getElementById('bud-cat').value    = line ? line.category    : '';
+  document.getElementById('bud-desc').value   = line ? line.description : '';
+  document.getElementById('bud-budget').value = line ? line.budgeted    : '';
+  document.getElementById('bud-actual').value = line && Number(line.actual) > 0 ? line.actual : '';
+  document.getElementById('bud-notes').value  = line ? line.notes       : '';
+  document.getElementById('bud-delete-btn').style.display = (line && !line.auto) ? 'inline-flex' : 'none';
+  openModal('bud-modal');
+}
+
+document.getElementById('bud-save-btn').addEventListener('click', () => {
+  const desc = document.getElementById('bud-desc').value.trim();
+  if (!desc) { toast('Description is required.'); return; }
+  const b   = load(KEYS.budget) || { income: [], expenses: [] };
+  const arr = _budgetEditType === 'income' ? b.income : b.expenses;
+  const rec = {
+    id:          _budgetEditId || uid(),
+    category:    document.getElementById('bud-cat').value.trim(),
+    description: desc,
+    budgeted:    Number(document.getElementById('bud-budget').value) || 0,
+    actual:      Number(document.getElementById('bud-actual').value) || 0,
+    notes:       document.getElementById('bud-notes').value.trim(),
+    auto:        false,
+  };
+  if (_budgetEditId) {
+    const idx = arr.findIndex(l => l.id === _budgetEditId);
+    if (idx !== -1) arr[idx] = rec; else arr.push(rec);
+  } else {
+    arr.push(rec);
+  }
+  save(KEYS.budget, b);
+  closeModal('bud-modal');
+  renderBudget();
+  toast(_budgetEditId ? 'Line updated.' : 'Line added.');
+});
+
+document.getElementById('bud-delete-btn').addEventListener('click', () => {
+  confirm2('Delete line', 'Remove this budget line?', () => {
+    const b = load(KEYS.budget) || { income: [], expenses: [] };
+    if (_budgetEditType === 'income') {
+      b.income = b.income.filter(l => l.id !== _budgetEditId);
+    } else {
+      b.expenses = b.expenses.filter(l => l.id !== _budgetEditId);
+    }
+    save(KEYS.budget, b);
+    closeModal('bud-modal');
+    renderBudget();
+    toast('Line deleted.');
+  });
+});
+// ── Incidents module ────────────────────────────────────
+
+const INC_TYPES = ['Incident', 'Lost Item', 'Found Item', 'Medical', 'Noise', 'Other'];
+
+let incStatusFilter = 'all';
+let incTypeFilter   = 'all';
+let incSearch       = '';
+let _incEditId      = null;
+
+function fmtDatetime(dt) {
+  if (!dt) return '';
+  const d = new Date(dt);
+  return d.toLocaleString('en-CA', { month: 'short', day: 'numeric', hour: 'numeric', minute: '2-digit', hour12: true });
+}
+
+function nowDatetimeLocal() {
+  const d = new Date();
+  d.setSeconds(0, 0);
+  return d.toISOString().slice(0, 16);
+}
+
+function renderIncidents() {
+  const incidents = load(KEYS.incidents) || [];
+
+  const iq = incSearch.toLowerCase();
+  const filtered = incidents.filter(i => {
+    const statusOk = incStatusFilter === 'all' || i.status === incStatusFilter;
+    const typeOk   = incTypeFilter   === 'all' || i.type   === incTypeFilter;
+    const srchOk   = !iq || i.description.toLowerCase().includes(iq) || (i.reportedBy || '').toLowerCase().includes(iq) || (i.location || '').toLowerCase().includes(iq);
+    return statusOk && typeOk && srchOk;
+  });
+
+  const openCount     = incidents.filter(i => i.status === 'open').length;
+  const resolvedCount = incidents.filter(i => i.status === 'resolved').length;
+
+  const typeCounts = INC_TYPES.map(t => {
+    const n = incidents.filter(i => i.type === t).length;
+    return n > 0 ? `<span class="badge badge-muted" style="margin:2px 3px 2px 0">${t}: ${n}</span>` : '';
+  }).join('');
+
+  const rows = filtered.length ? filtered.map((inc, idx) => `
+    <tr>
+      <td style="font-family:'Oswald',sans-serif;color:var(--muted);font-size:12px">${incidents.indexOf(inc) + 1}</td>
+      <td style="font-size:12px;white-space:nowrap">${fmtDatetime(inc.datetime)}</td>
+      <td><span class="badge badge-muted">${inc.type}</span></td>
+      <td style="max-width:260px;font-size:13px">${inc.description}</td>
+      <td style="font-size:13px">${inc.reportedBy || '<span class="text-muted">—</span>'}</td>
+      <td>
+        <button class="btn btn-sm inc-status-toggle ${inc.status === 'open' ? 'btn-danger' : 'btn-success'}" data-id="${inc.id}">
+          ${inc.status === 'open' ? 'Open' : 'Resolved'}
+        </button>
+      </td>
+      <td><button class="btn btn-ghost btn-sm inc-edit-btn" data-id="${inc.id}">Edit</button></td>
+    </tr>
+  `).join('') : '<tr><td colspan="7" style="text-align:center;padding:24px;color:var(--muted)">No entries match this filter.</td></tr>';
+
+  const el = document.getElementById('mod-incidents');
+  el.innerHTML = `
+    <div class="stats-row">
+      <div class="stat-card"><div class="stat-value">${incidents.length}</div><div class="stat-label">Total Entries</div></div>
+      <div class="stat-card ${openCount > 0 ? 'danger' : ''}"><div class="stat-value">${openCount}</div><div class="stat-label">Open</div></div>
+      <div class="stat-card ${resolvedCount > 0 ? 'success' : ''}"><div class="stat-value">${resolvedCount}</div><div class="stat-label">Resolved</div></div>
+      <div class="stat-card" style="flex:3;min-width:200px">
+        <div class="stat-label" style="margin-bottom:6px">By Type</div>
+        <div style="display:flex;flex-wrap:wrap">${typeCounts}</div>
+      </div>
+    </div>
+    <div class="toolbar no-print" style="margin-bottom:12px">
+      <div class="day-tabs">
+        <button class="btn ${incStatusFilter==='all'?'btn-primary':'btn-ghost'} btn-sm inc-sf-btn" data-sf="all">All</button>
+        <button class="btn ${incStatusFilter==='open'?'btn-primary':'btn-ghost'} btn-sm inc-sf-btn" data-sf="open">Open</button>
+        <button class="btn ${incStatusFilter==='resolved'?'btn-primary':'btn-ghost'} btn-sm inc-sf-btn" data-sf="resolved">Resolved</button>
+      </div>
+      <select id="inc-type-filter" style="width:auto;padding:5px 8px">
+        <option value="all">All Types</option>
+        ${INC_TYPES.map(t => `<option value="${t}"${incTypeFilter===t?' selected':''}>${t}</option>`).join('')}
+      </select>
+      <input type="text" id="inc-search" placeholder="Search incidents…" style="width:auto;padding:5px 8px;border:1px solid var(--border);border-radius:4px;background:var(--bg);color:var(--text)" value="${incSearch}">
+      <div class="toolbar-right">
+        <button class="btn btn-primary btn-sm" id="inc-add-btn">+ Log Entry</button>
+      </div>
+    </div>
+    <div class="card" style="padding:0">
+      <div class="table-wrap">
+        <table>
+          <thead>
+            <tr><th>#</th><th>Time</th><th>Type</th><th>Description</th><th>Reported By</th><th>Status</th><th></th></tr>
+          </thead>
+          <tbody>${rows}</tbody>
+        </table>
+      </div>
+    </div>
+  `;
+
+  document.querySelectorAll('.inc-sf-btn').forEach(btn => {
+    btn.addEventListener('click', () => { incStatusFilter = btn.dataset.sf; renderIncidents(); });
+  });
+  document.getElementById('inc-type-filter').addEventListener('change', e => { incTypeFilter = e.target.value; renderIncidents(); });
+  document.getElementById('inc-search').addEventListener('input', e => { incSearch = e.target.value; renderIncidents(); });
+  document.getElementById('inc-add-btn').addEventListener('click', () => openIncModal(null));
+
+  document.querySelectorAll('.inc-status-toggle').forEach(btn => {
+    btn.addEventListener('click', () => {
+      const incs = load(KEYS.incidents) || [];
+      const inc  = incs.find(i => i.id === btn.dataset.id);
+      if (!inc) return;
+      if (inc.status === 'open') {
+        openIncModal(inc, true);
+      } else {
+        inc.status = 'open';
+        inc.resolution = '';
+        save(KEYS.incidents, incs);
+        renderIncidents();
+        toast('Entry re-opened.');
+      }
+    });
+  });
+
+  document.querySelectorAll('.inc-edit-btn').forEach(btn => {
+    btn.addEventListener('click', () => {
+      const incs = load(KEYS.incidents) || [];
+      openIncModal(incs.find(i => i.id === btn.dataset.id) || null);
+    });
+  });
+}
+
+function openIncModal(inc, resolveMode) {
+  _incEditId = inc ? inc.id : null;
+  document.getElementById('inc-modal-title').textContent = inc ? 'Edit Entry' : 'Log Entry';
+  document.getElementById('incm-type').value       = inc ? inc.type       : 'Incident';
+  document.getElementById('incm-status').value     = resolveMode ? 'resolved' : (inc ? inc.status : 'open');
+  document.getElementById('incm-desc').value       = inc ? inc.description : '';
+  document.getElementById('incm-reporter').value   = inc ? inc.reportedBy  : '';
+  document.getElementById('incm-location').value   = inc ? inc.location    : '';
+  document.getElementById('incm-datetime').value   = inc ? inc.datetime    : nowDatetimeLocal();
+  document.getElementById('incm-resolution').value = inc ? inc.resolution  : '';
+  document.getElementById('incm-delete-btn').style.display = inc ? 'inline-flex' : 'none';
+  toggleResolutionField();
+  openModal('inc-modal');
+}
+
+function toggleResolutionField() {
+  const status = document.getElementById('incm-status').value;
+  document.getElementById('incm-resolution-group').style.display = status === 'resolved' ? 'block' : 'none';
+}
+
+document.getElementById('incm-status').addEventListener('change', toggleResolutionField);
+
+document.getElementById('incm-save-btn').addEventListener('click', () => {
+  const desc = document.getElementById('incm-desc').value.trim();
+  if (!desc) { toast('Description is required.'); return; }
+  const status = document.getElementById('incm-status').value;
+  const resolution = document.getElementById('incm-resolution').value.trim();
+  if (status === 'resolved' && !resolution) { toast('Resolution notes are required when marking resolved.'); return; }
+
+  const incs = load(KEYS.incidents) || [];
+  const rec  = {
+    id:          _incEditId || uid(),
+    type:        document.getElementById('incm-type').value,
+    description: desc,
+    reportedBy:  document.getElementById('incm-reporter').value.trim(),
+    location:    document.getElementById('incm-location').value.trim(),
+    datetime:    document.getElementById('incm-datetime').value,
+    status,
+    resolution,
+  };
+  if (_incEditId) {
+    const idx = incs.findIndex(i => i.id === _incEditId);
+    if (idx !== -1) incs[idx] = rec; else incs.push(rec);
+  } else {
+    incs.push(rec);
+  }
+  save(KEYS.incidents, incs);
+  closeModal('inc-modal');
+  renderIncidents();
+  toast(_incEditId ? 'Entry updated.' : 'Entry logged.');
+});
+
+document.getElementById('incm-delete-btn').addEventListener('click', () => {
+  confirm2('Delete entry', 'Remove this log entry?', () => {
+    const incs = load(KEYS.incidents) || [];
+    save(KEYS.incidents, incs.filter(i => i.id !== _incEditId));
+    closeModal('inc-modal');
+    renderIncidents();
+    toast('Entry deleted.');
+  });
+});
+
+
+// ── Boot ────────────────────────────────────────────────
+
+initSeeds();
+
+// Version check: if stored meta has an older version, clear and re-seed
+(function migrateIfNeeded() {
+  const meta = load(KEYS.meta);
+  if (meta && meta.version !== DATA_VERSION) {
+    Object.values(KEYS).forEach(k => localStorage.removeItem(k));
+    initSeeds();
+    toast('Data format updated — seed data restored.');
+  }
+})();
+
+// Stale data warning (5 min threshold)
+const _lastSaved = localStorage.getItem('fnfc_lastSaved');
+if (_lastSaved && Date.now() - Number(_lastSaved) > 300000) {
+  toast('Data may be outdated — consider re-checking your entries.');
+}
+
+// Cross-tab sync awareness
+window.addEventListener('storage', e => {
+  if (e.key && e.key.startsWith('fnfc_') && e.key !== 'fnfc_lastSaved') {
+    toast('Changes detected from another tab.');
+    renderActiveModule();
+  }
+});
+
+initTheme();
+updateHeader();
+tickClock();
+setInterval(tickClock, 1000);
+setInterval(() => { if (activeTab === 'schedule') updateNowLine(); }, 60000);
+renderActiveModule();
+
+</script>
+<!-- ── Incident modal ──────────────────────────────────── -->
+<div id="inc-modal" class="modal-overlay">
+  <div class="modal">
+    <div class="modal-header">
+      <div class="modal-title" id="inc-modal-title">Log Entry</div>
+      <button class="modal-close" onclick="closeModal('inc-modal')">✕</button>
+    </div>
+    <div class="form-row">
+      <div class="form-group">
+        <label>Type</label>
+        <select id="incm-type">
+          <option>Incident</option>
+          <option>Lost Item</option>
+          <option>Found Item</option>
+          <option>Medical</option>
+          <option>Noise</option>
+          <option>Other</option>
+        </select>
+      </div>
+      <div class="form-group">
+        <label>Status</label>
+        <select id="incm-status">
+          <option value="open">Open</option>
+          <option value="resolved">Resolved</option>
+        </select>
+      </div>
+    </div>
+    <div class="form-group">
+      <label>Description</label>
+      <textarea id="incm-desc" placeholder="What happened?"></textarea>
+    </div>
+    <div class="form-row">
+      <div class="form-group">
+        <label>Reported By</label>
+        <input type="text" id="incm-reporter" placeholder="Name or role">
+      </div>
+      <div class="form-group">
+        <label>Location (optional)</label>
+        <input type="text" id="incm-location" placeholder="e.g. Ag Ring, Booth 4">
+      </div>
+    </div>
+    <div class="form-group">
+      <label>Date / Time</label>
+      <input type="datetime-local" id="incm-datetime">
+    </div>
+    <div class="form-group" id="incm-resolution-group">
+      <label>Resolution Notes</label>
+      <textarea id="incm-resolution" placeholder="How was this resolved?"></textarea>
+    </div>
+    <div class="modal-footer">
+      <div class="modal-footer-left">
+        <button class="btn btn-danger btn-sm" id="incm-delete-btn" style="display:none">Delete</button>
+      </div>
+      <button class="btn btn-ghost" onclick="closeModal('inc-modal')">Cancel</button>
+      <button class="btn btn-primary" id="incm-save-btn">Save Entry</button>
+    </div>
+  </div>
+</div>
+
+<!-- ── Volunteer modal ─────────────────────────────────── -->
+<div id="vol-modal" class="modal-overlay">
+  <div class="modal">
+    <div class="modal-header">
+      <div class="modal-title" id="vol-modal-title">Add Volunteer</div>
+      <button class="modal-close" onclick="closeModal('vol-modal')">✕</button>
+    </div>
+    <div class="form-group">
+      <label>Name</label>
+      <input type="text" id="volm-name" placeholder="Full name">
+    </div>
+    <div class="form-row">
+      <div class="form-group">
+        <label>Role</label>
+        <select id="volm-role">
+          <option>Gate</option>
+          <option>Setup</option>
+          <option>Teardown</option>
+          <option>Stage Crew</option>
+          <option>First Aid</option>
+          <option>Information Booth</option>
+          <option>General</option>
+        </select>
+      </div>
+      <div class="form-group">
+        <label>Shift</label>
+        <select id="volm-shift">
+          <option>Day 1 AM</option>
+          <option>Day 1 PM</option>
+          <option>Day 2 AM</option>
+          <option>Day 2 PM</option>
+          <option>Both Days</option>
+        </select>
+      </div>
+    </div>
+    <div class="form-group">
+      <label>Contact Phone</label>
+      <input type="tel" id="volm-phone" placeholder="204-555-0000">
+    </div>
+    <div class="form-group">
+      <label>Notes</label>
+      <textarea id="volm-notes" placeholder="Any special notes..."></textarea>
+    </div>
+    <div class="modal-footer">
+      <div class="modal-footer-left">
+        <button class="btn btn-danger btn-sm" id="volm-delete-btn" style="display:none">Delete</button>
+      </div>
+      <button class="btn btn-ghost" onclick="closeModal('vol-modal')">Cancel</button>
+      <button class="btn btn-primary" id="volm-save-btn">Save Volunteer</button>
+    </div>
+  </div>
+</div>
+
+<!-- ── Budget modal ────────────────────────────────────── -->
+<div id="bud-modal" class="modal-overlay">
+  <div class="modal">
+    <div class="modal-header">
+      <div class="modal-title" id="bud-modal-title">Add Line</div>
+      <button class="modal-close" onclick="closeModal('bud-modal')">✕</button>
+    </div>
+    <div class="form-group">
+      <label>Type</label>
+      <div style="padding:8px 10px;background:var(--surface2);border:1px solid var(--border);border-radius:4px;font-size:14px;color:var(--muted)" id="bud-type-label"></div>
+    </div>
+    <div class="form-row">
+      <div class="form-group">
+        <label>Category</label>
+        <input type="text" id="bud-cat" placeholder="e.g. Gate, Talent, Venue">
+      </div>
+      <div class="form-group">
+        <label>Description</label>
+        <input type="text" id="bud-desc" placeholder="Line item description">
+      </div>
+    </div>
+    <div class="form-row">
+      <div class="form-group">
+        <label>Budgeted ($)</label>
+        <input type="number" id="bud-budget" min="0" step="1" placeholder="0">
+      </div>
+      <div class="form-group">
+        <label>Actual ($)</label>
+        <input type="number" id="bud-actual" min="0" step="1" placeholder="0 or leave blank">
+      </div>
+    </div>
+    <div class="form-group">
+      <label>Notes (optional)</label>
+      <textarea id="bud-notes" placeholder="Additional context..."></textarea>
+    </div>
+    <div class="modal-footer">
+      <div class="modal-footer-left">
+        <button class="btn btn-danger btn-sm" id="bud-delete-btn" style="display:none">Delete</button>
+      </div>
+      <button class="btn btn-ghost" onclick="closeModal('bud-modal')">Cancel</button>
+      <button class="btn btn-primary" id="bud-save-btn">Save Line</button>
+    </div>
+  </div>
+</div>
+
+<!-- ── Vendor modal ────────────────────────────────────── -->
+<div id="vend-modal" class="modal-overlay">
+  <div class="modal">
+    <div class="modal-header">
+      <div class="modal-title" id="vend-modal-title">Add Vendor</div>
+      <button class="modal-close" onclick="closeModal('vend-modal')">✕</button>
+    </div>
+    <div class="form-group">
+      <label>Vendor Name</label>
+      <input type="text" id="vm-name" placeholder="Business or vendor name">
+    </div>
+    <div class="form-row">
+      <div class="form-group">
+        <label>Category</label>
+        <select id="vm-cat">
+          <option>Food</option>
+          <option>Craft</option>
+          <option>Ag</option>
+          <option>Sponsor</option>
+          <option>Other</option>
+        </select>
+      </div>
+      <div class="form-group">
+        <label>Booth #</label>
+        <input type="text" id="vm-booth" placeholder="e.g. 12">
+      </div>
+    </div>
+    <div class="form-row">
+      <div class="form-group">
+        <label>Contact Name</label>
+        <input type="text" id="vm-contact">
+      </div>
+      <div class="form-group">
+        <label>Contact Phone</label>
+        <input type="tel" id="vm-phone" placeholder="204-555-0000">
+      </div>
+    </div>
+    <div class="form-row">
+      <div class="form-group">
+        <label>Booth Fee ($)</label>
+        <input type="number" id="vm-fee" min="0" step="1" placeholder="0">
+      </div>
+      <div class="form-group" style="display:flex;align-items:flex-end;padding-bottom:6px">
+        <label style="display:flex;align-items:center;gap:8px;cursor:pointer;color:var(--text);font-size:14px;text-transform:none;letter-spacing:0;font-family:'Source Sans 3',sans-serif">
+          <input type="checkbox" id="vm-paid"> Fee Paid
+        </label>
+      </div>
+    </div>
+    <div class="form-group">
+      <label>Notes</label>
+      <textarea id="vm-notes" placeholder="Power needs, special setup, etc."></textarea>
+    </div>
+    <div class="modal-footer">
+      <div class="modal-footer-left">
+        <button class="btn btn-danger btn-sm" id="vm-delete-btn" style="display:none">Delete</button>
+      </div>
+      <button class="btn btn-ghost" onclick="closeModal('vend-modal')">Cancel</button>
+      <button class="btn btn-primary" id="vm-save-btn">Save Vendor</button>
+    </div>
+  </div>
+</div>
+
+<!-- ── Schedule modal ──────────────────────────────────── -->
+<div id="sched-modal" class="modal-overlay">
+  <div class="modal">
+    <div class="modal-header">
+      <div class="modal-title" id="sched-modal-title">Add Slot</div>
+      <button class="modal-close" onclick="closeModal('sched-modal')">✕</button>
+    </div>
+    <div class="form-row">
+      <div class="form-group">
+        <label>Area</label>
+        <select id="sm-area">
+          <option>Main Stage</option>
+          <option>Ag Ring</option>
+          <option>Community Hall</option>
+          <option>Midway</option>
+        </select>
+      </div>
+      <div class="form-group">
+        <label>Day</label>
+        <select id="sm-day">
+          <option value="1">Day 1 — Aug 9</option>
+          <option value="2">Day 2 — Aug 10</option>
+        </select>
+      </div>
+    </div>
+    <div class="form-row">
+      <div class="form-group">
+        <label>Start Time</label>
+        <input type="time" id="sm-start">
+      </div>
+      <div class="form-group">
+        <label>End Time</label>
+        <input type="time" id="sm-end">
+      </div>
+    </div>
+    <div class="form-group">
+      <label>Act / Event Name</label>
+      <input type="text" id="sm-name" placeholder="Act or event name">
+    </div>
+    <div class="form-group">
+      <label>Description (optional)</label>
+      <textarea id="sm-desc" placeholder="Details, notes..."></textarea>
+    </div>
+    <div class="form-group">
+      <label>Status</label>
+      <select id="sm-status">
+        <option value="confirmed">Confirmed</option>
+        <option value="tentative">Tentative</option>
+        <option value="cancelled">Cancelled</option>
+      </select>
+    </div>
+    <div class="modal-footer">
+      <div class="modal-footer-left">
+        <button class="btn btn-danger btn-sm" id="sm-delete-btn" style="display:none">Delete</button>
+      </div>
+      <button class="btn btn-ghost" onclick="closeModal('sched-modal')">Cancel</button>
+      <button class="btn btn-primary" id="sm-save-btn">Save Slot</button>
+    </div>
+  </div>
+</div>
+
+</body>
+</html>

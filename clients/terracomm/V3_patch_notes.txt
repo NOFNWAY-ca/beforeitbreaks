@@ -1,0 +1,49 @@
+TerraComm TimeTracker — V3 Patch Notes
+=======================================
+
+
+WHAT CHANGED FROM V2
+--------------------
+
+Visual polish (carried forward from V2 work)
+- Coloured network pills: LMRN blue, PSCS green, ORS purple, Off gray
+- Sticky Date column on horizontal scroll
+- Zebra striping on log rows
+- Warning highlight on rows with a network set but no hours
+- Inline EEA/WBS subtext inside the Project cell
+- Leave icons on Sick and Holiday rows
+- Summary column on the right showing hours/km/expenses per row
+
+New in V3 — workflow
+- Smart defaults: today's row pre-fills based on yesterday or weekday pattern
+- Searchable project entry with datalist autocomplete
+- Quick project buttons for most-used projects (NWZ LMRN, NEZ LMRN, Sick, Holiday)
+- Copy Yesterday button — fills selected row from previous day's entry
+- Prev Row button — duplicates the row directly above
+- Keyboard shortcuts: Ctrl+D (prev row), Ctrl+Shift+D (copy yesterday)
+- Split presets: 50/50, 75/25, or custom split by hours value
+- Week total rows after each Sunday
+- Missing-day detection: workdays with no hours logged are highlighted
+- Row context bar: shows last-used date, typical hours/km for the selected project
+- Entry last-modified timestamp tracked per row
+
+New in V3 — data
+- Expenses tab: separate receipt log per month, linked to network/project
+- Summary tab: per-project and per-network totals with expenses, km, diems, day count
+- History tab: card view of all logged months with totals
+- Backup tab: save/restore full data as a JSON file, with age reminder
+
+New in V3 — visual
+- Network stripe: 3px left-border on each log row matching network colour
+
+
+BUG FIXES (this session, 2026-04-17)
+-------------------------------------
+- Replaced browser confirm() dialog on project delete with inline Delete/Cancel buttons
+- exportPDF now shows a toast instead of crashing if the browser blocks the popup
+- Backup restore now handles malformed month data without throwing
+- Week total row was showing the hours value twice; duplicate removed
+- EEA and WBS values in log rows were rendered unescaped in innerHTML
+- Project description, EEA, and WBS in the Projects table were unescaped
+- Project name in the Summary table was unescaped
+- Variable shadowing in renderSummary (inner key renamed to projKey)

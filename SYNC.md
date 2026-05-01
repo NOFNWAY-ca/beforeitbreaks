@@ -31,9 +31,24 @@ Active marketing/demo site with multiple standalone demos.
 - Finished the cross-tier consistency pass so the ladder reads clearly: Tier 1 now carries an explicit intake kicker and locked medical placeholder, Tier 2 carries the same locked medical placeholder while keeping foster coordination as the added layer, and Tier 3 remains the full intake + foster + medical product.
 - Updated `index.html` so the landing page now explains the KIND ladder directly with a dedicated featured section linking Tier 1 intake, Tier 2 foster coordination, and Tier 3 medical intelligence as one cumulative product family.
 
+## Recent Changes (continued)
+- Updated `Client Prep Desk/client-prep.html` to match actual public pricing: Price Helper scale tiers changed to Simple ($500) / Standard ($1,200) / Complex ($2,500); messiness and data risk modifiers reduced proportionally; scale select in editor renamed to Simple/Standard/Complex with dollar amounts; blank client defaults updated (priceLow $500, priceHigh $1,200, scale "standard"). Clears stale localStorage to take effect.
+
 ## Open Questions
 - Whether the Caylie variants should stay as separate demos or be consolidated.
 
+## Recent Changes (continued)
+- Built `festival-command.html` — a full single-file event organizer demo for festival/fair/event organizer clients. Fictional event: Harvest & Holler, Millwood MB, Aug 9–10 2025. Five modules: Schedule (visual time grid), Vendors (with live budget sync), Volunteers, Budget (two-column with auto vendor fees line and net surplus/deficit), Incidents/Lost & Found. Dark/light mode, localStorage persistence, seed data, settings panel with export and reset, print views for schedule and volunteer roster. Confirm2 styled dialog throughout (no window.confirm).
+
+- Completed full hardening pass on `festival-command.html`: incidents search input wired, boot-time version migration guard, stale-data toast (5-min threshold), cross-tab storage listener, and FileReader-based JSON import handler on the settings panel.
+
+- Added the Before it Breaks thumbnail and preview identity system: favicon SVG/ICO/PNG assets, apple touch icon, 1200x630 PNG/SVG Open Graph images, and dedicated KIND tier preview images.
+- Wired page-specific favicon, canonical, Open Graph, and Twitter/X metadata into `index.html` and the three KIND demo pages.
+- Added a quiet KIND demo ladder section back to `index.html` with thumbnail cards for intake, foster coordination, and medical tracking.
+- Added `THUMBNAILS.md` documenting the asset roles, preview sizes, metadata locations, absolute social image URLs, and preview testing steps.
+- Added `DEPLOY.md` as the operational deployment reference for `sync.sh`, pre-sync checks, post-sync verification, and preview debugger use.
+
 ## Next Recommended Step
-- Add short notes to `README.md` describing each demo page so the directory is self-explanatory at a glance, including the branded KIND intake, foster, and medical demos.
-- Tightened the landing-page pricing and FAQ copy in `index.html` so the commercial framing now matches the KIND ladder: stable base tool, added operational layer, then full operations build with room to grow in tiers.
+- Test `festival-command.html` in browser (open, reset to seed, export, re-import, check incidents search and cross-tab toast).
+- Add `festival-command.html` to the landing page (`index.html`) as a featured demo once tested.
+- Add short notes to `README.md` describing each demo page so the directory is self-explanatory at a glance.

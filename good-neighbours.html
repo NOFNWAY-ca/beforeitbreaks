@@ -1,0 +1,984 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Good Neighbours</title>
+<style>
+:root {
+  --bg: #0d1b2e;
+  --surface: #142236;
+  --surface2: #1c3050;
+  --surface3: #223a60;
+  --border: #2b4575;
+  --text: #d4e4f8;
+  --muted: #7090b8;
+  --accent: #4a9eff;
+  --green: #4ade80;
+  --green-bg: #14532d;
+  --red: #f87171;
+  --red-bg: #7f1d1d;
+  --yellow: #fbbf24;
+  --yellow-bg: #78350f;
+  --r: 5px;
+}
+*, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+html { font-size: 16px; }
+body { background: var(--bg); color: var(--text); font-family: system-ui, -apple-system, 'Segoe UI', sans-serif; line-height: 1.5; min-height: 100vh; }
+
+/* Nudge bar */
+#nudge { display: none; align-items: center; gap: 0.75rem; padding: 0.55rem 1.25rem; background: var(--yellow-bg); border-bottom: 2px solid var(--yellow); font-size: 0.85rem; color: var(--yellow); }
+#nudge.on { display: flex; }
+#nudge .nudge-msg { flex: 1; }
+#nudge .nbtn { background: var(--yellow); color: #111; border: none; padding: 0.25rem 0.7rem; border-radius: var(--r); cursor: pointer; font-size: 0.8rem; font-weight: 700; }
+#nudge .ndismiss { background: none; color: var(--yellow); border: none; text-decoration: underline; cursor: pointer; font-size: 0.8rem; }
+
+/* Header */
+header { background: var(--surface); border-bottom: 2px solid var(--border); padding: 0.65rem 1.25rem; display: flex; align-items: center; gap: 1rem; flex-wrap: wrap; }
+.logo { font-size: 1.2rem; font-weight: 700; color: var(--accent); white-space: nowrap; }
+.logo small { color: var(--muted); font-weight: 400; font-size: 0.8rem; margin-left: 0.4rem; }
+nav { display: flex; gap: 0.2rem; flex-wrap: wrap; }
+nav button { background: none; border: none; color: var(--muted); padding: 0.35rem 0.7rem; border-radius: var(--r); cursor: pointer; font-size: 0.85rem; transition: 0.15s; white-space: nowrap; }
+nav button:hover { background: var(--surface2); color: var(--text); }
+nav button.on { background: #1a3d70; color: var(--accent); font-weight: 600; }
+
+/* Main */
+main { max-width: 1080px; margin: 0 auto; padding: 1.25rem; }
+.tab { display: none; }
+.tab.on { display: block; }
+
+/* Typography */
+h2 { font-size: 1.1rem; font-weight: 600; }
+h3 { font-size: 0.95rem; font-weight: 600; color: var(--muted); margin-bottom: 0.6rem; }
+label { font-size: 0.8rem; color: var(--muted); display: block; margin-bottom: 0.2rem; }
+
+/* Buttons */
+.btn { display: inline-flex; align-items: center; gap: 0.35rem; padding: 0.45rem 0.9rem; border-radius: var(--r); border: none; cursor: pointer; font-size: 0.85rem; font-weight: 600; white-space: nowrap; transition: 0.15s; }
+.btn:hover { opacity: 0.85; }
+.btn:disabled { opacity: 0.35; cursor: not-allowed; }
+.btn-primary { background: var(--accent); color: #fff; }
+.btn-secondary { background: var(--surface2); color: var(--text); border: 1px solid var(--border); }
+.btn-ghost { background: transparent; color: var(--muted); border: 1px solid var(--border); }
+.btn-danger { background: var(--red-bg); color: var(--red); border: 1px solid var(--red-bg); }
+.btn-sm { padding: 0.28rem 0.6rem; font-size: 0.8rem; }
+.btn-xs { padding: 0.15rem 0.45rem; font-size: 0.75rem; }
+.btn-row { display: flex; gap: 0.6rem; flex-wrap: wrap; }
+
+/* Forms */
+.fg { margin-bottom: 0.85rem; }
+.fr { display: flex; gap: 0.85rem; }
+.fr .fg { flex: 1; min-width: 0; }
+input[type=text], input[type=number], input[type=date], input[type=email], input[type=tel], textarea, select {
+  width: 100%; background: var(--surface2); border: 1px solid var(--border); color: var(--text);
+  border-radius: var(--r); padding: 0.4rem 0.6rem; font-size: 0.85rem; appearance: none; font-family: inherit;
+}
+input:focus, textarea:focus, select:focus { outline: none; border-color: var(--accent); }
+textarea { resize: vertical; min-height: 65px; }
+input[type=checkbox] { width: auto; accent-color: var(--accent); cursor: pointer; }
+.check-label { display: flex; align-items: center; gap: 0.4rem; font-size: 0.85rem; color: var(--text); cursor: pointer; }
+
+/* Cards */
+.card { background: var(--surface); border: 1px solid var(--border); border-radius: var(--r); padding: 1.1rem; margin-bottom: 1.1rem; }
+.card-title { font-size: 0.95rem; font-weight: 600; padding-bottom: 0.65rem; margin-bottom: 0.85rem; border-bottom: 1px solid var(--border); }
+
+/* Tables */
+.tbl-wrap { overflow-x: auto; }
+table { width: 100%; border-collapse: collapse; font-size: 0.85rem; }
+th { text-align: left; padding: 0.45rem 0.65rem; color: var(--muted); font-size: 0.78rem; font-weight: 600; border-bottom: 1px solid var(--border); white-space: nowrap; }
+th.sort { cursor: pointer; user-select: none; }
+th.sort:hover { color: var(--text); }
+td { padding: 0.45rem 0.65rem; border-bottom: 1px solid var(--border); vertical-align: middle; }
+tr:last-child td { border-bottom: none; }
+tr:hover td { background: var(--surface2); }
+.empty { text-align: center; padding: 2.5rem 1rem; color: var(--muted); font-size: 0.9rem; }
+
+/* Badges */
+.badge { display: inline-block; padding: 0.12rem 0.45rem; border-radius: 999px; font-size: 0.72rem; font-weight: 700; text-transform: uppercase; letter-spacing: 0.04em; }
+.badge-unpaid { background: var(--yellow-bg); color: var(--yellow); }
+.badge-paid { background: var(--green-bg); color: var(--green); }
+.badge-void { background: var(--surface3); color: var(--muted); }
+
+/* Section header */
+.sec-head { display: flex; align-items: center; justify-content: space-between; margin-bottom: 0.85rem; gap: 0.75rem; flex-wrap: wrap; }
+
+/* Filter row */
+.filter-row { display: flex; gap: 0.4rem; flex-wrap: wrap; align-items: center; margin-bottom: 0.85rem; }
+.filter-row span { font-size: 0.8rem; color: var(--muted); margin-right: 0.25rem; }
+
+/* Invoice builder */
+.inv-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 1.1rem; margin-bottom: 1.1rem; }
+.li-head { display: grid; grid-template-columns: 1fr 68px 105px 75px 95px 32px; gap: 0.4rem; padding: 0.35rem 0.4rem; font-size: 0.78rem; color: var(--muted); font-weight: 600; border-bottom: 1px solid var(--border); }
+.li-row { display: grid; grid-template-columns: 1fr 68px 105px 75px 95px 32px; gap: 0.4rem; padding: 0.35rem 0.4rem; border-bottom: 1px solid var(--border); align-items: center; }
+.li-row input { margin: 0; }
+.li-total { font-size: 0.85rem; color: var(--muted); text-align: right; }
+.tax-check { display: flex; align-items: center; justify-content: center; }
+.totals-block { display: flex; flex-direction: column; align-items: flex-end; gap: 0.3rem; padding-top: 0.85rem; margin-top: 0.5rem; border-top: 1px solid var(--border); }
+.tot-row { display: flex; justify-content: space-between; gap: 2rem; min-width: 240px; font-size: 0.85rem; }
+.tot-row .lbl { color: var(--muted); }
+.tot-row.grand { font-weight: 700; font-size: 1rem; border-top: 2px solid var(--border); padding-top: 0.3rem; margin-top: 0.15rem; }
+
+/* Disclaimer */
+.disclaimer { font-size: 0.78rem; color: var(--muted); background: var(--surface2); border-left: 3px solid var(--border); padding: 0.55rem 0.75rem; margin-top: 0.85rem; border-radius: 0 var(--r) var(--r) 0; }
+
+/* Storage bar */
+.stor-labels { display: flex; justify-content: space-between; font-size: 0.78rem; color: var(--muted); margin-bottom: 0.3rem; }
+.stor-track { height: 7px; background: var(--surface3); border-radius: 999px; overflow: hidden; }
+.stor-fill { height: 100%; border-radius: 999px; transition: width 0.3s, background 0.3s; }
+.stor-fill.low { background: var(--green); }
+.stor-fill.med { background: var(--yellow); }
+.stor-fill.high { background: var(--red); }
+
+/* Summary stats */
+.stat-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(175px, 1fr)); gap: 0.85rem; margin-bottom: 1.25rem; }
+.stat { background: var(--surface2); border: 1px solid var(--border); border-radius: var(--r); padding: 0.85rem; }
+.stat-lbl { font-size: 0.78rem; color: var(--muted); margin-bottom: 0.2rem; }
+.stat-val { font-size: 1.4rem; font-weight: 700; }
+.stat-sub { font-size: 0.75rem; color: var(--muted); margin-top: 0.1rem; }
+
+/* Toast */
+#toast { position: fixed; bottom: 1.25rem; right: 1.25rem; background: var(--surface2); border: 1px solid var(--border); color: var(--text); padding: 0.55rem 1rem; border-radius: var(--r); font-size: 0.85rem; box-shadow: 0 4px 14px rgba(0,0,0,0.5); opacity: 0; transform: translateY(6px); transition: 0.2s; pointer-events: none; z-index: 200; max-width: 300px; }
+#toast.on { opacity: 1; transform: translateY(0); }
+#toast.ok { border-color: var(--green); }
+#toast.err { border-color: var(--red); }
+
+/* Print area */
+#print-area { display: none; }
+
+@media print {
+  body > *:not(#print-area) { display: none !important; }
+  #print-area {
+    display: block !important;
+    font-family: Georgia, serif;
+    color: #111;
+    background: #fff;
+    padding: 2cm;
+  }
+  .pi-top { display: flex; justify-content: space-between; align-items: flex-start; padding-bottom: 1.25rem; margin-bottom: 1.5rem; border-bottom: 2px solid #111; }
+  .pi-biz-name { font-size: 1.4rem; font-weight: bold; margin-bottom: 0.2rem; }
+  .pi-biz-info { font-size: 0.85rem; line-height: 1.65; color: #444; }
+  .pi-inv-right { text-align: right; }
+  .pi-inv-num { font-size: 1.2rem; font-weight: bold; }
+  .pi-inv-date { font-size: 0.85rem; color: #555; }
+  .pi-inv-status { margin-top: 0.4rem; font-size: 0.8rem; font-weight: bold; text-transform: uppercase; letter-spacing: 0.06em; color: #555; }
+  .pi-bill-to { margin-bottom: 1.75rem; }
+  .pi-bill-lbl { font-size: 0.72rem; font-weight: bold; text-transform: uppercase; letter-spacing: 0.06em; color: #777; margin-bottom: 0.35rem; }
+  .pi-bill-info { font-size: 0.9rem; line-height: 1.7; }
+  .pi-table { width: 100%; border-collapse: collapse; margin-bottom: 1.25rem; font-size: 0.9rem; }
+  .pi-table th { text-align: left; padding: 0.4rem 0.5rem; font-size: 0.75rem; text-transform: uppercase; letter-spacing: 0.05em; color: #777; border-bottom: 1px solid #bbb; }
+  .pi-table td { padding: 0.45rem 0.5rem; border-bottom: 1px solid #eee; }
+  .pi-table .r { text-align: right; }
+  .pi-totals { display: flex; flex-direction: column; align-items: flex-end; margin-bottom: 1.75rem; }
+  .pi-tot-row { display: flex; justify-content: space-between; min-width: 260px; padding: 0.18rem 0; font-size: 0.9rem; }
+  .pi-tot-row .l { color: #555; }
+  .pi-tot-row.grand { font-weight: bold; font-size: 1.05rem; border-top: 2px solid #111; padding-top: 0.45rem; margin-top: 0.25rem; }
+  .pi-notes { font-size: 0.85rem; color: #444; border-top: 1px solid #ccc; padding-top: 0.85rem; margin-bottom: 1.5rem; }
+  .pi-footer { font-size: 0.72rem; color: #999; font-style: italic; border-top: 1px solid #eee; padding-top: 0.65rem; }
+}
+
+@media (max-width: 680px) {
+  .inv-grid { grid-template-columns: 1fr; }
+  .fr { flex-direction: column; gap: 0; }
+  .li-head { display: none; }
+  .li-row { grid-template-columns: 1fr 60px 90px; }
+  .li-row .tax-check, .li-row .li-total { display: none; }
+}
+</style>
+</head>
+<body>
+
+<!-- Backup nudge -->
+<div id="nudge">
+  <span class="nudge-msg">It has been more than 30 days since your last data export. Back up your data so you do not lose it.</span>
+  <button class="nbtn" onclick="exportJSON()">Export Now</button>
+  <button class="ndismiss" onclick="document.getElementById('nudge').classList.remove('on')">Dismiss</button>
+</div>
+
+<!-- Header -->
+<header>
+  <div class="logo">Good Neighbours <small>Handyman Invoicing</small></div>
+  <nav id="nav">
+    <button data-tab="invoice" onclick="showTab('invoice')" class="on">New Invoice</button>
+    <button data-tab="customers" onclick="showTab('customers')">Customers</button>
+    <button data-tab="ledger" onclick="showTab('ledger')">Ledger</button>
+    <button data-tab="expenses" onclick="showTab('expenses')">Expenses</button>
+    <button data-tab="summary" onclick="showTab('summary')">Year-End</button>
+    <button data-tab="settings" onclick="showTab('settings')">Settings</button>
+  </nav>
+</header>
+
+<main>
+
+<!-- New Invoice -->
+<div class="tab on" id="tab-invoice">
+  <div class="card">
+    <div class="card-title">New Invoice</div>
+    <div class="inv-grid">
+      <div>
+        <div class="fr">
+          <div class="fg">
+            <label for="inv-num">Invoice #</label>
+            <input type="text" id="inv-num" placeholder="INV-001">
+          </div>
+          <div class="fg">
+            <label for="inv-date">Date</label>
+            <input type="date" id="inv-date">
+          </div>
+        </div>
+        <div class="fg">
+          <label for="inv-cust-sel">Select Saved Customer</label>
+          <select id="inv-cust-sel" onchange="onCustSel()">
+            <option value="">-- or fill in below --</option>
+          </select>
+        </div>
+      </div>
+      <div>
+        <div class="fg">
+          <label for="inv-cn">Customer Name</label>
+          <input type="text" id="inv-cn" placeholder="Full name or company">
+        </div>
+        <div class="fg">
+          <label for="inv-ca">Address</label>
+          <input type="text" id="inv-ca" placeholder="Street, City, Province, Postal">
+        </div>
+        <div class="fr">
+          <div class="fg">
+            <label for="inv-cp">Phone</label>
+            <input type="tel" id="inv-cp" placeholder="(204) 555-0000">
+          </div>
+          <div class="fg">
+            <label for="inv-ce">Email</label>
+            <input type="email" id="inv-ce" placeholder="email@example.com">
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <div style="font-weight:600; font-size:0.9rem; margin-bottom:0.4rem;">Line Items</div>
+    <div class="li-head">
+      <span>Description</span><span>Qty</span><span>Rate ($)</span><span style="text-align:center">Taxable</span><span style="text-align:right">Total</span><span></span>
+    </div>
+    <div id="li-container"></div>
+    <button class="btn btn-ghost btn-sm" style="margin-top:0.45rem" onclick="addLine()">+ Add Item</button>
+
+    <div class="totals-block" id="totals-block">
+      <div class="tot-row"><span class="lbl">Subtotal</span><span id="tot-sub">$0.00</span></div>
+      <div class="tot-row"><span class="lbl">GST (5%)</span><span id="tot-gst">$0.00</span></div>
+      <div class="tot-row"><span class="lbl">PST (7%)</span><span id="tot-pst">$0.00</span></div>
+      <div class="tot-row grand"><span class="lbl">Total</span><span id="tot-total">$0.00</span></div>
+    </div>
+
+    <div class="disclaimer">This tool calculates tax but does not give tax advice. Confirm your GST registration status and PST exemptions with your accountant.</div>
+
+    <div class="fg" style="margin-top:0.85rem">
+      <label for="inv-notes">Notes (optional)</label>
+      <textarea id="inv-notes" placeholder="Payment terms, e-transfer address, anything else..."></textarea>
+    </div>
+
+    <div class="btn-row" style="margin-top:1rem; padding-top:1rem; border-top:1px solid var(--border)">
+      <button class="btn btn-primary" onclick="saveInvoice()">Save Invoice</button>
+      <button class="btn btn-ghost" onclick="clearInvoiceForm()">Clear Form</button>
+    </div>
+  </div>
+</div>
+
+<!-- Customers -->
+<div class="tab" id="tab-customers">
+  <div class="card">
+    <div class="card-title">Add Customer</div>
+    <div class="fr">
+      <div class="fg"><label for="cn">Name</label><input type="text" id="cn" placeholder="Full name or company"></div>
+      <div class="fg"><label for="ca">Address</label><input type="text" id="ca" placeholder="Street, City, Province, Postal"></div>
+    </div>
+    <div class="fr">
+      <div class="fg"><label for="cp">Phone</label><input type="tel" id="cp" placeholder="(204) 555-0000"></div>
+      <div class="fg"><label for="ce">Email</label><input type="email" id="ce" placeholder="email@example.com"></div>
+    </div>
+    <button class="btn btn-primary" onclick="addCustomer()">Save Customer</button>
+  </div>
+  <div class="card">
+    <div class="card-title">Saved Customers</div>
+    <div id="cust-list"></div>
+  </div>
+</div>
+
+<!-- Ledger -->
+<div class="tab" id="tab-ledger">
+  <div class="sec-head">
+    <h2>Invoice Ledger</h2>
+  </div>
+  <div class="filter-row">
+    <span>Filter:</span>
+    <button class="btn btn-sm btn-secondary" data-f="all" onclick="setFilter('all')">All</button>
+    <button class="btn btn-sm btn-ghost" data-f="unpaid" onclick="setFilter('unpaid')">Unpaid</button>
+    <button class="btn btn-sm btn-ghost" data-f="paid" onclick="setFilter('paid')">Paid</button>
+    <button class="btn btn-sm btn-ghost" data-f="void" onclick="setFilter('void')">Void</button>
+  </div>
+  <div class="card" style="padding:0">
+    <div class="tbl-wrap">
+      <table>
+        <thead><tr>
+          <th class="sort" onclick="setSort('number')">Invoice #</th>
+          <th class="sort" onclick="setSort('date')">Date</th>
+          <th>Customer</th>
+          <th class="sort" onclick="setSort('total')">Total</th>
+          <th class="sort" onclick="setSort('status')">Status</th>
+          <th>Actions</th>
+        </tr></thead>
+        <tbody id="ledger-body"></tbody>
+      </table>
+    </div>
+  </div>
+</div>
+
+<!-- Expenses -->
+<div class="tab" id="tab-expenses">
+  <div class="card">
+    <div class="card-title">Add Expense</div>
+    <div class="fr">
+      <div class="fg"><label for="ex-date">Date</label><input type="date" id="ex-date"></div>
+      <div class="fg"><label for="ex-desc">Description</label><input type="text" id="ex-desc" placeholder="What was purchased or paid for"></div>
+    </div>
+    <div class="fr">
+      <div class="fg">
+        <label for="ex-cat">Category</label>
+        <select id="ex-cat">
+          <option value="materials">Materials</option>
+          <option value="fuel">Fuel</option>
+          <option value="tools">Tools</option>
+          <option value="subcontractors">Subcontractors</option>
+          <option value="other">Other</option>
+        </select>
+      </div>
+      <div class="fg"><label for="ex-amt">Amount ($)</label><input type="number" id="ex-amt" step="0.01" min="0" placeholder="0.00"></div>
+    </div>
+    <div style="display:flex; gap:1.5rem; margin-bottom:0.85rem; flex-wrap:wrap;">
+      <label class="check-label"><input type="checkbox" id="ex-gst"> GST paid on this expense</label>
+      <label class="check-label"><input type="checkbox" id="ex-pst"> PST paid on this expense</label>
+    </div>
+    <button class="btn btn-primary" onclick="addExpense()">Add Expense</button>
+  </div>
+  <div class="card" style="padding:0">
+    <div class="tbl-wrap">
+      <table>
+        <thead><tr>
+          <th>Date</th><th>Description</th><th>Category</th><th>Amount</th><th>GST</th><th>PST</th><th></th>
+        </tr></thead>
+        <tbody id="exp-body"></tbody>
+      </table>
+    </div>
+  </div>
+</div>
+
+<!-- Year-End Summary -->
+<div class="tab" id="tab-summary">
+  <div class="sec-head">
+    <h2>Year-End Summary</h2>
+    <div style="display:flex; gap:0.6rem; align-items:center;">
+      <label for="sum-year" style="margin:0; white-space:nowrap">Year:</label>
+      <select id="sum-year" onchange="renderSummary()" style="width:auto"></select>
+      <button class="btn btn-secondary btn-sm" onclick="exportCSV()">Export CSV</button>
+    </div>
+  </div>
+  <div id="sum-content"></div>
+  <div class="disclaimer">This tool calculates tax but does not give tax advice. Confirm your GST registration status and PST exemptions with your accountant.</div>
+</div>
+
+<!-- Settings -->
+<div class="tab" id="tab-settings">
+  <div class="card">
+    <div class="card-title">Your Business Info</div>
+    <div class="fr">
+      <div class="fg"><label for="s-name">Business / Your Name</label><input type="text" id="s-name" placeholder="Joe's Handyman Services"></div>
+      <div class="fg"><label for="s-gst">GST Number (if registered)</label><input type="text" id="s-gst" placeholder="123456789RT0001"></div>
+    </div>
+    <div class="fg"><label for="s-addr">Address</label><input type="text" id="s-addr" placeholder="123 Main St, Steinbach MB R5G 0A1"></div>
+    <div class="fr">
+      <div class="fg"><label for="s-ph">Phone</label><input type="tel" id="s-ph" placeholder="(204) 555-0000"></div>
+      <div class="fg"><label for="s-em">Email</label><input type="email" id="s-em" placeholder="you@example.com"></div>
+    </div>
+    <div class="fg" style="max-width:160px"><label for="s-pfx">Invoice # Prefix</label><input type="text" id="s-pfx" placeholder="INV"></div>
+    <button class="btn btn-primary" onclick="saveSettingsForm()">Save Settings</button>
+  </div>
+
+  <div class="card">
+    <div class="card-title">Backup and Restore</div>
+    <p style="color:var(--muted); font-size:0.85rem; margin-bottom:0.85rem;">Export a JSON file with all your data. Import to restore or move to a new device.</p>
+    <div class="btn-row" style="margin-bottom:1.25rem">
+      <button class="btn btn-secondary" onclick="exportJSON()">Export JSON Backup</button>
+      <label class="btn btn-ghost" style="cursor:pointer">
+        Import JSON Backup
+        <input type="file" accept=".json" onchange="importJSON(event)" style="display:none">
+      </label>
+    </div>
+
+    <div class="card-title" style="margin-top:0.5rem">Storage Usage</div>
+    <div id="stor-wrap"></div>
+
+    <div style="margin-top:1.25rem; padding-top:1.1rem; border-top:1px solid var(--border)">
+      <button class="btn btn-danger" onclick="clearAll()">Clear All Data</button>
+      <p style="color:var(--muted); font-size:0.78rem; margin-top:0.4rem">Export a backup first. This cannot be undone.</p>
+    </div>
+  </div>
+</div>
+
+</main>
+
+<!-- Print target -->
+<div id="print-area"></div>
+
+<!-- Toast -->
+<div id="toast"></div>
+
+<script>
+// ---- Storage ----
+const K = { cust: 'gn_customers', inv: 'gn_invoices', exp: 'gn_expenses', set: 'gn_settings' };
+const load = (k, d) => { try { return JSON.parse(localStorage.getItem(k)) ?? d; } catch { return d; } };
+const save = (k, v) => localStorage.setItem(k, JSON.stringify(v));
+
+const defSettings = () => ({ businessName:'', businessAddress:'', businessPhone:'', businessEmail:'', gstNumber:'', invoicePrefix:'INV', nextNum:1, lastExport:null });
+const getSettings = () => load(K.set, defSettings());
+const getCustomers = () => load(K.cust, []);
+const getInvoices = () => load(K.inv, []);
+const getExpenses = () => load(K.exp, []);
+
+// ---- Utils ----
+const uid = () => Date.now().toString(36) + Math.random().toString(36).slice(2);
+const todayStr = () => { const d=new Date(); return d.getFullYear()+'-'+String(d.getMonth()+1).padStart(2,'0')+'-'+String(d.getDate()).padStart(2,'0'); };
+const fmt = n => '$' + (+(n||0)).toFixed(2).replace(/\B(?=(\d{3})+(?!\d))/g,',');
+const fmtDate = s => { if(!s) return ''; const [y,m,d]=s.split('-'); const mn=['Jan','Feb','Mar','Apr','May','Jun','Jul','Aug','Sep','Oct','Nov','Dec']; return mn[+m-1]+' '+parseInt(d)+', '+y; };
+const esc = s => String(s||'').replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;');
+const ea = s => String(s||'').replace(/"/g,'&quot;');
+const csvC = s => { const t=String(s||''); return (t.includes(',')||t.includes('"')||t.includes('\n')) ? '"'+t.replace(/"/g,'""')+'"' : t; };
+const dlFile = (name,content,mime) => { const b=new Blob([content],{type:mime}); const u=URL.createObjectURL(b); const a=document.createElement('a'); a.href=u; a.download=name; a.click(); setTimeout(()=>URL.revokeObjectURL(u),1000); };
+
+const calcInv = items => {
+  let sub=0, tax=0;
+  for (const it of items) { const l=(+it.qty||0)*(+it.rate||0); sub+=l; if(it.taxable) tax+=l; }
+  const gst=+(tax*0.05).toFixed(2), pst=+(tax*0.07).toFixed(2);
+  return { subtotal:+sub.toFixed(2), taxable:+tax.toFixed(2), gst, pst, total:+(sub+gst+pst).toFixed(2) };
+};
+
+// ---- Toast ----
+let _tt;
+const toast = (msg, type='') => {
+  const el=document.getElementById('toast');
+  el.textContent=msg; el.className='on'+(type?' '+type:'');
+  clearTimeout(_tt); _tt=setTimeout(()=>el.className='',3000);
+};
+
+// ---- Tabs ----
+function showTab(name) {
+  document.querySelectorAll('.tab').forEach(t=>t.classList.remove('on'));
+  document.querySelectorAll('[data-tab]').forEach(b=>b.classList.remove('on'));
+  const p=document.getElementById('tab-'+name); if(p) p.classList.add('on');
+  const b=document.querySelector('[data-tab="'+name+'"]'); if(b) b.classList.add('on');
+  if(name==='invoice') { populateCustSel(); }
+  if(name==='customers') renderCustomers();
+  if(name==='ledger') renderLedger();
+  if(name==='expenses') renderExpenses();
+  if(name==='summary') renderSummary();
+  if(name==='settings') renderSettingsTab();
+}
+
+// ---- Invoice Builder ----
+let lines = [];
+
+function initInvoiceForm() {
+  const s = getSettings();
+  document.getElementById('inv-num').value = (s.invoicePrefix||'INV')+'-'+String(s.nextNum||1).padStart(3,'0');
+  document.getElementById('inv-date').value = todayStr();
+  lines = [{ id:uid(), desc:'', qty:1, rate:'', taxable:true }];
+  renderLines();
+  updateTotals();
+}
+
+function populateCustSel() {
+  const custs = getCustomers();
+  const sel = document.getElementById('inv-cust-sel');
+  const cur = sel.value;
+  sel.innerHTML = '<option value="">-- or fill in below --</option>';
+  custs.forEach(c => {
+    const o=document.createElement('option');
+    o.value=c.id; o.textContent=c.name+(c.phone?' ('+c.phone+')':'');
+    sel.appendChild(o);
+  });
+  if(cur) sel.value=cur;
+}
+
+function onCustSel() {
+  const id = document.getElementById('inv-cust-sel').value;
+  if(!id) return;
+  const c = getCustomers().find(x=>x.id===id);
+  if(!c) return;
+  document.getElementById('inv-cn').value=c.name||'';
+  document.getElementById('inv-ca').value=c.address||'';
+  document.getElementById('inv-cp').value=c.phone||'';
+  document.getElementById('inv-ce').value=c.email||'';
+}
+
+function addLine() {
+  lines.push({id:uid(), desc:'', qty:1, rate:'', taxable:true});
+  renderLines();
+}
+
+function removeLine(id) {
+  if(lines.length===1) return;
+  lines=lines.filter(l=>l.id!==id);
+  renderLines(); updateTotals();
+}
+
+function setLine(id, field, val) {
+  const it=lines.find(l=>l.id===id);
+  if(!it) return;
+  it[field]=val;
+  updateTotals();
+}
+
+function renderLines() {
+  const c=document.getElementById('li-container');
+  c.innerHTML='';
+  lines.forEach(it => {
+    const row=document.createElement('div');
+    row.className='li-row';
+    row.innerHTML=`
+      <input type="text" placeholder="Description" value="${ea(it.desc)}" oninput="setLine('${it.id}','desc',this.value)">
+      <input type="number" min="0" step="0.01" value="${ea(it.qty)}" oninput="setLine('${it.id}','qty',this.value)">
+      <input type="number" min="0" step="0.01" placeholder="0.00" value="${ea(it.rate)}" oninput="setLine('${it.id}','rate',this.value)">
+      <div class="tax-check"><input type="checkbox" ${it.taxable?'checked':''} onchange="setLine('${it.id}','taxable',this.checked)" title="Apply GST + PST"></div>
+      <div class="li-total">${fmt((+it.qty||0)*(+it.rate||0))}</div>
+      <button class="btn btn-xs btn-ghost" onclick="removeLine('${it.id}')" style="padding:0.1rem 0.4rem; font-size:1rem; line-height:1">x</button>
+    `;
+    c.appendChild(row);
+  });
+}
+
+function updateTotals() {
+  const ca=calcInv(lines);
+  document.getElementById('tot-sub').textContent=fmt(ca.subtotal);
+  document.getElementById('tot-gst').textContent=fmt(ca.gst);
+  document.getElementById('tot-pst').textContent=fmt(ca.pst);
+  document.getElementById('tot-total').textContent=fmt(ca.total);
+}
+
+function saveInvoice() {
+  const name=document.getElementById('inv-cn').value.trim();
+  if(!name) { toast('Enter a customer name.','err'); return; }
+  if(lines.every(l=>!l.desc&&!l.rate)) { toast('Add at least one line item.','err'); return; }
+  const num=document.getElementById('inv-num').value.trim();
+  const date=document.getElementById('inv-date').value;
+  const custId=document.getElementById('inv-cust-sel').value||null;
+  const ca=calcInv(lines);
+  const inv={
+    id:uid(), number:num, date, customerId:custId,
+    customer:{ name, address:document.getElementById('inv-ca').value.trim(), phone:document.getElementById('inv-cp').value.trim(), email:document.getElementById('inv-ce').value.trim() },
+    lineItems:lines.map(l=>({ desc:l.desc, qty:+l.qty||0, rate:+l.rate||0, taxable:l.taxable })),
+    notes:document.getElementById('inv-notes').value.trim(),
+    status:'unpaid', calc:ca, createdAt:Date.now()
+  };
+  const invs=getInvoices(); invs.push(inv); save(K.inv, invs);
+  const s=getSettings(); s.nextNum=(s.nextNum||1)+1; save(K.set,s);
+  toast('Invoice '+num+' saved.','ok');
+  clearInvoiceForm();
+}
+
+function clearInvoiceForm() {
+  ['inv-cust-sel','inv-cn','inv-ca','inv-cp','inv-ce','inv-notes'].forEach(id=>{ const el=document.getElementById(id); if(el) el.value=''; });
+  initInvoiceForm();
+}
+
+// ---- Customers ----
+function addCustomer() {
+  const name=document.getElementById('cn').value.trim();
+  if(!name) { toast('Enter a name.','err'); return; }
+  const c={ id:uid(), name, address:document.getElementById('ca').value.trim(), phone:document.getElementById('cp').value.trim(), email:document.getElementById('ce').value.trim() };
+  const custs=getCustomers(); custs.push(c); save(K.cust,custs);
+  ['cn','ca','cp','ce'].forEach(id=>document.getElementById(id).value='');
+  renderCustomers(); toast('Customer saved.','ok');
+}
+
+function deleteCustomer(id) {
+  if(!confirm('Delete this customer?')) return;
+  save(K.cust, getCustomers().filter(c=>c.id!==id));
+  renderCustomers(); toast('Customer deleted.');
+}
+
+function renderCustomers() {
+  const custs=getCustomers();
+  const el=document.getElementById('cust-list');
+  if(!custs.length) { el.innerHTML='<div class="empty">No customers saved yet.</div>'; return; }
+  const tb=custs.map(c=>`
+    <tr>
+      <td>${esc(c.name)}</td>
+      <td>${esc(c.address)}</td>
+      <td>${esc(c.phone)}</td>
+      <td>${esc(c.email)}</td>
+      <td><button class="btn btn-xs btn-danger" onclick="deleteCustomer('${c.id}')">Delete</button></td>
+    </tr>
+  `).join('');
+  el.innerHTML=`<div class="tbl-wrap"><table><thead><tr><th>Name</th><th>Address</th><th>Phone</th><th>Email</th><th></th></tr></thead><tbody>${tb}</tbody></table></div>`;
+}
+
+// ---- Ledger ----
+let ledgerFilter='all', ledgerSort={field:'date',dir:'desc'};
+
+function setFilter(f) {
+  ledgerFilter=f;
+  document.querySelectorAll('[data-f]').forEach(b=>b.className=b.dataset.f===f?'btn btn-sm btn-secondary':'btn btn-sm btn-ghost');
+  renderLedger();
+}
+
+function setSort(field) {
+  if(ledgerSort.field===field) ledgerSort.dir=ledgerSort.dir==='asc'?'desc':'asc';
+  else { ledgerSort.field=field; ledgerSort.dir='desc'; }
+  renderLedger();
+}
+
+function renderLedger() {
+  let invs=getInvoices();
+  if(ledgerFilter!=='all') invs=invs.filter(i=>i.status===ledgerFilter);
+  invs.sort((a,b)=>{
+    let av,bv;
+    const f=ledgerSort.field;
+    if(f==='date'){av=a.date;bv=b.date;}
+    else if(f==='number'){av=a.number;bv=b.number;}
+    else if(f==='total'){av=(a.calc||{}).total||0;bv=(b.calc||{}).total||0;}
+    else if(f==='status'){av=a.status;bv=b.status;}
+    if(av<bv) return ledgerSort.dir==='asc'?-1:1;
+    if(av>bv) return ledgerSort.dir==='asc'?1:-1;
+    return 0;
+  });
+  const tbody=document.getElementById('ledger-body');
+  if(!invs.length) { tbody.innerHTML=`<tr><td colspan="6" class="empty">No invoices found.</td></tr>`; return; }
+  tbody.innerHTML=invs.map(inv=>{
+    const ca=inv.calc||calcInv(inv.lineItems||[]);
+    return `<tr>
+      <td>${esc(inv.number)}</td>
+      <td>${fmtDate(inv.date)}</td>
+      <td>${esc(inv.customer?inv.customer.name:'')}</td>
+      <td>${fmt(ca.total)}</td>
+      <td>
+        <select onchange="setInvStatus('${inv.id}',this.value)" style="width:auto;padding:0.2rem 0.4rem;font-size:0.78rem">
+          <option value="unpaid" ${inv.status==='unpaid'?'selected':''}>Unpaid</option>
+          <option value="paid" ${inv.status==='paid'?'selected':''}>Paid</option>
+          <option value="void" ${inv.status==='void'?'selected':''}>Void</option>
+        </select>
+      </td>
+      <td style="white-space:nowrap">
+        <button class="btn btn-xs btn-ghost" onclick="printInvoice('${inv.id}')">Print</button>
+        <button class="btn btn-xs btn-ghost" onclick="copyInvText('${inv.id}')" style="margin-left:0.25rem">Copy</button>
+        <button class="btn btn-xs btn-danger" onclick="deleteInv('${inv.id}')" style="margin-left:0.25rem">Del</button>
+      </td>
+    </tr>`;
+  }).join('');
+}
+
+function setInvStatus(id, status) {
+  const invs=getInvoices(); const inv=invs.find(i=>i.id===id);
+  if(!inv) return; inv.status=status; save(K.inv,invs);
+  toast('Status updated.');
+}
+
+function deleteInv(id) {
+  if(!confirm('Delete this invoice? This cannot be undone.')) return;
+  save(K.inv, getInvoices().filter(i=>i.id!==id));
+  renderLedger(); toast('Invoice deleted.');
+}
+
+// ---- Expenses ----
+function addExpense() {
+  const date=document.getElementById('ex-date').value;
+  const desc=document.getElementById('ex-desc').value.trim();
+  const amt=parseFloat(document.getElementById('ex-amt').value)||0;
+  if(!date){toast('Pick a date.','err');return;}
+  if(!desc){toast('Enter a description.','err');return;}
+  if(!amt){toast('Enter an amount.','err');return;}
+  const e={
+    id:uid(), date, description:desc,
+    category:document.getElementById('ex-cat').value,
+    amount:+amt.toFixed(2),
+    gstPaid:document.getElementById('ex-gst').checked,
+    pstPaid:document.getElementById('ex-pst').checked
+  };
+  const exps=getExpenses(); exps.push(e); save(K.exp,exps);
+  document.getElementById('ex-desc').value='';
+  document.getElementById('ex-amt').value='';
+  document.getElementById('ex-gst').checked=false;
+  document.getElementById('ex-pst').checked=false;
+  renderExpenses(); toast('Expense added.','ok');
+}
+
+function deleteExpense(id) {
+  if(!confirm('Delete this expense?')) return;
+  save(K.exp, getExpenses().filter(e=>e.id!==id));
+  renderExpenses(); toast('Expense deleted.');
+}
+
+const CAT_LABEL = { materials:'Materials', fuel:'Fuel', tools:'Tools', subcontractors:'Subcontractors', other:'Other' };
+
+function renderExpenses() {
+  const exps=getExpenses().slice().sort((a,b)=>b.date.localeCompare(a.date));
+  const tbody=document.getElementById('exp-body');
+  if(!exps.length){tbody.innerHTML=`<tr><td colspan="7" class="empty">No expenses recorded yet.</td></tr>`;return;}
+  tbody.innerHTML=exps.map(e=>`
+    <tr>
+      <td>${fmtDate(e.date)}</td>
+      <td>${esc(e.description)}</td>
+      <td style="color:var(--muted);font-size:0.8rem">${CAT_LABEL[e.category]||e.category}</td>
+      <td>${fmt(e.amount)}</td>
+      <td style="text-align:center">${e.gstPaid?'<span style="color:var(--green)">Y</span>':'<span style="color:var(--muted)">-</span>'}</td>
+      <td style="text-align:center">${e.pstPaid?'<span style="color:var(--green)">Y</span>':'<span style="color:var(--muted)">-</span>'}</td>
+      <td><button class="btn btn-xs btn-danger" onclick="deleteExpense('${e.id}')">Del</button></td>
+    </tr>
+  `).join('');
+}
+
+// ---- Year-End Summary ----
+function renderSummary() {
+  const invs=getInvoices(), exps=getExpenses();
+  const years=new Set([String(new Date().getFullYear())]);
+  invs.forEach(i=>{ if(i.date) years.add(i.date.slice(0,4)); });
+  exps.forEach(e=>{ if(e.date) years.add(e.date.slice(0,4)); });
+  const sorted=[...years].sort((a,b)=>b-a);
+  const sel=document.getElementById('sum-year');
+  const cur=sel.value||sorted[0];
+  sel.innerHTML=sorted.map(y=>`<option value="${y}" ${y===cur?'selected':''}>${y}</option>`).join('');
+  sel.value=cur;
+  const year=sel.value;
+
+  const yi=invs.filter(i=>i.date&&i.date.startsWith(year)&&i.status!=='void');
+  let totInv=0, totGstC=0, totPstC=0, paid=0, unpaid=0;
+  yi.forEach(inv=>{ const ca=inv.calc||calcInv(inv.lineItems||[]); totInv+=ca.total; totGstC+=ca.gst; totPstC+=ca.pst; if(inv.status==='paid') paid++; else unpaid++; });
+
+  const ye=exps.filter(e=>e.date&&e.date.startsWith(year));
+  let totExp=0; const catT={};
+  let gstExp=0, pstExp=0;
+  ye.forEach(e=>{ catT[e.category]=(catT[e.category]||0)+e.amount; totExp+=e.amount; if(e.gstPaid) gstExp+=e.amount; if(e.pstPaid) pstExp+=e.amount; });
+
+  const cats=['materials','fuel','tools','subcontractors','other'];
+  document.getElementById('sum-content').innerHTML=`
+    <h3>Income &mdash; ${year}</h3>
+    <div class="stat-grid">
+      <div class="stat"><div class="stat-lbl">Total Invoiced</div><div class="stat-val">${fmt(totInv)}</div><div class="stat-sub">${yi.length} invoice${yi.length!==1?'s':''} &nbsp;|&nbsp; ${paid} paid, ${unpaid} unpaid</div></div>
+      <div class="stat"><div class="stat-lbl">GST Collected</div><div class="stat-val">${fmt(totGstC)}</div><div class="stat-sub">5% on taxable items</div></div>
+      <div class="stat"><div class="stat-lbl">PST Collected</div><div class="stat-val">${fmt(totPstC)}</div><div class="stat-sub">7% on taxable items</div></div>
+      <div class="stat"><div class="stat-lbl">Revenue Before Tax</div><div class="stat-val">${fmt(totInv-totGstC-totPstC)}</div><div class="stat-sub">Total minus taxes collected</div></div>
+    </div>
+    <h3>Expenses &mdash; ${year}</h3>
+    <div class="stat-grid" style="margin-bottom:1.25rem">
+      <div class="stat"><div class="stat-lbl">Total Expenses</div><div class="stat-val">${fmt(totExp)}</div><div class="stat-sub">${ye.length} expense${ye.length!==1?'s':''}</div></div>
+      ${cats.map(cat=>`<div class="stat"><div class="stat-lbl">${CAT_LABEL[cat]}</div><div class="stat-val" style="font-size:1.2rem">${fmt(catT[cat]||0)}</div></div>`).join('')}
+    </div>
+    <h3>Input Tax Tracking &mdash; ${year}</h3>
+    <div class="stat-grid">
+      <div class="stat"><div class="stat-lbl">Expenses Where GST Was Paid</div><div class="stat-val" style="font-size:1.2rem">${fmt(gstExp)}</div><div class="stat-sub">Sum of expense amounts marked GST paid</div></div>
+      <div class="stat"><div class="stat-lbl">Expenses Where PST Was Paid</div><div class="stat-val" style="font-size:1.2rem">${fmt(pstExp)}</div><div class="stat-sub">Sum of expense amounts marked PST paid</div></div>
+    </div>
+    <p style="font-size:0.78rem;color:var(--muted);margin-top:0.5rem">Input tax credit amounts depend on your receipts. Confirm ITCs with your accountant.</p>
+  `;
+}
+
+function exportCSV() {
+  const year=document.getElementById('sum-year').value;
+  const invs=getInvoices().filter(i=>i.date&&i.date.startsWith(year)&&i.status!=='void');
+  const exps=getExpenses().filter(e=>e.date&&e.date.startsWith(year));
+  let csv='INCOME\nInvoice #,Date,Customer,Subtotal,GST,PST,Total,Status\n';
+  invs.forEach(inv=>{ const ca=inv.calc||calcInv(inv.lineItems||[]); csv+=[inv.number,inv.date,csvC(inv.customer?.name||''),ca.subtotal,ca.gst,ca.pst,ca.total,inv.status].join(',')+'\n'; });
+  csv+='\nEXPENSES\nDate,Description,Category,Amount,GST Paid,PST Paid\n';
+  exps.forEach(e=>{ csv+=[e.date,csvC(e.description),e.category,e.amount,e.gstPaid?'Yes':'No',e.pstPaid?'Yes':'No'].join(',')+'\n'; });
+  dlFile('good-neighbours-'+year+'-summary.csv', csv, 'text/csv');
+  toast('CSV exported.','ok');
+}
+
+// ---- Settings ----
+function renderSettingsTab() {
+  const s=getSettings();
+  document.getElementById('s-name').value=s.businessName||'';
+  document.getElementById('s-addr').value=s.businessAddress||'';
+  document.getElementById('s-ph').value=s.businessPhone||'';
+  document.getElementById('s-em').value=s.businessEmail||'';
+  document.getElementById('s-gst').value=s.gstNumber||'';
+  document.getElementById('s-pfx').value=s.invoicePrefix||'INV';
+  renderStorage();
+}
+
+function saveSettingsForm() {
+  const s=getSettings();
+  s.businessName=document.getElementById('s-name').value.trim();
+  s.businessAddress=document.getElementById('s-addr').value.trim();
+  s.businessPhone=document.getElementById('s-ph').value.trim();
+  s.businessEmail=document.getElementById('s-em').value.trim();
+  s.gstNumber=document.getElementById('s-gst').value.trim();
+  s.invoicePrefix=document.getElementById('s-pfx').value.trim()||'INV';
+  save(K.set,s); toast('Settings saved.','ok');
+}
+
+function renderStorage() {
+  let chars=0;
+  for(const k of Object.keys(localStorage)) chars+=(localStorage.getItem(k)||'').length;
+  const used=chars*2, cap=5*1024*1024, pct=Math.min(used/cap*100,100);
+  const usedK=(used/1024).toFixed(1);
+  let cls='low'; if(pct>=90) cls='high'; else if(pct>=70) cls='med';
+  document.getElementById('stor-wrap').innerHTML=`
+    <div class="stor-labels"><span>${usedK} KB used</span><span>${pct.toFixed(1)}% of ~5 MB</span></div>
+    <div class="stor-track"><div class="stor-fill ${cls}" style="width:${pct}%"></div></div>
+  `;
+}
+
+// ---- Print ----
+function printInvoice(id) {
+  const inv=getInvoices().find(i=>i.id===id);
+  if(!inv) return;
+  const s=getSettings(), ca=inv.calc||calcInv(inv.lineItems||[]), c=inv.customer||{};
+  const biz=[s.businessPhone,s.businessEmail].filter(Boolean).join(' | ');
+  document.getElementById('print-area').innerHTML=`
+    <div class="pi-top">
+      <div>
+        <div class="pi-biz-name">${esc(s.businessName||'Good Neighbours Handyman')}</div>
+        <div class="pi-biz-info">
+          ${esc(s.businessAddress)}<br>
+          ${biz?esc(biz)+'<br>':''}
+          ${s.gstNumber?'GST #: '+esc(s.gstNumber):''}
+        </div>
+      </div>
+      <div class="pi-inv-right">
+        <div class="pi-inv-num">INVOICE ${esc(inv.number)}</div>
+        <div class="pi-inv-date">${fmtDate(inv.date)}</div>
+        <div class="pi-inv-status">${inv.status.toUpperCase()}</div>
+      </div>
+    </div>
+    <div class="pi-bill-to">
+      <div class="pi-bill-lbl">Bill To</div>
+      <div class="pi-bill-info">
+        ${esc(c.name)}<br>
+        ${c.address?esc(c.address)+'<br>':''}
+        ${[c.phone,c.email].filter(Boolean).map(esc).join(' | ')}
+      </div>
+    </div>
+    <table class="pi-table">
+      <thead><tr><th>Description</th><th class="r">Qty</th><th class="r">Rate</th><th class="r">Amount</th></tr></thead>
+      <tbody>
+        ${(inv.lineItems||[]).map(it=>`
+          <tr>
+            <td>${esc(it.desc)}${!it.taxable?' <em style="color:#999;font-size:0.8em">(no tax)</em>':''}</td>
+            <td class="r">${it.qty}</td>
+            <td class="r">${fmt(it.rate)}</td>
+            <td class="r">${fmt(it.qty*it.rate)}</td>
+          </tr>
+        `).join('')}
+      </tbody>
+    </table>
+    <div class="pi-totals">
+      <div class="pi-tot-row"><span class="l">Subtotal</span><span>${fmt(ca.subtotal)}</span></div>
+      <div class="pi-tot-row"><span class="l">GST (5%)</span><span>${fmt(ca.gst)}</span></div>
+      <div class="pi-tot-row"><span class="l">PST (7%)</span><span>${fmt(ca.pst)}</span></div>
+      <div class="pi-tot-row grand"><span>Total</span><span>${fmt(ca.total)}</span></div>
+    </div>
+    ${inv.notes?`<div class="pi-notes"><strong>Notes:</strong> ${esc(inv.notes)}</div>`:''}
+    <div class="pi-footer">This is not an official tax receipt. Please confirm GST registration status and PST exemptions with your accountant.</div>
+  `;
+  window.print();
+}
+
+// ---- Copy as Email Text ----
+function copyInvText(id) {
+  const inv=getInvoices().find(i=>i.id===id);
+  if(!inv) return;
+  const s=getSettings(), ca=inv.calc||calcInv(inv.lineItems||[]), c=inv.customer||{};
+  const biz=s.businessName||'Good Neighbours Handyman';
+  const lines=[];
+  lines.push(biz.toUpperCase());
+  const contact=[s.businessPhone,s.businessEmail].filter(Boolean);
+  if(contact.length) lines.push(contact.join(' | '));
+  if(s.gstNumber) lines.push('GST #: '+s.gstNumber);
+  lines.push('');
+  lines.push('INVOICE '+inv.number);
+  lines.push('Date: '+fmtDate(inv.date));
+  lines.push('Status: '+inv.status.toUpperCase());
+  lines.push('');
+  lines.push('BILL TO:');
+  lines.push(c.name||'');
+  if(c.address) lines.push(c.address);
+  if(c.phone||c.email) lines.push([c.phone,c.email].filter(Boolean).join(' | '));
+  lines.push('');
+  lines.push('-'.repeat(55));
+  const dw=32;
+  lines.push(pr('DESCRIPTION',dw)+pl('QTY',6)+pl('RATE',11)+pl('TOTAL',12));
+  lines.push('-'.repeat(dw+29));
+  (inv.lineItems||[]).forEach(it=>{
+    const d=it.desc+(it.taxable?'':' (no tax)');
+    lines.push(pr(d,dw)+pl(String(it.qty),6)+pl(fmt(it.rate),11)+pl(fmt(it.qty*it.rate),12));
+  });
+  lines.push('');
+  lines.push('-'.repeat(55));
+  lines.push(pr('Subtotal:',dw)+pl(fmt(ca.subtotal),dw+5));
+  lines.push(pr('GST (5%):',dw)+pl(fmt(ca.gst),dw+5));
+  lines.push(pr('PST (7%):',dw)+pl(fmt(ca.pst),dw+5));
+  lines.push(pr('TOTAL:',dw)+pl(fmt(ca.total),dw+5));
+  if(inv.notes){ lines.push(''); lines.push('Notes: '+inv.notes); }
+  lines.push(''); lines.push('This is not an official tax receipt.');
+  const text=lines.join('\n');
+  if(navigator.clipboard) {
+    navigator.clipboard.writeText(text).then(()=>toast('Copied to clipboard.','ok')).catch(()=>fallbackCopy(text));
+  } else { fallbackCopy(text); }
+}
+const pr=(s,n)=>String(s).substring(0,n).padEnd(n);
+const pl=(s,n)=>String(s).padStart(n);
+function fallbackCopy(text) {
+  const ta=document.createElement('textarea');
+  ta.value=text; ta.style.cssText='position:fixed;opacity:0';
+  document.body.appendChild(ta); ta.select();
+  document.execCommand('copy');
+  document.body.removeChild(ta);
+  toast('Copied to clipboard.','ok');
+}
+
+// ---- Backup / Restore ----
+function exportJSON() {
+  const s=getSettings(); s.lastExport=Date.now(); save(K.set,s);
+  const data={ exportedAt:new Date().toISOString(), version:1, settings:s, customers:getCustomers(), invoices:getInvoices(), expenses:getExpenses() };
+  dlFile('good-neighbours-backup-'+todayStr()+'.json', JSON.stringify(data,null,2), 'application/json');
+  toast('Backup exported.','ok');
+  checkNudge();
+}
+
+function importJSON(evt) {
+  const file=evt.target.files[0]; if(!file) return;
+  const r=new FileReader();
+  r.onload=e=>{
+    try {
+      const d=JSON.parse(e.target.result);
+      if(!d.invoices&&!d.customers&&!d.expenses){ toast('File does not look like a Good Neighbours backup.','err'); return; }
+      if(!confirm('Replace all current data with this backup?')) return;
+      if(d.settings) save(K.set,d.settings);
+      if(d.customers) save(K.cust,d.customers);
+      if(d.invoices) save(K.inv,d.invoices);
+      if(d.expenses) save(K.exp,d.expenses);
+      toast('Data imported.','ok'); renderSettingsTab();
+    } catch { toast('Could not read that file.','err'); }
+  };
+  r.readAsText(file); evt.target.value='';
+}
+
+function clearAll() {
+  if(!confirm('Delete ALL data? This cannot be undone.')) return;
+  if(!confirm('Are you sure? Customers, invoices, and expenses will all be gone.')) return;
+  [K.cust,K.inv,K.exp,K.set].forEach(k=>localStorage.removeItem(k));
+  toast('All data cleared.'); renderSettingsTab(); initInvoiceForm();
+}
+
+// ---- Nudge ----
+function checkNudge() {
+  const s=getSettings();
+  const stale=!s.lastExport||(Date.now()-s.lastExport)>30*24*60*60*1000;
+  document.getElementById('nudge').classList.toggle('on', stale);
+}
+
+// ---- Init ----
+(function(){
+  initInvoiceForm();
+  document.getElementById('ex-date').value=todayStr();
+  checkNudge();
+})();
+</script>
+</body>
+</html>

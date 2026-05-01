@@ -1,0 +1,1801 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>TerraComm · Field Timesheet</title>
+<link href="https://fonts.googleapis.com/css2?family=Share+Tech+Mono&family=Barlow:wght@300;400;500;600&display=swap" rel="stylesheet">
+<style>
+* { box-sizing: border-box; margin: 0; padding: 0; }
+
+:root {
+  --bg:       #f0f2f5;
+  --surface:  #ffffff;
+  --border:   #d0d6df;
+  --border2:  #b0bac8;
+  --accent:   #0D1B2A;
+  --accent2:  #1a3550;
+  --signal:   #E85D04;
+  --signal2:  #f07820;
+  --text:     #0D1B2A;
+  --muted:    #5a6e82;
+  --danger:   #c0392b;
+  --weekend:  #edf0f4;
+  --today:    #fff3eb;
+  --radius:   3px;
+  --mono:     'Share Tech Mono', 'Courier New', monospace;
+  --sans:     'Barlow', system-ui, sans-serif;
+}
+
+body { font-family: var(--sans); background: var(--bg); color: var(--text); font-size: 13px; min-height: 100vh; }
+
+header {
+  background: var(--accent); color: #fff; padding: 0 24px; height: 56px;
+  display: flex; align-items: center; justify-content: space-between;
+  position: sticky; top: 0; z-index: 200;
+  border-bottom: 2px solid var(--signal);
+}
+
+.wordmark { font-family: var(--mono); font-size: 13px; font-weight: 600; letter-spacing: 0.15em; text-transform: uppercase; }
+
+.nav { display: flex; gap: 2px; }
+.nav-btn {
+  background: none; border: none; color: rgba(255,255,255,0.6); font-family: var(--sans);
+  font-size: 12px; font-weight: 500; padding: 6px 12px; border-radius: var(--radius);
+  cursor: pointer; transition: all 0.12s; border-bottom: 2px solid transparent;
+}
+.nav-btn:hover { color: #fff; background: rgba(255,255,255,0.08); }
+.nav-btn.active { color: #fff; background: rgba(232,93,4,0.25); border-bottom: 2px solid #E85D04; border-radius: 0; }
+
+.page { display: none; }
+.page.active { display: block; }
+.container { max-width: 1140px; margin: 0 auto; padding: 24px; }
+
+.month-bar { display: flex; align-items: center; gap: 10px; margin-bottom: 20px; flex-wrap: wrap; }
+.month-label { font-family: var(--mono); font-size: 18px; font-weight: 600; letter-spacing: -0.02em; }
+.month-nav { display: flex; align-items: center; gap: 4px; background: var(--surface); border: 1px solid var(--border); border-radius: var(--radius); padding: 2px; }
+.mnav-btn { background: none; border: none; color: var(--muted); font-size: 18px; width: 30px; height: 30px; display: flex; align-items: center; justify-content: center; cursor: pointer; border-radius: 2px; transition: all 0.1s; }
+.mnav-btn:hover { background: var(--bg); color: var(--text); }
+.spacer { flex: 1; }
+
+.stats-row { display: flex; gap: 10px; margin-bottom: 20px; flex-wrap: wrap; }
+.stat { background: var(--surface); border: 1px solid var(--border); border-radius: var(--radius); padding: 10px 16px; min-width: 110px; }
+.stat-label { font-family: var(--mono); font-size: 9px; font-weight: 600; text-transform: uppercase; letter-spacing: 0.12em; color: var(--muted); margin-bottom: 4px; }
+.stat-value { font-family: var(--mono); font-size: 22px; font-weight: 600; color: var(--signal); line-height: 1; }
+.utility-bar { display: flex; justify-content: space-between; align-items: center; gap: 10px; margin-bottom: 12px; flex-wrap: wrap; }
+.quick-projects, .utility-actions, .split-tools, .hint-list, .validation-list { display: flex; gap: 8px; flex-wrap: wrap; align-items: center; }
+.quick-btn {
+  background: var(--surface);
+  border: 1px solid var(--border);
+  color: var(--text);
+  font-family: var(--mono);
+  font-size: 11px;
+  font-weight: 600;
+  padding: 6px 10px;
+  border-radius: 999px;
+  cursor: pointer;
+  transition: all 0.12s;
+}
+.quick-btn:hover { border-color: var(--signal); color: var(--signal); }
+.context-bar, .validation-bar, .backup-bar {
+  background: var(--surface);
+  border: 1px solid var(--border);
+  border-radius: var(--radius);
+  padding: 10px 12px;
+  margin-bottom: 12px;
+}
+.context-label, .validation-label {
+  font-family: var(--mono);
+  font-size: 9px;
+  font-weight: 600;
+  text-transform: uppercase;
+  letter-spacing: 0.1em;
+  color: var(--muted);
+  margin-bottom: 6px;
+}
+.hint-chip, .validation-chip, .backup-chip {
+  display: inline-flex;
+  align-items: center;
+  gap: 5px;
+  padding: 4px 8px;
+  border-radius: 999px;
+  font-size: 11px;
+  border: 1px solid var(--border);
+  background: var(--bg);
+  color: var(--text);
+}
+.validation-chip.warn, .backup-chip.warn { background: #fff8dc; border-color: #e2c45d; color: #7a5a00; }
+.validation-chip.ok, .backup-chip.ok { background: #eef9f1; border-color: #b7ddc2; color: #1e7f3f; }
+.split-mini {
+  width: 58px;
+  padding: 6px 8px;
+  border: 1px solid var(--border);
+  border-radius: var(--radius);
+  font-family: var(--mono);
+  font-size: 11px;
+  text-align: right;
+  background: var(--surface);
+}
+
+.table-wrap { background: var(--surface); border: 1px solid var(--border); border-radius: var(--radius); overflow-x: auto; }
+table { width: 100%; border-collapse: collapse; font-size: 13px; }
+th { font-family: var(--mono); font-size: 9px; font-weight: 600; text-transform: uppercase; letter-spacing: 0.1em; color: var(--muted); text-align: left; padding: 10px 8px 8px; border-bottom: 2px solid var(--border); white-space: nowrap; background: var(--surface); }
+td { padding: 3px 4px; border-bottom: 1px solid var(--border); vertical-align: middle; }
+tr:last-child td { border-bottom: none; }
+#logBody tr:nth-child(even) td { background: #fafbfc; }
+#logBody tr.weekend td { background: var(--weekend); }
+#logBody tr.today td { background: var(--today); }
+#logBody tr.row-warning td { background: #fff8dc !important; }
+#logBody tr.missing-day td { background: #fffdf0; }
+#logBody tr.row-selected td { outline: 1px solid rgba(232,93,4,0.45); outline-offset: -1px; }
+
+.date-col { position: sticky; left: 0; z-index: 50; background: var(--surface); box-shadow: 1px 0 0 var(--border); }
+th.date-col { z-index: 60; }
+#logBody tr:nth-child(even) td.date-col { background: #fafbfc; }
+#logBody tr.weekend td.date-col { background: var(--weekend); }
+#logBody tr.today td.date-col { background: var(--today); }
+#logBody tr.row-warning td.date-col { background: #fff8dc !important; }
+#logBody tr.missing-day td.date-col { background: #fffdf0; }
+#logBody tr.net-lmrn td.date-col { box-shadow: inset 3px 0 0 #1a4fd0, 1px 0 0 var(--border); }
+#logBody tr.net-pscs td.date-col { box-shadow: inset 3px 0 0 #1e7f3f, 1px 0 0 var(--border); }
+#logBody tr.net-ors  td.date-col { box-shadow: inset 3px 0 0 #5a44c7, 1px 0 0 var(--border); }
+#logBody tr.net-off  td.date-col { box-shadow: inset 3px 0 0 #aaa,    1px 0 0 var(--border); }
+
+.date-cell { font-family: var(--mono); font-size: 11px; color: var(--muted); padding: 6px 10px; white-space: nowrap; user-select: none; }
+.date-cell.is-today { color: var(--accent); font-weight: 600; }
+.day-label { font-size: 9px; text-transform: uppercase; letter-spacing: 0.06em; opacity: 0.6; display: block; }
+
+.cell-input { background: transparent; border: 1px solid transparent; color: var(--text); font-family: var(--sans); font-size: 13px; padding: 4px 6px; border-radius: 3px; width: 100%; outline: none; transition: border-color 0.1s, background 0.1s; }
+.cell-input:focus { border-color: var(--signal); background: #fff7f2; }
+select.cell-input { cursor: pointer; }
+.cell-input.num { text-align: right; }
+.cell-input.input-warn { border-color: #d97706; background: #fff8dc; }
+
+.auto-cell { font-family: var(--mono); font-size: 11px; color: var(--muted); padding: 4px 8px; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; max-width: 130px; }
+.meta-cell { font-size: 10px; color: var(--muted); opacity: 0.9; }
+.project-cell { min-width: 220px; }
+.project-main { font-weight: 600; font-size: 14px; text-align: left; }
+input.project-main { padding-top: 5px; padding-bottom: 5px; }
+.project-sub { font-family: var(--mono); font-size: 10px; color: var(--muted); line-height: 1.35; padding: 1px 6px 2px; min-height: 28px; white-space: normal; }
+.project-sub:empty { min-height: 0; padding: 0 6px; }
+.summary-cell { font-family: var(--mono); font-size: 11px; text-align: right; white-space: nowrap; color: var(--muted); }
+.summary-warning { display: block; margin-top: 2px; font-size: 10px; color: var(--danger); white-space: normal; }
+.week-total-row td { background: #f3f5f8 !important; border-top: 2px solid var(--border2); }
+.week-total-label { font-family: var(--mono); font-size: 11px; font-weight: 600; color: var(--accent); }
+.week-total-value { font-family: var(--mono); font-size: 12px; font-weight: 600; color: var(--accent); text-align: right; }
+
+.del-btn { background: none; border: none; color: var(--border2); font-size: 16px; width: 26px; height: 26px; display: inline-flex; align-items: center; justify-content: center; cursor: pointer; border-radius: 3px; transition: all 0.1s; line-height: 1; vertical-align: middle; }
+.del-btn:hover { background: #fdecea; color: var(--danger); }
+.split-btn { background: none; border: 1px solid var(--border); color: var(--muted); font-size: 14px; font-weight: 600; width: 22px; height: 22px; display: inline-flex; align-items: center; justify-content: center; cursor: pointer; border-radius: 3px; transition: all 0.1s; line-height: 1; font-family: var(--mono); vertical-align: middle; }
+.split-btn:hover { background: var(--today); border-color: var(--signal); color: var(--signal); }
+.split-date { opacity: 0.4; }
+
+.action-bar { display: flex; align-items: center; gap: 8px; margin-bottom: 14px; flex-wrap: wrap; }
+.export-label { font-family: var(--mono); font-size: 9px; font-weight: 600; text-transform: uppercase; letter-spacing: 0.1em; color: var(--muted); }
+
+.btn { background: var(--surface); border: 1px solid var(--border); color: var(--text); font-family: var(--sans); font-size: 12px; font-weight: 500; padding: 6px 12px; border-radius: var(--radius); cursor: pointer; transition: all 0.1s; white-space: nowrap; display: inline-flex; align-items: center; gap: 5px; }
+.btn:hover { border-color: var(--signal); color: var(--signal); }
+.btn-primary { background: var(--signal); color: #fff; border-color: var(--signal); }
+.btn-primary:hover { background: var(--signal2); color: #fff; border-color: var(--signal2); }
+
+.proj-form { display: flex; gap: 10px; flex-wrap: wrap; align-items: flex-end; background: var(--surface); border: 1px solid var(--border); border-radius: var(--radius); padding: 16px; margin-bottom: 20px; }
+.field { display: flex; flex-direction: column; gap: 5px; }
+.field label { font-family: var(--mono); font-size: 9px; font-weight: 600; text-transform: uppercase; letter-spacing: 0.1em; color: var(--muted); }
+.field input { background: var(--bg); border: 1px solid var(--border); color: var(--text); font-family: var(--sans); font-size: 13px; padding: 7px 10px; border-radius: var(--radius); outline: none; min-width: 140px; transition: border-color 0.1s; }
+.field input:focus { border-color: var(--accent2); }
+
+.network-pill { display: inline-block; padding: 2px 8px; border-radius: 999px; font-family: var(--mono); font-size: 10px; font-weight: 600; }
+.network-pill-blue { background:#e8f0ff; border:1px solid #aac4ff; color:#1a4fd0; }
+.network-pill-green { background:#e9f8ef; border:1px solid #a7e0b7; color:#1e7f3f; }
+.network-pill-purple { background:#f1ecff; border:1px solid #c5b7ff; color:#5a44c7; }
+.network-pill-gray { background:#f2f2f2; border:1px solid #d0d0d0; color:#555; }
+.network-select { border-radius: 999px; font-family: var(--mono); font-size: 11px; font-weight: 600; padding: 4px 28px 4px 10px; min-width: 88px; appearance: none; -webkit-appearance: none; background-repeat: no-repeat; background-position: calc(100% - 13px) 50%, calc(100% - 8px) 50%; background-size: 5px 5px, 5px 5px; }
+.network-select.network-pill-blue,
+.network-select.network-pill-green,
+.network-select.network-pill-purple,
+.network-select.network-pill-gray {
+  background-image: linear-gradient(45deg, transparent 50%, currentColor 50%), linear-gradient(135deg, currentColor 50%, transparent 50%);
+}
+
+.history-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(220px,1fr)); gap: 10px; }
+.hist-card { background: var(--surface); border: 1px solid var(--border); border-radius: var(--radius); padding: 16px; cursor: pointer; transition: border-color 0.12s; }
+.hist-card:hover { border-color: var(--signal); }
+.hist-month { font-family: var(--mono); font-size: 13px; font-weight: 600; margin-bottom: 10px; }
+.hist-stats { display: flex; flex-direction: column; gap: 4px; }
+.hist-stat { display: flex; justify-content: space-between; font-size: 12px; color: var(--muted); }
+.hist-stat strong { font-family: var(--mono); color: var(--signal); font-weight: 600; }
+
+#toast { position: fixed; bottom: 20px; left: 50%; transform: translateX(-50%) translateY(10px); background: var(--accent); color: #fff; font-family: var(--mono); font-size: 11px; font-weight: 600; letter-spacing: 0.06em; padding: 8px 18px; border-radius: 20px; opacity: 0; transition: all 0.2s; pointer-events: none; z-index: 999; white-space: nowrap; }
+#toast.show { opacity: 1; transform: translateX(-50%) translateY(0); }
+
+.empty { text-align: center; padding: 40px 20px; color: var(--muted); font-size: 13px; }
+.empty-icon { font-size: 28px; margin-bottom: 10px; opacity: 0.5; }
+
+::-webkit-scrollbar { width: 5px; height: 5px; }
+::-webkit-scrollbar-track { background: var(--bg); }
+::-webkit-scrollbar-thumb { background: var(--border2); border-radius: 3px; }
+
+@media (max-width:700px) {
+  th:nth-child(n+7):not(:nth-child(11)), td:nth-child(n+7):not(:nth-child(11)) { display: none; }
+  .container { padding: 14px; }
+  .project-sub { display: none; }
+  .utility-bar { align-items: stretch; }
+  .quick-projects, .utility-actions, .split-tools { width: 100%; }
+}
+</style>
+</head>
+<body>
+
+<header>
+  <div class="wordmark">
+    <svg viewBox="0 0 260 44" width="260" height="44" xmlns="http://www.w3.org/2000/svg" style="display:block">
+      <g transform="translate(22,22)">
+        <!-- Straight tip -->
+        <line x1="0" y1="-18" x2="0" y2="-12" stroke="#E85D04" stroke-width="2" stroke-linecap="round"/>
+        <!-- Signal arcs centered on tip -->
+        <path d="M-3.5,-20.0 A4,4 0 0,1 -3.5,-16.0" fill="none" stroke="#E85D04" stroke-width="1.8" stroke-linecap="round" opacity="1.0"/>
+        <path d="M3.5,-20.0 A4,4 0 0,0 3.5,-16.0" fill="none" stroke="#E85D04" stroke-width="1.8" stroke-linecap="round" opacity="1.0"/>
+        <path d="M-6.5,-21.8 A7.5,7.5 0 0,1 -6.5,-14.2" fill="none" stroke="#E85D04" stroke-width="1.8" stroke-linecap="round" opacity="0.6"/>
+        <path d="M6.5,-21.8 A7.5,7.5 0 0,0 6.5,-14.2" fill="none" stroke="#E85D04" stroke-width="1.8" stroke-linecap="round" opacity="0.6"/>
+        <path d="M-9.5,-23.5 A11,11 0 0,1 -9.5,-12.5" fill="none" stroke="#E85D04" stroke-width="1.8" stroke-linecap="round" opacity="0.3"/>
+        <path d="M9.5,-23.5 A11,11 0 0,0 9.5,-12.5" fill="none" stroke="#E85D04" stroke-width="1.8" stroke-linecap="round" opacity="0.3"/>
+        <!-- A-frame legs -->
+        <line x1="0" y1="-12" x2="-8" y2="14" stroke="rgba(255,255,255,0.9)" stroke-width="2" stroke-linecap="round"/>
+        <line x1="0" y1="-12" x2="8"  y2="14" stroke="rgba(255,255,255,0.9)" stroke-width="2" stroke-linecap="round"/>
+        <!-- Upper crosspiece -->
+        <line x1="-3.5" y1="-3" x2="3.5" y2="-3" stroke="rgba(255,255,255,0.75)" stroke-width="1.5" stroke-linecap="round"/>
+        <!-- Lower crosspiece -->
+        <line x1="-6" y1="6" x2="6" y2="6" stroke="rgba(255,255,255,0.75)" stroke-width="1.5" stroke-linecap="round"/>
+        <!-- Base feet -->
+        <line x1="-8" y1="14" x2="-11" y2="14" stroke="rgba(255,255,255,0.6)" stroke-width="1.5" stroke-linecap="round"/>
+        <line x1="8"  y1="14" x2="11"  y2="14" stroke="rgba(255,255,255,0.6)" stroke-width="1.5" stroke-linecap="round"/>
+      </g>
+      <text x="50" y="22" font-family="'Share Tech Mono',monospace" font-size="16" fill="white" letter-spacing="3">TERRACOMM</text>
+      <line x1="50" y1="27" x2="220" y2="27" stroke="#E85D04" stroke-width="1" opacity="0.6"/>
+      <text x="50" y="38" font-family="'Share Tech Mono',monospace" font-size="9" fill="rgba(255,255,255,0.45)" letter-spacing="2.5">TIMETRACKER</text>
+
+    </svg>
+  </div>
+  <nav class="nav">
+    <button class="nav-btn active" onclick="showPage('log',this)">Log</button>
+    <button class="nav-btn" onclick="showPage('history',this)">History</button>
+    <button class="nav-btn" onclick="showPage('projects',this)">Projects</button>
+    <button class="nav-btn" onclick="showPage('expenses',this)">Expenses</button>
+    <button class="nav-btn" onclick="showPage('summary',this)">Summary</button>
+    <button class="nav-btn" onclick="showPage('backup',this)">Backup</button>
+  </nav>
+</header>
+
+<div id="toast"></div>
+
+<!-- LOG -->
+<div class="page active" id="page-log">
+<div class="container">
+  <div class="month-bar">
+    <div class="month-nav">
+      <button class="mnav-btn" onclick="prevMonth()" title="Previous">&#8249;</button>
+      <button class="mnav-btn" onclick="nextMonth()" title="Next">&#8250;</button>
+    </div>
+    <div class="month-label" id="monthLabel"></div>
+    <div class="spacer"></div>
+  </div>
+  <div class="stats-row" id="statsRow"></div>
+  <div class="utility-bar">
+    <div class="quick-projects" id="quickProjects"></div>
+    <div class="utility-actions">
+      <button class="btn" onclick="focusTodayRow()">Today</button>
+      <button class="btn" onclick="copyYesterdayToSelectedRow()">Copy yesterday</button>
+      <button class="btn" onclick="duplicatePreviousRow()">Prev row</button>
+      <button class="btn" id="hideEmptyBtn" onclick="toggleHideEmptyDays()">Hide empty days</button>
+    </div>
+  </div>
+  <div class="utility-bar">
+    <div class="split-tools">
+      <button class="btn" onclick="splitSelectedRowByRatio(1,1)">Split 50/50</button>
+      <button class="btn" onclick="splitSelectedRowByRatio(3,1)">Split 75/25</button>
+      <input class="split-mini" id="customSplitA" placeholder="5.0">
+      <input class="split-mini" id="customSplitB" placeholder="3.0">
+      <button class="btn" onclick="splitSelectedRowCustom()">Split Custom</button>
+    </div>
+  </div>
+  <div class="context-bar">
+    <div class="context-label">Row Context</div>
+    <div class="hint-list" id="rowHintBar"></div>
+  </div>
+  <div class="action-bar">
+    <span class="export-label">Export</span>
+    <button class="btn" onclick="exportCSV()">&#8595; CSV</button>
+    <button class="btn" onclick="exportExcel()">&#8595; Excel</button>
+    <button class="btn" onclick="exportPDF()">&#8595; PDF</button>
+
+  </div>
+  <div class="validation-bar">
+    <div class="validation-label">Checks</div>
+    <div class="validation-list" id="exportValidation"></div>
+  </div>
+  <div class="table-wrap">
+    <table>
+      <thead>
+        <tr>
+          <th class="date-col" style="width:90px">Date</th>
+          <th style="width:110px">Network</th>
+          <th style="min-width:180px">Project</th>
+          <th style="width:110px">EEA</th>
+          <th style="width:120px">WBS</th>
+          <th style="width:70px">Hrs</th>
+          <th style="min-width:150px">Expense Desc</th>
+          <th style="width:85px">Amount</th>
+          <th style="width:60px">KMs</th>
+          <th style="width:55px">Diems</th>
+          <th style="width:120px;text-align:right">Summary</th>
+          <th style="width:32px"></th>
+        </tr>
+      </thead>
+      <tbody id="logBody"></tbody>
+    </table>
+  </div>
+</div>
+</div>
+
+<!-- HISTORY -->
+<div class="page" id="page-history">
+<div class="container">
+  <div style="margin-bottom:16px"><span style="font-family:var(--mono);font-size:11px;font-weight:600;text-transform:uppercase;letter-spacing:0.1em;color:var(--muted)">All Months</span></div>
+  <div class="history-grid" id="historyGrid"></div>
+</div>
+</div>
+
+<!-- PROJECTS -->
+<div class="page" id="page-projects">
+<div class="container">
+  <div class="proj-form">
+    <div class="field">
+      <label>Network</label>
+      <input id="pNet" placeholder="e.g. LMRN" style="min-width:100px">
+    </div>
+    <div class="field">
+      <label>Project Description</label>
+      <input id="pDesc" placeholder="e.g. NWZ LMRN" style="min-width:200px">
+    </div>
+    <div class="field">
+      <label>EEA Code</label>
+      <input id="pEEA" placeholder="optional" style="min-width:110px">
+    </div>
+    <div class="field">
+      <label>WBS</label>
+      <input id="pWBS" placeholder="optional" style="min-width:120px">
+    </div>
+    <button class="btn btn-primary" onclick="addProject()" style="align-self:flex-end;height:34px">Add Project</button>
+  </div>
+  <div class="table-wrap">
+    <table>
+      <thead>
+        <tr>
+          <th>Network</th><th>Project Description</th><th>EEA Code</th><th>WBS</th><th></th>
+        </tr>
+      </thead>
+      <tbody id="projBody"></tbody>
+    </table>
+  </div>
+
+  <div style="margin-top:28px">
+    <div style="font-family:var(--mono);font-size:11px;font-weight:600;text-transform:uppercase;letter-spacing:0.1em;color:var(--muted);margin-bottom:12px">Expense Types</div>
+    <div style="display:flex;gap:8px;margin-bottom:12px;flex-wrap:wrap;align-items:flex-end">
+      <div class="field">
+        <label>Type name</label>
+        <input id="etInput" placeholder="e.g. Fuel" style="min-width:180px" onkeydown="if(event.key==='Enter')addExpenseType()">
+      </div>
+      <button class="btn btn-primary" onclick="addExpenseType()" style="height:34px;align-self:flex-end">Add Type</button>
+    </div>
+    <div class="table-wrap">
+      <table>
+        <thead><tr><th>Type</th><th style="width:32px"></th></tr></thead>
+        <tbody id="etBody"></tbody>
+      </table>
+    </div>
+  </div>
+
+</div>
+</div>
+
+<!-- EXPENSES -->
+<div class="page" id="page-expenses">
+<div class="container">
+
+  <div class="month-bar">
+    <div class="month-nav">
+      <button class="mnav-btn" onclick="expPrevMonth()">&#8249;</button>
+      <button class="mnav-btn" onclick="expNextMonth()">&#8250;</button>
+    </div>
+    <div class="month-label" id="expLabel"></div>
+    <div class="spacer"></div>
+    <button class="btn btn-primary" onclick="addExpenseRow()" style="height:34px">+ Add receipt</button>
+  </div>
+
+  <div class="table-wrap">
+    <table>
+      <thead>
+        <tr>
+          <th style="width:95px">Date</th>
+          <th style="width:95px">Network</th>
+          <th style="min-width:150px">Project</th>
+          <th style="width:110px">Type</th>
+          <th style="min-width:150px">Notes</th>
+          <th style="width:85px;text-align:right">Amount</th>
+          <th style="width:32px"></th>
+        </tr>
+      </thead>
+      <tbody id="expBody"></tbody>
+    </table>
+  </div>
+
+  <div id="expTotals" style="margin-top:16px"></div>
+
+</div>
+</div>
+
+<!-- SUMMARY -->
+<div class="page" id="page-summary">
+<div class="container">
+
+  <div class="month-bar">
+    <div class="month-nav">
+      <button class="mnav-btn" onclick="summaryPrevMonth()">&#8249;</button>
+      <button class="mnav-btn" onclick="summaryNextMonth()">&#8250;</button>
+    </div>
+    <div class="month-label" id="summaryLabel"></div>
+  </div>
+
+  <div id="summaryContent"></div>
+
+</div>
+</div>
+
+<!-- BACKUP -->
+<div class="page" id="page-backup">
+<div class="container" style="max-width:600px">
+
+  <div style="margin-bottom:24px">
+    <div class="backup-bar" id="backupStatus" style="margin-bottom:16px"></div>
+    <div style="font-family:var(--mono);font-size:11px;font-weight:600;text-transform:uppercase;letter-spacing:0.1em;color:var(--muted);margin-bottom:8px">Save Backup</div>
+    <p style="color:var(--muted);font-size:13px;line-height:1.6;margin-bottom:16px">Downloads a <code style="font-family:var(--mono);font-size:11px;background:var(--bg);padding:1px 5px;border-radius:3px">.json</code> file with all your data. To restore on another device, use the Load section below.</p>
+
+    <div style="display:flex;gap:10px;align-items:flex-end;flex-wrap:wrap;margin-bottom:12px">
+      <div class="field" style="flex:1;min-width:200px">
+        <label>Filename</label>
+        <input id="backupFilename" style="font-family:var(--mono);font-size:12px">
+      </div>
+      <button class="btn btn-primary" onclick="saveBackup()" style="height:34px;align-self:flex-end">&#8595; Save backup</button>
+    </div>
+    <p style="font-size:11px;color:var(--muted)">Your browser will save to its default download folder. To choose a location, right-click → Save link as, or change your browser's download settings.</p>
+  </div>
+
+  <div style="border-top:1px solid var(--border);padding-top:24px">
+    <div style="font-family:var(--mono);font-size:11px;font-weight:600;text-transform:uppercase;letter-spacing:0.1em;color:var(--muted);margin-bottom:8px">Load Backup</div>
+    <p style="color:var(--muted);font-size:13px;line-height:1.6;margin-bottom:14px">Select a previously saved <code style="font-family:var(--mono);font-size:11px;background:var(--bg);padding:1px 5px;border-radius:3px">.json</code> backup file to restore all data.</p>
+    <div style="display:flex;gap:10px;align-items:center;flex-wrap:wrap">
+      <button class="btn" onclick="document.getElementById('importFile').click()">&#8593; Choose backup file</button>
+      <span id="importFilename" style="font-size:12px;color:var(--muted);font-family:var(--mono)"></span>
+    </div>
+    <input type="file" id="importFile" accept=".json" style="display:none" onchange="previewImport(this)">
+
+    <div id="importPreview" style="display:none;margin-top:14px;background:var(--bg);border:1px solid var(--border);border-radius:var(--radius);padding:14px">
+      <div id="importSummary" style="font-size:13px;color:var(--text);margin-bottom:12px"></div>
+      <div style="display:flex;gap:8px">
+        <button class="btn btn-primary" onclick="confirmImport()">Restore this backup</button>
+        <button class="btn" onclick="cancelImport()">Cancel</button>
+      </div>
+    </div>
+  </div>
+
+</div>
+</div>
+
+<script>
+const KEY = 'erk_tt_v3';
+const LEGACY_KEYS = ['erk_tt_v2'];
+const MONTHS = ['January','February','March','April','May','June','July','August','September','October','November','December'];
+const DAYS   = ['Sun','Mon','Tue','Wed','Thu','Fri','Sat'];
+
+function defaultState() {
+  return {
+    projects: [
+      {id:uid(),network:'LMRN',description:'SWZ LMRN',eea:'LMRN ZONE',wbs:'SW0CONTRTT'},
+      {id:uid(),network:'LMRN',description:'SEZ LMRN',eea:'LMRN ZONE',wbs:'SE0CONTRTT'},
+      {id:uid(),network:'LMRN',description:'NEZ LMRN',eea:'LMRN ZONE',wbs:'NE0CONTRTT'},
+      {id:uid(),network:'LMRN',description:'NWZ LMRN',eea:'LMRN ZONE',wbs:'NW0CONTRTT'},
+      {id:uid(),network:'Off', description:'Sick',     eea:'',wbs:''},
+      {id:uid(),network:'Off', description:'Holiday',  eea:'',wbs:''},
+      {id:uid(),network:'ORS', description:'City Of Ottawa Radio',eea:'N3EALLOG',wbs:'LLOGW0869LBR'},
+      {id:uid(),network:'PSCS',description:'RM of Ritchot (St Agathe fire)',   eea:'MBPQWORR',wbs:'FC-43EN'},
+      {id:uid(),network:'PSCS',description:'RM of Ritchot (Ile Des Chene Fire)',eea:'MBPQWORR',wbs:'FC-43EN'},
+      {id:uid(),network:'PSCS',description:'Pinawa FD',          eea:'',wbs:''},
+      {id:uid(),network:'PSCS',description:'Russell FD',         eea:'',wbs:''},
+      {id:uid(),network:'PSCS',description:'Canadian Nuclear Lab',eea:'',wbs:''},
+      {id:uid(),network:'PSCS',description:'Woodlands DVRS',     eea:'',wbs:''},
+      {id:uid(),network:'PSCS',description:'VECTRS Reprogramming',eea:'SRU26010000143',wbs:''},
+    ],
+    months: {},
+    expenseTypes: ['Fuel','Meals','Accommodation','Parking','Equipment','Supplies','Other']
+  };
+}
+
+let state;
+try {
+  state = JSON.parse(localStorage.getItem(KEY));
+  if (!state) {
+    for (const legacyKey of LEGACY_KEYS) {
+      const legacyState = JSON.parse(localStorage.getItem(legacyKey));
+      if (legacyState) {
+        state = legacyState;
+        break;
+      }
+    }
+  }
+  state = state || defaultState();
+}
+catch(e) { state = defaultState(); }
+if (!state.projects) state = defaultState();
+if (!state.meta) state.meta = {};
+
+function save() { localStorage.setItem(KEY, JSON.stringify(state)); }
+function uid()  { return Math.random().toString(36).slice(2,9); }
+
+const now = new Date();
+let viewYear  = now.getFullYear();
+let viewMonth = now.getMonth();
+const FIELD_ORDER = ['network','project','hours','kms','diems'];
+const logUi = { selectedRow: null, hideEmptyDays: false, autoFocusedToday: false };
+let pendingDeleteProject = null;
+
+// ── NAV ──────────────────────────────────────────────────────────────────────
+function showPage(id, btn) {
+  document.querySelectorAll('.page').forEach(p => p.classList.remove('active'));
+  document.querySelectorAll('.nav-btn').forEach(b => b.classList.remove('active'));
+  document.getElementById('page-' + id).classList.add('active');
+  if (btn) btn.classList.add('active');
+  if (id === 'log')      renderLog();
+  if (id === 'history')  renderHistory();
+  if (id === 'projects') renderProjects();
+  if (id === 'expenses') renderExpenses();
+  if (id === 'summary')  renderSummary();
+  if (id === 'backup')   { refreshBackup(); document.getElementById('importPreview').style.display='none'; }
+}
+
+// ── MONTH ────────────────────────────────────────────────────────────────────
+function monthKey(y, m) { return `${y}-${String(m+1).padStart(2,'0')}`; }
+function daysInMonth(y, m) { return new Date(y, m+1, 0).getDate(); }
+function prevMonth() { viewMonth--; if (viewMonth < 0) { viewMonth=11; viewYear--; } renderLog(); }
+function nextMonth() { viewMonth++; if (viewMonth > 11) { viewMonth=0; viewYear++; } renderLog(); }
+
+function getMonthEntries() {
+  const key = monthKey(viewYear, viewMonth);
+  if (!state.months[key]) {
+    const days = daysInMonth(viewYear, viewMonth);
+    state.months[key] = Array.from({length:days}, (_,i) => ({
+      id: uid(),
+      date: `${viewYear}-${String(viewMonth+1).padStart(2,'0')}-${String(i+1).padStart(2,'0')}`,
+      network:'', project:'', eea:'', wbs:'', hours:'', expDesc:'', expenses:'', kms:'', diems:''
+    }));
+    save();
+  }
+  return state.months[key];
+}
+
+// ── LOG ──────────────────────────────────────────────────────────────────────
+function renderLog() {
+  document.getElementById('monthLabel').textContent = `${MONTHS[viewMonth]} ${viewYear}`;
+  const entries = getMonthEntries();
+  ensureTodayDefaults(entries);
+
+  const hrs = entries.reduce((sum, entry) => sum + (parseFloat(entry.hours) || 0), 0);
+  const expKey = 'exp_' + monthKey(viewYear, viewMonth);
+  const expReceipts = state.months[expKey] || [];
+  const exp = expReceipts.reduce((sum, receipt) => sum + (parseFloat(receipt.amount) || 0), 0);
+  const km = entries.reduce((sum, entry) => sum + (parseFloat(entry.kms) || 0), 0);
+  const missingDates = getMissingWorkdayDates(viewYear, viewMonth);
+  const expectedDays = getExpectedWorkdayDates(viewYear, viewMonth).length;
+  const daysLogged = Math.max(0, expectedDays - missingDates.length);
+
+  document.getElementById('statsRow').innerHTML = `
+    <div class="stat"><div class="stat-label">Reg Hours</div><div class="stat-value">${fmtMaybeInt(hrs)}</div></div>
+    <div class="stat"><div class="stat-label">Expenses</div><div class="stat-value">$${exp.toFixed(2)}</div></div>
+    <div class="stat"><div class="stat-label">KMs</div><div class="stat-value">${fmtMaybeInt(km)}</div></div>
+    <div class="stat"><div class="stat-label">Days Logged</div><div class="stat-value">${daysLogged} / ${expectedDays}</div></div>
+  `;
+
+  renderQuickProjects();
+  renderValidationBar(entries);
+  refreshBackupStatus();
+
+  const tbody = document.getElementById('logBody');
+  const todayStr = now.toISOString().slice(0,10);
+  const networks = [...new Set(state.projects.map(project => project.network))].sort();
+
+  tbody.innerHTML = '';
+  entries.forEach((entry, i) => {
+    const d = new Date(entry.date + 'T12:00:00');
+    const dow = d.getDay();
+    const isWknd = dow === 0 || dow === 6;
+    const isToday = entry.date === todayStr;
+    const isSplit = i > 0 && entries[i - 1].date === entry.date;
+    const hasNextSplit = i < entries.length - 1 && entries[i + 1].date === entry.date;
+    const shouldHide = logUi.hideEmptyDays && isEntryEmpty(entry) && !hasEntryExpenses(entry.date);
+    const dayHours = totalHoursForDate(entry.date);
+    const isMissingDay = !isSplit && isTrackableWorkday(entry.date) && dayHours <= 0;
+    const warnings = getValidationWarnings(entry);
+    const suggestion = getProjectStats(entry.network, entry.project, entry.date);
+    const hoursPlaceholder = entry.hours ? '0' : (suggestion.typicalHours || '8');
+    const kmsPlaceholder = entry.kms ? '0' : (suggestion.typicalKms || '');
+    const netOpts = `<option value="">—</option>` +
+      networks.map(network => `<option value="${network}"${entry.network === network ? ' selected' : ''}>${network}</option>`).join('');
+    const projs = entry.network ? state.projects.filter(project => project.network === entry.network) : state.projects;
+    const projectList = projs.map(project => `<option value="${esc(project.description)}">${esc(projectDisplayValue(project.description))}</option>`).join('');
+
+    if (!shouldHide) {
+      const tr = document.createElement('tr');
+      tr.dataset.entryIndex = String(i);
+      tr.onclick = () => selectRow(i);
+      if (isWknd) tr.classList.add('weekend');
+      if (isToday) tr.classList.add('today');
+      if (entry.network && !entry.hours) tr.classList.add('row-warning');
+      if (isMissingDay) tr.classList.add('missing-day');
+      if (logUi.selectedRow === i) tr.classList.add('row-selected');
+      const netRowCls = networkRowClass(entry.network);
+      if (netRowCls) tr.classList.add(netRowCls);
+
+      tr.innerHTML = `
+        <td class="date-col"><div class="date-cell${isToday ? ' is-today' : ''}${isSplit ? ' split-date' : ''}">
+          ${isSplit
+            ? '<span class="day-label" style="visibility:hidden">-</span>↳'
+            : `<span class="day-label">${DAYS[dow]}</span>${d.getDate()} ${MONTHS[viewMonth].slice(0,3)}`}
+        </div></td>
+        <td><select class="cell-input network-select ${networkPillClass(entry.network)}" id="net_${i}" onfocus="selectRow(${i},'network')" onchange="changeNetwork(${i},this.value)" onkeydown="handleCellKeydown(event,${i},'network')">${netOpts}</select></td>
+        <td class="project-cell">
+          <input class="cell-input project-main" id="proj_${i}" list="project_list_${i}" value="${esc(projectDisplayValue(entry.project))}" placeholder="${suggestion.projectHint || 'Type project'}" onfocus="selectRow(${i},'project')" onchange="changeProject(${i},this.value)" onkeydown="handleCellKeydown(event,${i},'project')">
+          <datalist id="project_list_${i}">${projectList}</datalist>
+          <div class="project-sub">${projectMetaHtml(entry)}</div>
+        </td>
+        <td><div class="auto-cell meta-cell eea-cell" title="${esc(codeTooltip('EEA', entry))}">${esc(entry.eea || '')}</div></td>
+        <td><div class="auto-cell meta-cell wbs-cell" title="${esc(codeTooltip('WBS', entry))}">${esc(entry.wbs || '')}</div></td>
+        <td><input class="cell-input num${warnings.some(w => w.includes('hours')) ? ' input-warn' : ''}" id="hrs_${i}" value="${entry.hours || ''}" placeholder="${hoursPlaceholder}" onfocus="selectRow(${i},'hours')" oninput="setField(${i},'hours',this.value)" onkeydown="handleCellKeydown(event,${i},'hours')"></td>
+        <td><div class="auto-cell" style="color:var(--muted);font-size:11px">${expDescForDate(entry.date)}</div></td>
+        <td><div class="auto-cell${warnings.some(w => w.includes('expense')) ? ' input-warn' : ''}" style="text-align:right">${expTotalForDate(entry.date)}</div></td>
+        <td><input class="cell-input num${warnings.some(w => w.includes('kms')) ? ' input-warn' : ''}" id="kms_${i}" value="${entry.kms || ''}" placeholder="${kmsPlaceholder}" onfocus="selectRow(${i},'kms')" oninput="setField(${i},'kms',this.value)" onkeydown="handleCellKeydown(event,${i},'kms')"></td>
+        <td><input class="cell-input num" id="diems_${i}" value="${entry.diems || ''}" placeholder="0" onfocus="selectRow(${i},'diems')" oninput="setField(${i},'diems',this.value)" onkeydown="handleCellKeydown(event,${i},'diems')"></td>
+        <td><div class="summary-cell">${rowSummaryHtml(entry, warnings)}</div></td>
+        <td style="text-align:center;vertical-align:middle;padding:0 2px;white-space:nowrap">
+          ${!hasNextSplit ? `<button class="split-btn" onclick="event.stopPropagation();splitRow(${i})" title="Split day">+</button>` : ''}
+          ${isSplit
+            ? `<button class="del-btn" onclick="event.stopPropagation();deleteRow(${i})" title="Remove row">&#215;</button>`
+            : `<button class="del-btn" onclick="event.stopPropagation();clearRow(${i})" title="Clear">&#215;</button>`}
+        </td>
+      `;
+      tbody.appendChild(tr);
+    }
+
+    if (dow === 0 && !hasNextSplit) {
+      const weekTotal = weekHoursEnding(entry.date);
+      if (weekTotal > 0 || !logUi.hideEmptyDays) {
+        const weekRow = document.createElement('tr');
+        weekRow.className = 'week-total-row';
+        weekRow.innerHTML = `
+          <td class="date-col week-total-label">Week Total</td>
+          <td colspan="4"></td>
+          <td class="week-total-value">${fmtMaybeInt(weekTotal)}h</td>
+          <td colspan="5"></td>
+          <td></td>
+        `;
+        tbody.appendChild(weekRow);
+      }
+    }
+  });
+
+  syncSelectedRow(entries);
+  renderRowContext();
+}
+
+function esc(s) { return String(s || '').replace(/&/g, '&amp;').replace(/"/g, '&quot;').replace(/'/g, '&#39;').replace(/</g, '&lt;'); }
+
+function fmtMaybeInt(value) {
+  if (!value) return '0';
+  return value % 1 === 0 ? String(value) : value.toFixed(2);
+}
+
+function stampEntry(entry) {
+  entry.updatedAt = new Date().toISOString();
+}
+
+function getEntriesForDate(dateStr) {
+  const key = dateStr.slice(0, 7);
+  return (state.months[key] || []).filter(entry => entry.date === dateStr);
+}
+
+function isoDateOffset(dateStr, offset) {
+  const d = new Date(dateStr + 'T12:00:00');
+  d.setDate(d.getDate() + offset);
+  return d.toISOString().slice(0, 10);
+}
+
+function parseCurrency(text) {
+  return parseFloat(String(text || '').replace('$', '')) || 0;
+}
+
+function isEntryEmpty(entry) {
+  return !entry.network && !entry.project && !entry.hours && !entry.kms && !entry.diems;
+}
+
+function hasEntryExpenses(dateStr) {
+  return parseCurrency(expTotalForDate(dateStr)) !== 0;
+}
+
+function isTrackableWorkday(dateStr) {
+  const d = new Date(dateStr + 'T12:00:00');
+  const dow = d.getDay();
+  if (dow === 0 || dow === 6) return false;
+  if (viewYear === now.getFullYear() && viewMonth === now.getMonth()) return dateStr <= now.toISOString().slice(0, 10);
+  return true;
+}
+
+function totalHoursForDate(dateStr) {
+  return getEntriesForDate(dateStr).reduce((sum, entry) => sum + (parseFloat(entry.hours) || 0), 0);
+}
+
+function weekHoursEnding(dateStr) {
+  let cursor = dateStr;
+  let total = 0;
+  while (true) {
+    total += totalHoursForDate(cursor);
+    const d = new Date(cursor + 'T12:00:00');
+    if (d.getDay() === 1) break;
+    cursor = isoDateOffset(cursor, -1);
+  }
+  return total;
+}
+
+function getExpectedWorkdayDates(year, month) {
+  const dates = [];
+  const totalDays = daysInMonth(year, month);
+  const cutoff = year === now.getFullYear() && month === now.getMonth() ? now.getDate() : totalDays;
+  for (let day = 1; day <= cutoff; day++) {
+    const dateStr = `${year}-${String(month + 1).padStart(2, '0')}-${String(day).padStart(2, '0')}`;
+    if (isTrackableWorkday(dateStr)) dates.push(dateStr);
+  }
+  return dates;
+}
+
+function getMissingWorkdayDates(year, month) {
+  return getExpectedWorkdayDates(year, month).filter(dateStr => totalHoursForDate(dateStr) <= 0);
+}
+
+function getAllLoggedEntries() {
+  return Object.keys(state.months)
+    .filter(key => !key.startsWith('exp_'))
+    .flatMap(key => state.months[key] || [])
+    .filter(entry => entry.network || entry.project || entry.hours || entry.kms || entry.diems);
+}
+
+function pickPrimaryEntry(entries) {
+  if (!entries.length) return null;
+  return [...entries].sort((a, b) => (parseFloat(b.hours) || 0) - (parseFloat(a.hours) || 0))[0];
+}
+
+function getYesterdayTemplate(dateStr) {
+  const previousDate = isoDateOffset(dateStr, -1);
+  const previousEntries = getEntriesForDate(previousDate).filter(entry => entry.network && entry.project);
+  const entry = pickPrimaryEntry(previousEntries);
+  return entry ? { ...entry, source: 'Yesterday' } : null;
+}
+
+function getWeekdayTemplate(dateStr) {
+  const targetDow = new Date(dateStr + 'T12:00:00').getDay();
+  const counts = {};
+  getAllLoggedEntries().forEach(entry => {
+    if (!(entry.network && entry.project) || entry.date >= dateStr) return;
+    const dow = new Date(entry.date + 'T12:00:00').getDay();
+    if (dow !== targetDow) return;
+    const key = `${entry.network}|||${entry.project}`;
+    if (!counts[key]) counts[key] = { entry, count: 0, lastDate: entry.date };
+    counts[key].count += 1;
+    if (entry.date > counts[key].lastDate) counts[key].lastDate = entry.date;
+  });
+  const winner = Object.values(counts).sort((a, b) => b.count - a.count || b.lastDate.localeCompare(a.lastDate))[0];
+  return winner ? { ...winner.entry, source: 'Weekday pattern' } : null;
+}
+
+function getSuggestedTemplate(dateStr) {
+  return getYesterdayTemplate(dateStr) || getWeekdayTemplate(dateStr);
+}
+
+function getProjectRecord(network, project) {
+  return state.projects.find(item => item.network === network && item.description === project) || null;
+}
+
+function modeValue(values) {
+  if (!values.length) return '';
+  const counts = {};
+  values.forEach(value => { counts[value] = (counts[value] || 0) + 1; });
+  return Object.keys(counts).sort((a, b) => counts[b] - counts[a] || parseFloat(b) - parseFloat(a))[0];
+}
+
+function getProjectStats(network, project, beforeDateStr) {
+  const stats = { lastUsed: '', typicalHours: '', typicalKms: '', projectHint: '' };
+  if (!(network && project)) return stats;
+  const matches = getAllLoggedEntries().filter(entry => entry.network === network && entry.project === project && entry.date < beforeDateStr);
+  if (!matches.length) return stats;
+  const latest = matches.sort((a, b) => b.date.localeCompare(a.date))[0];
+  const dayGap = Math.round((new Date(beforeDateStr + 'T12:00:00') - new Date(latest.date + 'T12:00:00')) / 86400000);
+  stats.lastUsed = dayGap === 1 ? 'Yesterday' : `${dayGap} days ago`;
+  stats.typicalHours = modeValue(matches.map(entry => parseFloat(entry.hours)).filter(Boolean).map(value => fmtMaybeInt(value)));
+  stats.typicalKms = modeValue(matches.map(entry => parseFloat(entry.kms)).filter(Boolean).map(value => fmtMaybeInt(value)));
+  return stats;
+}
+
+function codeTooltip(label, entry) {
+  if (!entry[label.toLowerCase()]) return '';
+  const project = entry.project ? ` for ${entry.project}` : '';
+  return `${label}: ${entry[label.toLowerCase()]}${project}`;
+}
+
+function getValidationWarnings(entry) {
+  const warnings = [];
+  const hours = parseFloat(entry.hours);
+  const kms = parseFloat(entry.kms);
+  const expenses = parseCurrency(expTotalForDate(entry.date));
+  if (hours > 16) warnings.push('hours > 16');
+  if (kms > 1000) warnings.push('kms > 1000');
+  if (expenses < 0) warnings.push('expense below 0');
+  return warnings;
+}
+
+function rowSummaryHtml(entry, warnings) {
+  const summary = rowSummaryText(entry);
+  if (!warnings.length) return summary;
+  return `${summary}<span class="summary-warning">⚠ ${warnings[0]}</span>`;
+}
+
+function rowSummaryText(entry) {
+  const hrs = entry.hours || 0;
+  const kms = entry.kms || 0;
+  const exp = expTotalForDate(entry.date);
+  return `${hrs}h` + (kms ? ` · ${kms}km` : '') + (exp ? ` · ${exp}` : '');
+}
+
+function projectMetaHtml(entry) {
+  const parts = [];
+  if (entry.eea) parts.push(`EEA: ${esc(entry.eea)}`);
+  if (entry.wbs) parts.push(`WBS: ${esc(entry.wbs)}`);
+  return parts.join('<br>');
+}
+
+function projectIcon(project) {
+  if (project === 'Sick') return '🤒 ';
+  if (project === 'Holiday') return '🏖 ';
+  return '';
+}
+
+function projectDisplayValue(project) {
+  return project ? projectIcon(project) + project : '';
+}
+
+function normalizeProjectInput(value) {
+  return String(value || '').replace(/^🤒\s|^🏖\s/, '').trim();
+}
+
+function networkPillClass(network) {
+  if (network === 'LMRN') return 'network-pill-blue';
+  if (network === 'PSCS') return 'network-pill-green';
+  if (network === 'ORS') return 'network-pill-purple';
+  return 'network-pill-gray';
+}
+
+function networkRowClass(network) {
+  if (network === 'LMRN') return 'net-lmrn';
+  if (network === 'PSCS') return 'net-pscs';
+  if (network === 'ORS')  return 'net-ors';
+  if (network === 'Off')  return 'net-off';
+  return '';
+}
+
+function networkPillMarkup(network) {
+  return `<span class="network-pill ${networkPillClass(network)}">${esc(network || '—')}</span>`;
+}
+
+function applyProjectToEntry(entry, project, source) {
+  entry.network = project.network;
+  entry.project = project.description;
+  entry.eea = project.eea || '';
+  entry.wbs = project.wbs || '';
+  entry.defaultSource = source || '';
+  stampEntry(entry);
+}
+
+function applySuggestedTemplateToRow(i) {
+  const entry = getMonthEntries()[i];
+  if (!entry || entry.network || entry.project) return false;
+  const template = getSuggestedTemplate(entry.date);
+  if (!template) return false;
+  const project = getProjectRecord(template.network, template.project) || template;
+  applyProjectToEntry(entry, { network: project.network, description: project.project || project.description, eea: project.eea, wbs: project.wbs }, template.source);
+  save();
+  return true;
+}
+
+function ensureTodayDefaults(entries) {
+  if (!(viewYear === now.getFullYear() && viewMonth === now.getMonth())) return;
+  const todayStr = now.toISOString().slice(0, 10);
+  const idx = entries.findIndex(entry => entry.date === todayStr);
+  if (idx === -1) return;
+  applySuggestedTemplateToRow(idx);
+}
+
+function renderQuickProjects() {
+  const quickNames = ['NWZ LMRN', 'NEZ LMRN', 'Sick', 'Holiday'];
+  const buttons = quickNames
+    .map(name => state.projects.find(project => project.description === name))
+    .filter(Boolean)
+    .map(project => `<button class="quick-btn" data-project="${esc(project.description)}" onclick="applyQuickProject(this.dataset.project)">${esc(projectDisplayValue(project.description))}</button>`)
+    .join('');
+  document.getElementById('quickProjects').innerHTML = buttons;
+  document.getElementById('hideEmptyBtn').textContent = logUi.hideEmptyDays ? 'Show empty days' : 'Hide empty days';
+}
+
+function renderValidationBar(entries) {
+  const missing = getMissingWorkdayDates(viewYear, viewMonth).length;
+  const unusual = entries.reduce((count, entry) => count + getValidationWarnings(entry).length, 0);
+  const parts = [];
+  parts.push(`<span class="validation-chip ${missing ? 'warn' : 'ok'}">${missing ? `⚠ ${missing} days missing hours` : '✔ All weekdays logged'}</span>`);
+  parts.push(`<span class="validation-chip ${unusual ? 'warn' : 'ok'}">${unusual ? `⚠ ${unusual} unusual values` : '✔ Values look normal'}</span>`);
+  const backupAge = daysSinceLastBackup();
+  if (backupAge !== null) parts.push(`<span class="validation-chip ${backupAge > 7 ? 'warn' : 'ok'}">${backupAge > 7 ? `⚠ Backup ${backupAge} days ago` : `✔ Backup ${backupAge} days ago`}</span>`);
+  document.getElementById('exportValidation').innerHTML = parts.join('');
+}
+
+function refreshBackupStatus() {
+  const el = document.getElementById('backupStatus');
+  if (!el) return;
+  const age = daysSinceLastBackup();
+  if (age === null) {
+    el.innerHTML = `<span class="backup-chip warn">⚠ No backup saved yet</span>`;
+    return;
+  }
+  el.innerHTML = `<span class="backup-chip ${age > 7 ? 'warn' : 'ok'}">${age > 7 ? '⚠ Backup recommended' : '✔ Backup recent'}</span><span class="backup-chip">Last backup: ${age} days ago</span>`;
+}
+
+function daysSinceLastBackup() {
+  if (!state.meta || !state.meta.lastBackupAt) return null;
+  const diff = Date.now() - new Date(state.meta.lastBackupAt).getTime();
+  return Math.max(0, Math.floor(diff / 86400000));
+}
+
+function syncSelectedRow(entries) {
+  if (logUi.selectedRow === null || !entries[logUi.selectedRow]) {
+    const todayStr = now.toISOString().slice(0, 10);
+    const todayIndex = entries.findIndex(entry => entry.date === todayStr);
+    logUi.selectedRow = todayIndex >= 0 ? todayIndex : 0;
+  }
+  const selected = document.querySelector(`#logBody tr[data-entry-index="${logUi.selectedRow}"]`);
+  if (selected) selected.classList.add('row-selected');
+}
+
+function renderRowContext() {
+  const entry = getMonthEntries()[logUi.selectedRow];
+  const hintBar = document.getElementById('rowHintBar');
+  if (!entry || !hintBar) return;
+  const hints = [];
+  hints.push(`<span class="hint-chip">${entry.date}</span>`);
+  if (entry.project) hints.push(`<span class="hint-chip">${esc(projectDisplayValue(entry.project))}</span>`);
+  if (entry.defaultSource) hints.push(`<span class="hint-chip">Default: ${entry.defaultSource}</span>`);
+  const stats = getProjectStats(entry.network, entry.project, entry.date);
+  if (stats.lastUsed) hints.push(`<span class="hint-chip">Last used: ${stats.lastUsed}</span>`);
+  if (stats.typicalHours) hints.push(`<span class="hint-chip">Typical hours: ${stats.typicalHours}</span>`);
+  if (stats.typicalKms) hints.push(`<span class="hint-chip">Typical km: ${stats.typicalKms}</span>`);
+  if (entry.updatedAt) hints.push(`<span class="hint-chip">Updated: ${new Date(entry.updatedAt).toLocaleString('en-CA')}</span>`);
+  if (!entry.project) {
+    const suggestion = getSuggestedTemplate(entry.date);
+    if (suggestion) hints.push(`<span class="hint-chip">Suggested: ${esc(projectDisplayValue(suggestion.project || suggestion.description))} from ${suggestion.source}</span>`);
+  }
+  hintBar.innerHTML = hints.join('');
+}
+
+function selectRow(i, field) {
+  logUi.selectedRow = i;
+  if (applySuggestedTemplateToRow(i)) {
+    renderLog();
+    setTimeout(() => focusCell(i, field || 'project'), 30);
+    return;
+  }
+  document.querySelectorAll('#logBody tr.row-selected').forEach(row => row.classList.remove('row-selected'));
+  const row = document.querySelector(`#logBody tr[data-entry-index="${i}"]`);
+  if (row) row.classList.add('row-selected');
+  renderRowContext();
+}
+
+function focusCell(i, field) {
+  const el = document.getElementById(`${field === 'network' ? 'net' : field === 'project' ? 'proj' : field === 'hours' ? 'hrs' : field}_${i}`) ||
+    document.getElementById(`${field}_${i}`);
+  if (el) el.focus();
+}
+
+function handleCellKeydown(event, i, field) {
+  if (event.key === 'Enter') {
+    event.preventDefault();
+    moveFocus(i, field, event.shiftKey ? -1 : 1);
+    return;
+  }
+  if (event.ctrlKey && !event.shiftKey && event.key.toLowerCase() === 'd') {
+    event.preventDefault();
+    logUi.selectedRow = i;
+    duplicatePreviousRow();
+    return;
+  }
+  if (event.ctrlKey && event.shiftKey && event.key.toLowerCase() === 'd') {
+    event.preventDefault();
+    logUi.selectedRow = i;
+    copyYesterdayToSelectedRow();
+  }
+}
+
+function moveFocus(i, field, direction) {
+  const currentIndex = FIELD_ORDER.indexOf(field);
+  let targetFieldIndex = currentIndex + direction;
+  let targetRow = i;
+  if (targetFieldIndex >= FIELD_ORDER.length) {
+    targetRow += 1;
+    targetFieldIndex = 0;
+  }
+  if (targetFieldIndex < 0) {
+    targetRow -= 1;
+    targetFieldIndex = FIELD_ORDER.length - 1;
+  }
+  while (targetRow >= 0 && targetRow < getMonthEntries().length) {
+    const targetField = FIELD_ORDER[targetFieldIndex];
+    const id = `${targetField === 'network' ? 'net' : targetField === 'project' ? 'proj' : targetField === 'hours' ? 'hrs' : targetField}_${targetRow}`;
+    const el = document.getElementById(id);
+    if (el) {
+      selectRow(targetRow, targetField);
+      setTimeout(() => el.focus(), 20);
+      return;
+    }
+    targetRow += direction > 0 ? 1 : -1;
+  }
+}
+
+function applyQuickProject(name) {
+  const index = logUi.selectedRow ?? 0;
+  const project = state.projects.find(item => item.description === normalizeProjectInput(name));
+  if (!project) return;
+  const entry = getMonthEntries()[index];
+  applyProjectToEntry(entry, project, 'Quick button');
+  save();
+  renderLog();
+  setTimeout(() => focusCell(index, 'hours'), 30);
+}
+
+function copyYesterdayToSelectedRow() {
+  const index = logUi.selectedRow ?? 0;
+  const entry = getMonthEntries()[index];
+  const template = getYesterdayTemplate(entry.date);
+  if (!template) { toast('No yesterday row to copy'); return; }
+  const project = getProjectRecord(template.network, template.project) || { network: template.network, description: template.project, eea: template.eea, wbs: template.wbs };
+  applyProjectToEntry(entry, project, 'Yesterday');
+  entry.hours = template.hours || '';
+  entry.kms = template.kms || '';
+  entry.diems = template.diems || '';
+  stampEntry(entry);
+  save();
+  renderLog();
+  setTimeout(() => focusCell(index, 'hours'), 30);
+}
+
+function duplicatePreviousRow() {
+  const index = logUi.selectedRow ?? 0;
+  if (index <= 0) { toast('No previous row to copy'); return; }
+  const source = getMonthEntries()[index - 1];
+  const target = getMonthEntries()[index];
+  Object.assign(target, {
+    network: source.network,
+    project: source.project,
+    eea: source.eea,
+    wbs: source.wbs,
+    hours: source.hours,
+    kms: source.kms,
+    diems: source.diems,
+    defaultSource: 'Prev row'
+  });
+  stampEntry(target);
+  save();
+  renderLog();
+  setTimeout(() => focusCell(index, 'hours'), 30);
+}
+
+function splitSelectedRowByRatio(a, b) {
+  const index = logUi.selectedRow ?? 0;
+  const entry = getMonthEntries()[index];
+  const total = parseFloat(entry.hours);
+  if (!total) { toast('Enter hours before splitting'); return; }
+  const firstHours = roundToTwo(total * (a / (a + b)));
+  const secondHours = roundToTwo(total - firstHours);
+  splitRowIntoValues(index, firstHours, secondHours);
+}
+
+function splitSelectedRowCustom() {
+  const index = logUi.selectedRow ?? 0;
+  const entry = getMonthEntries()[index];
+  const total = parseFloat(entry.hours);
+  const first = parseFloat(document.getElementById('customSplitA').value);
+  const second = parseFloat(document.getElementById('customSplitB').value);
+  if (!total) { toast('Enter hours before splitting'); return; }
+  if (!(first > 0 && second > 0)) { toast('Enter both split values'); return; }
+  if (roundToTwo(first + second) !== roundToTwo(total)) { toast('Custom split must equal row hours'); return; }
+  splitRowIntoValues(index, first, second);
+}
+
+function splitRowIntoValues(index, firstHours, secondHours) {
+  const entries = getMonthEntries();
+  const source = entries[index];
+  source.hours = String(firstHours);
+  stampEntry(source);
+  const newRow = {
+    id: uid(),
+    date: source.date,
+    network: source.network,
+    project: source.project,
+    eea: source.eea,
+    wbs: source.wbs,
+    hours: String(secondHours),
+    expDesc: '',
+    expenses: '',
+    kms: '',
+    diems: '',
+    updatedAt: new Date().toISOString(),
+    defaultSource: 'Split'
+  };
+  entries.splice(index + 1, 0, newRow);
+  save();
+  renderLog();
+  logUi.selectedRow = index + 1;
+  setTimeout(() => focusCell(index + 1, 'project'), 30);
+}
+
+function roundToTwo(value) {
+  return Math.round(value * 100) / 100;
+}
+
+function focusTodayRow() {
+  const todayStr = now.toISOString().slice(0, 10);
+  const index = getMonthEntries().findIndex(entry => entry.date === todayStr);
+  if (index === -1) { toast('Today is outside this month'); return; }
+  logUi.selectedRow = index;
+  renderLog();
+  const row = document.querySelector(`#logBody tr[data-entry-index="${index}"]`);
+  if (row) row.scrollIntoView({ block: 'center', inline: 'start', behavior: 'smooth' });
+}
+
+function toggleHideEmptyDays() {
+  logUi.hideEmptyDays = !logUi.hideEmptyDays;
+  renderLog();
+}
+
+function updateLogRowDisplay(i) {
+  const row = document.querySelector(`#logBody tr[data-entry-index="${i}"]`);
+  const entry = getMonthEntries()[i];
+  if (!row || !entry) return;
+
+  row.classList.toggle('row-warning', Boolean(entry.network && !entry.hours));
+
+  const summaryCell = row.querySelector('.summary-cell');
+  if (summaryCell) summaryCell.innerHTML = rowSummaryHtml(entry, getValidationWarnings(entry));
+}
+
+function changeNetwork(i, val) {
+  const e = getMonthEntries()[i];
+  e.network = ''; e.project = ''; e.eea = ''; e.wbs = '';
+  e.network = val;
+  e.defaultSource = '';
+  stampEntry(e);
+  save();
+  logUi.selectedRow = i;
+  renderLog();
+  setTimeout(() => { const s = document.getElementById(`proj_${i}`); if (s) s.focus(); }, 30);
+}
+
+function changeProject(i, val) {
+  const e = getMonthEntries()[i];
+  const normalized = normalizeProjectInput(val);
+  e.project = normalized;
+  const proj = state.projects.find(p => p.network === e.network && p.description === normalized) ||
+    state.projects.find(p => p.description === normalized);
+  if (proj) {
+    e.network = proj.network;
+    e.project = proj.description;
+    e.eea = proj.eea || '';
+    e.wbs = proj.wbs || '';
+  } else {
+    e.eea = '';
+    e.wbs = '';
+  }
+  stampEntry(e);
+  save();
+  logUi.selectedRow = i;
+  renderLog();
+  setTimeout(() => focusCell(i, 'project'), 30);
+}
+
+function setField(i, field, val) {
+  const entry = getMonthEntries()[i];
+  entry[field] = val;
+  stampEntry(entry);
+  save();
+  if (field === 'hours' || field === 'kms' || field === 'diems') {
+    logUi.selectedRow = i;
+    renderLog();
+    setTimeout(() => focusCell(i, field), 30);
+    return;
+  }
+  renderValidationBar(getMonthEntries());
+  renderRowContext();
+}
+
+function clearRow(i) {
+  const e = getMonthEntries()[i];
+  Object.assign(e, { network:'', project:'', eea:'', wbs:'', hours:'', expDesc:'', expenses:'', kms:'', diems:'', defaultSource:'' });
+  stampEntry(e);
+  save();
+  renderLog();
+}
+
+function splitRow(i) {
+  const entries = getMonthEntries();
+  const date = entries[i].date;
+  const newRow = { id: uid(), date, network:'', project:'', eea:'', wbs:'', hours:'', expDesc:'', expenses:'', kms:'', diems:'', updatedAt: new Date().toISOString() };
+  entries.splice(i + 1, 0, newRow);
+  save();
+  renderLog();
+  setTimeout(() => { const s = document.getElementById(`proj_${i+1}`); if (s) s.focus(); }, 30);
+}
+
+function deleteRow(i) {
+  const entries = getMonthEntries();
+  entries.splice(i, 1);
+  save();
+  renderLog();
+}
+
+// ── PROJECTS ─────────────────────────────────────────────────────────────────
+function renderProjects() {
+  renderExpenseTypes();
+  const tbody  = document.getElementById('projBody');
+  const sorted = [...state.projects].sort((a,b)=>a.network.localeCompare(b.network)||a.description.localeCompare(b.description));
+  if (!sorted.length) {
+    tbody.innerHTML = `<tr><td colspan="5"><div class="empty"><div class="empty-icon">📁</div>No projects yet.</div></td></tr>`;
+    return;
+  }
+  tbody.innerHTML = sorted.map(p => {
+    const ri = state.projects.indexOf(p);
+    const isPending = p.id === pendingDeleteProject;
+    const actionCell = isPending
+      ? `<td style="white-space:nowrap;padding:4px 6px">
+           <button class="btn" style="color:var(--danger);border-color:var(--danger);padding:3px 8px;font-size:11px" onclick="confirmDeleteProject()">Delete</button>
+           <button class="btn" style="padding:3px 8px;font-size:11px" onclick="cancelDeleteProject()">Cancel</button>
+         </td>`
+      : `<td><button class="del-btn" onclick="deleteProject(${ri})" title="Delete">&#215;</button></td>`;
+    return `<tr${isPending ? ' style="background:#fff0ee"' : ''}>
+      <td>${networkPillMarkup(p.network)}</td>
+      <td>${esc(p.description)}</td>
+      <td style="font-family:var(--mono);font-size:11px;color:var(--muted)">${p.eea ? esc(p.eea) : '—'}</td>
+      <td style="font-family:var(--mono);font-size:11px;color:var(--muted)">${p.wbs ? esc(p.wbs) : '—'}</td>
+      ${actionCell}
+    </tr>`;
+  }).join('');
+}
+
+function renderExpenseTypes() {
+  if (!state.expenseTypes) state.expenseTypes = ['Fuel','Meals','Accommodation','Parking','Equipment','Supplies','Other'];
+  const tbody = document.getElementById('etBody');
+  if (!tbody) return;
+  if (!state.expenseTypes.length) {
+    tbody.innerHTML = `<tr><td colspan="2"><div class="empty" style="padding:16px">No types yet.</div></td></tr>`;
+    return;
+  }
+  tbody.innerHTML = state.expenseTypes.map((t,i) => `<tr>
+    <td style="padding:7px 10px;font-family:var(--mono);font-size:12px">${t}</td>
+    <td style="text-align:center;vertical-align:middle;padding:0 2px"><button class="del-btn" onclick="deleteExpenseType(${i})" title="Remove">&#215;</button></td>
+  </tr>`).join('');
+}
+
+function addExpenseType() {
+  const input = document.getElementById('etInput');
+  const val = input.value.trim();
+  if (!val) return;
+  if (!state.expenseTypes) state.expenseTypes = [];
+  if (state.expenseTypes.includes(val)) { toast('Already exists'); return; }
+  state.expenseTypes.push(val);
+  save(); renderExpenseTypes();
+  input.value = '';
+  toast('Type added');
+}
+
+function deleteExpenseType(i) {
+  state.expenseTypes.splice(i, 1);
+  save(); renderExpenseTypes();
+  toast('Deleted');
+}
+
+function addProject() {
+  const network     = document.getElementById('pNet').value.trim().toUpperCase();
+  const description = document.getElementById('pDesc').value.trim();
+  const eea         = document.getElementById('pEEA').value.trim();
+  const wbs         = document.getElementById('pWBS').value.trim();
+  if (!network||!description) { toast('Network and Description required'); return; }
+  if (state.projects.some(p=>p.network===network&&p.description===description)) { toast('Already exists'); return; }
+  state.projects.push({id:uid(),network,description,eea,wbs});
+  save(); renderProjects();
+  ['pNet','pDesc','pEEA','pWBS'].forEach(id=>document.getElementById(id).value='');
+  toast('Project added');
+}
+
+function deleteProject(i) {
+  pendingDeleteProject = state.projects[i].id;
+  renderProjects();
+}
+
+function confirmDeleteProject() {
+  const i = state.projects.findIndex(p => p.id === pendingDeleteProject);
+  pendingDeleteProject = null;
+  if (i === -1) { renderProjects(); return; }
+  state.projects.splice(i, 1);
+  save(); renderProjects(); toast('Deleted');
+}
+
+function cancelDeleteProject() {
+  pendingDeleteProject = null;
+  renderProjects();
+}
+
+// ── HISTORY ──────────────────────────────────────────────────────────────────
+function renderHistory() {
+  const grid = document.getElementById('historyGrid');
+  const keys = Object.keys(state.months).sort().reverse();
+  if (!keys.length) {
+    grid.innerHTML=`<div class="empty" style="grid-column:1/-1"><div class="empty-icon">🗓</div>No months logged yet.</div>`;
+    return;
+  }
+  grid.innerHTML = keys.map(key => {
+    if (key.startsWith('exp_')) return '';
+    const entries = state.months[key]||[];
+    const hrs  = entries.reduce((s,e)=>s+(parseFloat(e.hours)||0),0);
+    const expRec = state.months['exp_'+key] || [];
+    const exp  = expRec.reduce((s,r)=>s+(parseFloat(r.amount)||0),0);
+    const days = entries.filter(e=>e.network||e.hours).length;
+    const [y,m] = key.split('-').map(Number);
+    return `<div class="hist-card" onclick="jumpTo('${key}')">
+      <div class="hist-month">${MONTHS[m-1]} ${y}</div>
+      <div class="hist-stats">
+        <div class="hist-stat"><span>Hours</span><strong>${hrs}</strong></div>
+        <div class="hist-stat"><span>Expenses</span><strong>$${exp.toFixed(2)}</strong></div>
+        <div class="hist-stat"><span>Days logged</span><strong>${days}</strong></div>
+      </div>
+    </div>`;
+  }).join('');
+}
+
+function jumpTo(key) {
+  const [y,m] = key.split('-').map(Number);
+  viewYear=y; viewMonth=m-1;
+  document.querySelectorAll('.nav-btn').forEach((b,i)=>b.classList.toggle('active',i===0));
+  showPage('log');
+}
+
+// ── EXPORTS ──────────────────────────────────────────────────────────────────
+function exportData() {
+  return getMonthEntries().map(e=>({
+    'Date':                e.date,
+    'Network':             e.network,
+    'Project Description': e.project,
+    'EEA':                 e.eea,
+    'WBS':                 e.wbs,
+    'Reg Hours':           e.hours,
+    'Expense Type':        expTypeForDate(e.date),
+    'Expense Notes':       expNotesForDate(e.date),
+    'Expenses Incurred':   expTotalForDate(e.date).replace('$',''),
+    'KMs':                 e.kms,
+    'Diems':               e.diems
+  }));
+}
+
+function exportCSV() {
+  const data=exportData(), h=Object.keys(data[0]);
+  const csv=[h,...data.map(r=>h.map(k=>`"${String(r[k]||'').replace(/"/g,'""')}"`))].map(r=>r.join(',')).join('\n');
+  dl(`timesheet_${monthKey(viewYear,viewMonth)}.csv`,'text/csv',csv);
+  toast('CSV downloaded');
+}
+
+function exportExcel() {
+  const data=exportData(), h=Object.keys(data[0]);
+  const ex=v=>String(v||'').replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;');
+  const rows=[h,...data.map(r=>h.map(k=>r[k]))];
+  const xml=`<?xml version="1.0"?><Workbook xmlns="urn:schemas-microsoft-com:office:spreadsheet" xmlns:ss="urn:schemas-microsoft-com:office:spreadsheet"><Worksheet ss:Name="${MONTHS[viewMonth]} ${viewYear}"><Table>${rows.map(row=>`<Row>${row.map(c=>`<Cell><Data ss:Type="String">${ex(c)}</Data></Cell>`).join('')}</Row>`).join('')}</Table></Worksheet></Workbook>`;
+  dl(`timesheet_${monthKey(viewYear,viewMonth)}.xls`,'application/vnd.ms-excel',xml);
+  toast('Excel downloaded');
+}
+
+function exportPDF() {
+  const data=exportData(), h=Object.keys(data[0]);
+  const label=`${MONTHS[viewMonth]} ${viewYear}`;
+  const hrs=data.reduce((s,r)=>s+(parseFloat(r['Reg Hours'])||0),0);
+  const exp=data.reduce((s,r)=>s+(parseFloat(r['Expenses Incurred'])||0),0);
+  const win=window.open('','_blank');
+  if (!win) { toast('Allow popups for PDF export'); return; }
+  win.document.write(`<!DOCTYPE html><html><head><title>${label}</title><style>body{font-family:Arial,sans-serif;font-size:11px;padding:28px;color:#111}h2{font-size:16px;margin-bottom:2px}.sub{color:#888;font-size:11px;margin-bottom:16px}.stats{display:flex;gap:16px;margin-bottom:20px}.s{background:#f5f5f5;padding:8px 14px;border-radius:4px}.s strong{display:block;font-size:16px;color:#1a472a}table{width:100%;border-collapse:collapse}th{background:#1a1a2e;color:#fff;padding:5px 7px;text-align:left;font-size:10px;text-transform:uppercase;letter-spacing:.05em}td{padding:4px 7px;border-bottom:1px solid #eee}tr:nth-child(even) td{background:#f9f9f9}@media print{body{padding:12px}}</style></head><body><h2>${label}</h2><div class="sub">Exported ${new Date().toLocaleDateString('en-CA')}</div><div class="stats"><div class="s"><strong>${hrs}</strong>Regular Hours</div><div class="s"><strong>$${exp.toFixed(2)}</strong>Expenses</div><div class="s"><strong>${data.filter(r=>r.Network).length}</strong>Days Logged</div></div><table><thead><tr>${h.map(k=>`<th>${k}</th>`).join('')}</tr></thead><tbody>${data.map(r=>`<tr>${h.map(k=>`<td>${r[k]||''}</td>`).join('')}</tr>`).join('')}</tbody></table><script>window.onload=()=>window.print()<\/script></body></html>`);
+  win.document.close();
+  toast('PDF print dialog opened');
+}
+
+let _pendingImport = null;
+
+function defaultFilename() {
+  const now = new Date();
+  const ts = now.toISOString().slice(0,10);
+  return `timesheet_backup_${ts}`;
+}
+
+function refreshBackup() {
+  const el = document.getElementById('backupFilename');
+  if (el && !el.value) el.value = defaultFilename();
+  refreshBackupStatus();
+}
+
+function saveBackup() {
+  let name = (document.getElementById('backupFilename').value.trim() || defaultFilename());
+  if (!name.endsWith('.json')) name += '.json';
+  state.meta.lastBackupAt = new Date().toISOString();
+  save();
+  dl(name, 'application/json', JSON.stringify(state, null, 2));
+  refreshBackupStatus();
+  toast('Backup saved');
+}
+
+function previewImport(input) {
+  const file = input.files[0];
+  if (!file) return;
+  document.getElementById('importFilename').textContent = file.name;
+  const reader = new FileReader();
+  reader.onload = e => {
+    try {
+      const imported = JSON.parse(e.target.result);
+      if (!imported.projects || !imported.months) { toast('Invalid backup file'); return; }
+      _pendingImport = imported;
+      const monthCount   = Object.keys(imported.months).length;
+      const projectCount = imported.projects.length;
+      const entryCount   = Object.values(imported.months).reduce((s,m)=>s+(Array.isArray(m)?m.filter(e=>e.network||e.hours).length:0), 0);
+      document.getElementById('importSummary').innerHTML =
+        `<strong>${file.name}</strong><br>
+        <span style="color:var(--muted)">${projectCount} projects &nbsp;·&nbsp; ${monthCount} months &nbsp;·&nbsp; ${entryCount} logged entries</span>`;
+      document.getElementById('importPreview').style.display = 'block';
+    } catch(err) {
+      toast('Could not read file — is it a valid backup?');
+    }
+    input.value = '';
+  };
+  reader.readAsText(file);
+}
+
+function confirmImport() {
+  if (!_pendingImport) return;
+  state = _pendingImport;
+  _pendingImport = null;
+  save();
+  renderLog();
+  document.getElementById('importPreview').style.display = 'none';
+  document.getElementById('importFilename').textContent = '';
+  toast('Backup restored');
+}
+
+function cancelImport() {
+  _pendingImport = null;
+  document.getElementById('importPreview').style.display = 'none';
+  document.getElementById('importFilename').textContent = '';
+}
+
+// ── SUMMARY ──────────────────────────────────────────────────────────────────
+let sumYear  = new Date().getFullYear();
+let sumMonth = new Date().getMonth();
+
+function summaryPrevMonth() { sumMonth--; if(sumMonth<0){sumMonth=11;sumYear--;} renderSummary(); }
+function summaryNextMonth() { sumMonth++; if(sumMonth>11){sumMonth=0;sumYear++;} renderSummary(); }
+
+function renderSummary() {
+  document.getElementById('summaryLabel').textContent = MONTHS[sumMonth] + ' ' + sumYear;
+
+  const key     = monthKey(sumYear, sumMonth);
+  const entries = (state.months[key] || []).filter(e => e.network || e.hours);
+
+  const el = document.getElementById('summaryContent');
+
+  if (!entries.length) {
+    el.innerHTML = '<div class="empty"><div class="empty-icon">📋</div>No entries logged for this month.</div>';
+    return;
+  }
+
+  // Build per-project totals
+  const byProject = {};
+  entries.forEach(e => {
+    const projKey = e.network + '|||' + e.project;
+    if (!byProject[projKey]) byProject[projKey] = { network: e.network, project: e.project, hours:0, expenses:0, kms:0, diems:0, days:new Set() };
+    const p = byProject[projKey];
+    p.hours    += parseFloat(e.hours)    || 0;
+    // expenses now come from exp_ receipt keys, not log entries
+    p.kms      += parseFloat(e.kms)      || 0;
+    p.diems    += parseFloat(e.diems)    || 0;
+    if (e.hours || e.network) p.days.add(e.date);
+  });
+
+  // Populate expenses from receipt keys — use project assigned directly on receipt
+  const expRecs = state.months['exp_' + monthKey(sumYear, sumMonth)] || [];
+  expRecs.forEach(r => {
+    if (!r.network || !r.project) return; // skip unassigned receipts
+    const pkey = r.network + '|||' + r.project;
+    if (byProject[pkey]) {
+      byProject[pkey].expenses += parseFloat(r.amount) || 0;
+    } else {
+      // receipt project not in log this month — create an entry for it
+      byProject[pkey] = { network: r.network, project: r.project, hours:0, expenses: parseFloat(r.amount)||0, kms:0, diems:0, days: new Set() };
+    }
+  });
+
+  // Group by network
+  const byNetwork = {};
+  Object.values(byProject).forEach(p => {
+    if (!byNetwork[p.network]) byNetwork[p.network] = [];
+    byNetwork[p.network].push(p);
+  });
+
+  // Grand totals
+  let gtHours=0, gtExpenses=0, gtKms=0, gtDiems=0;
+  Object.values(byProject).forEach(p => { gtHours+=p.hours; gtExpenses+=p.expenses; gtKms+=p.kms; gtDiems+=p.diems; });
+
+  const fmt = n => n % 1 === 0 ? n.toString() : n.toFixed(2);
+
+  let html = '';
+  Object.keys(byNetwork).sort().forEach(network => {
+    const projs = byNetwork[network];
+    let netHours=0, netExp=0, netKms=0, netDiems=0;
+    projs.forEach(p=>{netHours+=p.hours;netExp+=p.expenses;netKms+=p.kms;netDiems+=p.diems;});
+
+    html += `
+    <div style="margin-bottom:24px">
+      <div style="display:flex;align-items:center;gap:10px;margin-bottom:8px">
+        ${networkPillMarkup(network)}
+        <span style="font-family:var(--mono);font-size:11px;color:var(--muted)">${fmt(netHours)} hrs${netExp?'  ·  $'+netExp.toFixed(2):''}${netKms?'  ·  '+netKms+' km':''}</span>
+      </div>
+      <div class="table-wrap">
+        <table>
+          <thead><tr>
+            <th style="min-width:180px">Project</th>
+            <th style="min-width:110px">EEA</th>
+            <th style="min-width:130px">WBS</th>
+            <th style="width:80px;text-align:right">Hours</th>
+            <th style="width:90px;text-align:right">Expenses</th>
+            <th style="width:70px;text-align:right">KMs</th>
+            <th style="width:60px;text-align:right">Diems</th>
+            <th style="width:60px;text-align:right">Days</th>
+          </tr></thead>
+          <tbody>
+            ${projs.map(p => {
+              const proj = state.projects.find(x=>x.network===p.network&&x.description===p.project)||{};
+              return `<tr>
+              <td style="padding:7px 8px">${p.project ? esc(p.project) : '<span style="color:var(--muted)">—</span>'}</td>
+              <td style="padding:7px 8px;font-family:var(--mono);font-size:11px;color:var(--muted)">${proj.eea||'—'}</td>
+              <td style="padding:7px 8px;font-family:var(--mono);font-size:11px;color:var(--muted)">${proj.wbs||'—'}</td>
+              <td style="padding:7px 8px;text-align:right;font-family:var(--mono);font-size:12px">${p.hours ? fmt(p.hours) : '—'}</td>
+              <td style="padding:7px 8px;text-align:right;font-family:var(--mono);font-size:12px">${p.expenses ? '$'+p.expenses.toFixed(2) : '—'}</td>
+              <td style="padding:7px 8px;text-align:right;font-family:var(--mono);font-size:12px">${p.kms ? fmt(p.kms) : '—'}</td>
+              <td style="padding:7px 8px;text-align:right;font-family:var(--mono);font-size:12px">${p.diems ? fmt(p.diems) : '—'}</td>
+              <td style="padding:7px 8px;text-align:right;font-family:var(--mono);font-size:12px;color:var(--muted)">${p.days.size}</td>
+            </tr>`;}).join('')}
+            <tr style="border-top:2px solid var(--border)">
+              <td style="padding:7px 8px;font-weight:600;font-size:12px">Network total</td>
+              <td></td><td></td>
+              <td style="padding:7px 8px;text-align:right;font-family:var(--mono);font-size:12px;font-weight:600;color:var(--accent)">${fmt(netHours)}</td>
+              <td style="padding:7px 8px;text-align:right;font-family:var(--mono);font-size:12px;font-weight:600;color:var(--accent)">${netExp ? '$'+netExp.toFixed(2) : '—'}</td>
+              <td style="padding:7px 8px;text-align:right;font-family:var(--mono);font-size:12px;font-weight:600;color:var(--accent)">${netKms ? fmt(netKms) : '—'}</td>
+              <td style="padding:7px 8px;text-align:right;font-family:var(--mono);font-size:12px;font-weight:600;color:var(--accent)">${netDiems ? fmt(netDiems) : '—'}</td>
+              <td></td>
+            </tr>
+          </tbody>
+        </table>
+      </div>
+    </div>`;
+  });
+
+  // Grand total bar
+  html += `
+  <div style="background:var(--signal);color:#fff;border-radius:var(--radius);padding:14px 20px;display:flex;gap:32px;flex-wrap:wrap;margin-top:4px">
+    <div>
+      <div style="font-family:var(--mono);font-size:9px;font-weight:600;text-transform:uppercase;letter-spacing:0.1em;opacity:0.7;margin-bottom:3px">Total Hours</div>
+      <div style="font-family:var(--mono);font-size:22px;font-weight:600">${fmt(gtHours)}</div>
+    </div>
+    ${gtExpenses ? `<div>
+      <div style="font-family:var(--mono);font-size:9px;font-weight:600;text-transform:uppercase;letter-spacing:0.1em;opacity:0.7;margin-bottom:3px">Total Expenses</div>
+      <div style="font-family:var(--mono);font-size:22px;font-weight:600">$${gtExpenses.toFixed(2)}</div>
+    </div>` : ''}
+    ${gtKms ? `<div>
+      <div style="font-family:var(--mono);font-size:9px;font-weight:600;text-transform:uppercase;letter-spacing:0.1em;opacity:0.7;margin-bottom:3px">Total KMs</div>
+      <div style="font-family:var(--mono);font-size:22px;font-weight:600">${fmt(gtKms)}</div>
+    </div>` : ''}
+    ${gtDiems ? `<div>
+      <div style="font-family:var(--mono);font-size:9px;font-weight:600;text-transform:uppercase;letter-spacing:0.1em;opacity:0.7;margin-bottom:3px">Total Diems</div>
+      <div style="font-family:var(--mono);font-size:22px;font-weight:600">${fmt(gtDiems)}</div>
+    </div>` : ''}
+  </div>`;
+
+  el.innerHTML = html;
+}
+
+// ── EXPENSES ─────────────────────────────────────────────────────────────────
+let expYear  = new Date().getFullYear();
+let expMonth = new Date().getMonth();
+
+function expPrevMonth() { expMonth--; if(expMonth<0){expMonth=11;expYear--;} renderExpenses(); }
+function expNextMonth() { expMonth++; if(expMonth>11){expMonth=0;expYear++;} renderExpenses(); }
+
+function getExpenses() {
+  const key = 'exp_' + monthKey(expYear, expMonth);
+  if (!state.months[key]) state.months[key] = [];
+  return state.months[key];
+}
+
+function expTotalForDate(date) {
+  // look across all expense keys for this date
+  const y = date.slice(0,7); // YYYY-MM
+  const key = 'exp_' + y;
+  const receipts = state.months[key] || [];
+  const total = receipts.filter(r=>r.date===date).reduce((s,r)=>s+(parseFloat(r.amount)||0),0);
+  return total ? '$'+total.toFixed(2) : '';
+}
+
+function expTypeForDate(date) {
+  const receipts = (state.months['exp_'+date.slice(0,7)]||[]).filter(r=>r.date===date);
+  if (!receipts.length) return '';
+  if (receipts.length === 1) return receipts[0].type || '';
+  return receipts.map(r=>r.type||'—').join(', ');
+}
+
+function expNotesForDate(date) {
+  const receipts = (state.months['exp_'+date.slice(0,7)]||[]).filter(r=>r.date===date);
+  if (!receipts.length) return '';
+  if (receipts.length === 1) return receipts[0].notes || receipts[0].desc || '';
+  return receipts.map(r=>r.notes||r.desc||'—').join(', ');
+}
+
+function expDescForDate(date) {
+  const y = date.slice(0,7);
+  const key = 'exp_' + y;
+  const receipts = (state.months[key]||[]).filter(r=>r.date===date);
+  if (!receipts.length) return '';
+  if (receipts.length === 1) return receipts[0].type || receipts[0].notes || receipts[0].desc || '';
+  return receipts.length + ' receipts';
+}
+
+function addExpenseRow() {
+  const receipts = getExpenses();
+  // default to today if in current month, else first of month
+  const today = new Date().toISOString().slice(0,10);
+  const firstOfMonth = `${expYear}-${String(expMonth+1).padStart(2,'0')}-01`;
+  const defaultDate = today.startsWith(`${expYear}-${String(expMonth+1).padStart(2,'0')}`) ? today : firstOfMonth;
+  receipts.push({ id: uid(), date: defaultDate, network: '', project: '', type: '', notes: '', amount: '' });
+  save();
+  renderExpenses();
+}
+
+function setExpField(id, field, val) {
+  const receipts = getExpenses();
+  const r = receipts.find(r=>r.id===id);
+  if (r) {
+    r[field]=val;
+    save();
+    if (document.getElementById('page-log').classList.contains('active') && field === 'amount') renderLog();
+  }
+}
+
+function changeExpNetwork(id, val) {
+  const receipts = getExpenses();
+  const r = receipts.find(r=>r.id===id);
+  if (!r) return;
+  r.network = val;
+  r.project = '';
+  save();
+  renderExpenses();
+  setTimeout(()=>{ const s=document.getElementById(`expp_${id}`); if(s)s.focus(); },30);
+}
+
+function deleteExpense(id) {
+  const key = 'exp_' + monthKey(expYear, expMonth);
+  state.months[key] = (state.months[key]||[]).filter(r=>r.id!==id);
+  save();
+  renderExpenses();
+  // refresh log if visible
+  if (document.getElementById('page-log').classList.contains('active')) renderLog();
+}
+
+function renderExpenses() {
+  document.getElementById('expLabel').textContent = MONTHS[expMonth] + ' ' + expYear;
+  const receipts = getExpenses();
+  const tbody = document.getElementById('expBody');
+
+  // Build date options for this month
+  const days = daysInMonth(expYear, expMonth);
+  const dateOpts = Array.from({length:days},(_,i)=>{
+    const d = `${expYear}-${String(expMonth+1).padStart(2,'0')}-${String(i+1).padStart(2,'0')}`;
+    const label = `${i+1} ${MONTHS[expMonth].slice(0,3)}`;
+    return `<option value="${d}">${label}</option>`;
+  }).join('');
+
+  if (!receipts.length) {
+    tbody.innerHTML = `<tr><td colspan="7"><div class="empty"><div class="empty-icon">🧾</div>No receipts yet. Click "+ Add receipt" to start.</div></td></tr>`;
+    document.getElementById('expTotals').innerHTML = '';
+    return;
+  }
+
+  const networks = [...new Set(state.projects.map(p=>p.network))].sort();
+
+  tbody.innerHTML = receipts.map(r => {
+    const opts = dateOpts.replace(`value="${r.date}"`, `value="${r.date}" selected`);
+    const netOpts = `<option value="">—</option>` +
+      networks.map(n=>`<option value="${n}"${r.network===n?' selected':''}>${n}</option>`).join('');
+    const projs = r.network ? state.projects.filter(p=>p.network===r.network) : [];
+    const projOpts = `<option value="">—</option>` +
+      projs.map(p=>`<option value="${esc(p.description)}"${r.project===p.description?' selected':''}>${p.description}</option>`).join('');
+    const types = state.expenseTypes || [];
+    const typeOpts = `<option value="">—</option>` +
+      types.map(t=>`<option value="${esc(t)}"${r.type===t?' selected':''}>${t}</option>`).join('');
+    const expWarn = (parseFloat(r.amount) || 0) < 0;
+    return `<tr>
+      <td><select class="cell-input" onchange="setExpField('${r.id}','date',this.value);renderExpenses()">${opts}</select></td>
+      <td><select class="cell-input" onchange="changeExpNetwork('${r.id}',this.value)">${netOpts}</select></td>
+      <td><select class="cell-input" id="expp_${r.id}" onchange="setExpField('${r.id}','project',this.value)">${projOpts}</select></td>
+      <td><select class="cell-input" onchange="setExpField('${r.id}','type',this.value)">${typeOpts}</select></td>
+      <td><input class="cell-input" value="${esc(r.notes||'')}" placeholder="Notes" oninput="setExpField('${r.id}','notes',this.value)"></td>
+      <td><input class="cell-input num${expWarn ? ' input-warn' : ''}" value="${r.amount}" placeholder="0.00" title="${expWarn ? '⚠ unusual value' : ''}" oninput="setExpField('${r.id}','amount',this.value)"></td>
+      <td style="text-align:center;vertical-align:middle;padding:0 2px"><button class="del-btn" onclick="deleteExpense('${r.id}')" title="Remove">&#215;</button></td>
+    </tr>`;
+  }).join('');
+
+  // Totals by date
+  const byDate = {};
+  receipts.forEach(r => {
+    if (!byDate[r.date]) byDate[r.date] = 0;
+    byDate[r.date] += parseFloat(r.amount)||0;
+  });
+  const grandTotal = receipts.reduce((s,r)=>s+(parseFloat(r.amount)||0),0);
+
+  let totalsHtml = '<div style="display:flex;gap:10px;flex-wrap:wrap;align-items:flex-start">';
+  // Per-day summary pills
+  Object.keys(byDate).sort().forEach(date => {
+    const d = new Date(date+'T12:00:00');
+    const label = `${d.getDate()} ${MONTHS[d.getMonth()].slice(0,3)}`;
+    totalsHtml += `<div class="stat" style="min-width:90px"><div class="stat-label">${label}</div><div class="stat-value" style="font-size:16px">$${byDate[date].toFixed(2)}</div></div>`;
+  });
+  totalsHtml += `<div class="stat" style="min-width:100px;border-color:var(--accent2)"><div class="stat-label">Month total</div><div class="stat-value">$${grandTotal.toFixed(2)}</div></div>`;
+  totalsHtml += '</div>';
+  document.getElementById('expTotals').innerHTML = totalsHtml;
+}
+
+function dl(name,type,content) {
+  const a=document.createElement('a');
+  a.href=URL.createObjectURL(new Blob([content],{type}));
+  a.download=name; a.click(); URL.revokeObjectURL(a.href);
+}
+
+let _tt;
+function toast(msg) {
+  const el=document.getElementById('toast');
+  el.textContent=msg; el.classList.add('show');
+  clearTimeout(_tt); _tt=setTimeout(()=>el.classList.remove('show'),2000);
+}
+
+renderLog();
+</script>
+</body>
+</html>

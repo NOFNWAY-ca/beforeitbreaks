@@ -1,0 +1,170 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>[FN] Take Pride Cleaning</title>
+    <style>
+        :root {
+            --bg: #0a0e14;
+            --surface: #151b23;
+            --text: #e6edf3;
+            --accent: #00d4ff; /* Neon Blue */
+            --highlight: #39ff14; /* Neon Green */
+        }
+        body {
+            background: var(--bg);
+            color: var(--text);
+            font-family: 'Courier New', Courier, monospace;
+            margin: 20px;
+            line-height: 1.4;
+        }
+        header { border-bottom: 2px solid var(--accent); margin-bottom: 20px; padding-bottom: 10px; }
+        .search-box {
+            width: 100%;
+            padding: 15px;
+            background: var(--surface);
+            border: 1px solid var(--accent);
+            color: var(--highlight);
+            font-size: 1.2rem;
+            margin-bottom: 20px;
+            box-sizing: border-box;
+        }
+        table { width: 100%; border-collapse: collapse; margin-bottom: 100px; }
+        th { text-align: left; background: var(--surface); color: var(--accent); position: sticky; top: 0; }
+        td, th { padding: 10px; border-bottom: 1px solid #30363d; }
+        input[type="number"] {
+            width: 60px;
+            background: #000;
+            color: var(--highlight);
+            border: 1px solid #444;
+            padding: 5px;
+        }
+        .totals-bar {
+            position: fixed;
+            bottom: 0;
+            left: 0;
+            right: 0;
+            background: var(--surface);
+            padding: 20px;
+            border-top: 2px solid var(--highlight);
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+        .btn {
+            background: var(--accent);
+            color: #000;
+            border: none;
+            padding: 10px 20px;
+            font-weight: bold;
+            cursor: pointer;
+        }
+        .btn:hover { background: var(--highlight); }
+        .hidden { display: none; }
+    </style>
+</head>
+<body>
+
+<header>
+    <h1>[FN] Take Pride Cleaning</h1>
+    <p>248 Lumber Ave. Steinbach, MB | 204-381-4509</p>
+</header>
+
+<input type="text" id="search" class="search-box" placeholder="Start typing to filter products..." autofocus>
+
+<table id="productTable">
+    <thead>
+        <tr>
+            <th>Qty</th>
+            <th>Description</th>
+            <th>Price</th>
+            <th>Unit</th>
+        </tr>
+    </thead>
+    <tbody id="tableBody">
+        </tbody>
+</table>
+
+<div class="totals-bar">
+    <div>
+        Subtotal: $<span id="subtotal">0.00</span> | 
+        Taxes (12%): $<span id="tax">0.00</span> | 
+        <strong>Total: $<span id="grandTotal">0.00</span></strong>
+    </div>
+    <button class="btn" onclick="copyOrder()">Copy Order to Clipboard</button>
+</div>
+
+<script>
+    const products = [
+        { id: "CG115", desc: "Single Fold Paper Towels - Natural (Brown)", price: 39.75, unit: "Case" },
+        { id: "H170", desc: "Cascades PRO Select Multifold White", price: 42.48, unit: "Case" },
+        { id: "H085", desc: "Cascades PRO Select Roll Towel - Nat", price: 43.51, unit: "Case" },
+        { id: "B042", desc: "Clean & Green Bath Tissue 2-Ply", price: 43.51, unit: "Case" },
+        { id: "F950", desc: "Cascades PRO Select Facial Tissue", price: 49.75, unit: "Case" },
+        { id: "M915101B", desc: "Microfiber Cloth - Blue", price: 1.92, unit: "Each" },
+        { id: "M915101G", desc: "Microfiber Cloth - Green", price: 1.92, unit: "Each" },
+        { id: "65319-1", desc: "Toilet Bowl Cleaner 946ml", price: 8.48, unit: "Each" },
+        { id: "65301-4", desc: "All Purpose Cleaner 3.78L", price: 16.49, unit: "Gallon" },
+        { id: "B-60111400", desc: "Buckeye Eco All Purpose E11", price: 56.99, unit: "Box" },
+        { id: "B-60231400", desc: "Buckeye Eco Neutral Disinfectant E23", price: 47.23, unit: "Box" },
+        { id: "15050055", desc: "35x50 Strong Black Garbage Bags", price: 39.10, unit: "Case" }
+        // Add remaining items here following this pattern
+    ];
+
+    const tbody = document.getElementById('tableBody');
+    const search = document.getElementById('search');
+
+    function render(filter = "") {
+        tbody.innerHTML = "";
+        products.forEach((p, index) => {
+            if (p.desc.toLowerCase().includes(filter.toLowerCase()) || p.id.toLowerCase().includes(filter.toLowerCase())) {
+                const tr = document.createElement('tr');
+                tr.innerHTML = `
+                    <td><input type="number" min="0" data-index="${index}" onchange="calculate()" placeholder="0"></td>
+                    <td>${p.desc}<br><small style="color:#888">${p.id}</small></td>
+                    <td>$${p.price.toFixed(2)}</td>
+                    <td>${p.unit}</td>
+                `;
+                tbody.appendChild(tr);
+            }
+        });
+    }
+
+    function calculate() {
+        let subtotal = 0;
+        const inputs = document.querySelectorAll('input[type="number"]');
+        inputs.forEach(input => {
+            const qty = parseFloat(input.value) || 0;
+            const price = products[input.dataset.index].price;
+            subtotal += qty * price;
+        });
+
+        const tax = subtotal * 0.12; // 7% PST + 5% GST
+        document.getElementById('subtotal').innerText = subtotal.toFixed(2);
+        document.getElementById('tax').innerText = tax.toFixed(2);
+        document.getElementById('grandTotal').innerText = (subtotal + tax).toFixed(2);
+    }
+
+    function copyOrder() {
+        let text = "Take Pride Cleaning Order Request\n--------------------------\n";
+        const inputs = document.querySelectorAll('input[type="number"]');
+        inputs.forEach(input => {
+            const qty = parseFloat(input.value) || 0;
+            if (qty > 0) {
+                const p = products[input.dataset.index];
+                text += `${qty}x ${p.desc} (${p.id}) @ $${p.price} ea\n`;
+            }
+        });
+        text += `\nSubtotal: $${document.getElementById('subtotal').innerText}`;
+        text += `\nTotal (inc. MB Taxes): $${document.getElementById('grandTotal').innerText}`;
+        
+        navigator.clipboard.writeText(text);
+        alert("Order copied to clipboard!");
+    }
+
+    search.addEventListener('input', (e) => render(e.target.value));
+    render();
+</script>
+</body>
+</html>

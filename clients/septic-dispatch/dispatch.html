@@ -3,7 +3,7 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>Septic Dispatch — beforeitbreaks.ca</title>
+<title>Septic Dispatch</title>
 <link href="https://fonts.googleapis.com/css2?family=Oswald:wght@400;600;700&family=Source+Sans+3:wght@400;600;700&display=swap" rel="stylesheet">
 <style>
 *,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
@@ -14,28 +14,6 @@
   --danger:#c8102e;--danger-bg:#fde8eb;
 }
 body{font-family:'Source Sans 3',sans-serif;background:var(--bg);color:var(--navy);font-size:14px;min-height:100vh}
-
-/* ── SPLASH SCREEN ── */
-#splash-screen{position:fixed;inset:0;background:var(--navy);z-index:9000;display:flex;flex-direction:column;align-items:center;justify-content:center;padding:32px 20px;text-align:center;}
-#splash-screen.hidden{display:none}
-.splash-eyebrow{font-family:'Oswald',sans-serif;font-size:11px;font-weight:600;letter-spacing:.2em;text-transform:uppercase;color:rgba(255,255,255,.4);margin-bottom:20px}
-.splash-wordmark{font-family:'Oswald',sans-serif;font-weight:700;font-size:clamp(28px,6vw,52px);color:#fff;letter-spacing:.04em;line-height:1}
-.splash-wordmark span{color:var(--red)}
-.splash-tagline{font-family:'Source Sans 3',sans-serif;font-size:clamp(14px,2.5vw,18px);color:rgba(255,255,255,.65);margin-top:12px;max-width:520px;line-height:1.5}
-.splash-divider{width:48px;height:2px;background:var(--red);margin:28px auto}
-.splash-desc{font-size:clamp(13px,2vw,15px);color:rgba(255,255,255,.55);max-width:560px;line-height:1.7;margin-bottom:8px}
-.splash-desc strong{color:rgba(255,255,255,.85);font-weight:600}
-.splash-demo-note{display:inline-flex;align-items:center;gap:6px;background:rgba(255,255,255,.07);border:1px solid rgba(255,255,255,.12);border-radius:20px;padding:5px 14px;font-size:12px;color:rgba(255,255,255,.45);margin-top:4px}
-.splash-demo-note::before{content:'';display:inline-block;width:7px;height:7px;border-radius:50%;background:#4ade80;flex-shrink:0}
-.splash-cta{margin-top:32px;display:flex;flex-direction:column;align-items:center;gap:14px}
-.splash-enter-btn{background:var(--red);color:#fff;border:none;font-family:'Oswald',sans-serif;font-size:16px;font-weight:600;letter-spacing:.08em;text-transform:uppercase;padding:14px 40px;border-radius:4px;cursor:pointer;transition:background .15s}
-.splash-enter-btn:hover{background:#a50d25}
-.splash-back-link{color:rgba(255,255,255,.3);font-size:12px;background:none;border:none;cursor:pointer;font-family:'Source Sans 3',sans-serif;transition:color .12s}
-.splash-back-link:hover{color:rgba(255,255,255,.6)}
-
-/* ── HOME BUTTON ── */
-.home-btn{background:none;border:1px solid rgba(255,255,255,.18);color:rgba(255,255,255,.45);font-family:'Source Sans 3',sans-serif;font-size:11px;font-weight:600;letter-spacing:.06em;padding:5px 10px;border-radius:3px;cursor:pointer;transition:all .12s;white-space:nowrap;text-decoration:none;display:inline-flex;align-items:center;gap:5px}
-.home-btn:hover{border-color:rgba(255,255,255,.45);color:#fff}
 
 /* ── HEADER ── */
 header{background:var(--navy);border-bottom:3px solid var(--red);padding:0 16px;height:56px;display:flex;align-items:center;justify-content:space-between;position:sticky;top:0;z-index:200}
@@ -218,33 +196,16 @@ textarea{resize:vertical;min-height:70px}
 </head>
 <body>
 
-<div id="splash-screen">
-  <div class="splash-eyebrow">beforeitbreaks.ca — live demo</div>
-  <div class="splash-wordmark">SEPTIC<span>DISPATCH</span></div>
-  <div class="splash-tagline">A working operations tool for septic pumping and portable toilet companies. Built to replace the notebook.</div>
-  <div class="splash-divider"></div>
-  <div class="splash-desc">
-    <strong>This is real software.</strong> Every button works. Every field saves. The data is sample data — nothing is connected to a real business.<br><br>
-    It handles call capture, daily job scheduling, driver assignment, print-ready job lists, and a full portable toilet fleet tracker. No invoicing, no routing — just the front half of the day, organized.
-  </div>
-  <div class="splash-demo-note">Sample data loaded &mdash; safe to explore and edit</div>
-  <div class="splash-cta">
-    <button class="splash-enter-btn" onclick="enterDemo()">Explore the Demo &rarr;</button>
-    <button class="splash-back-link" onclick="window.location.href='https://beforeitbreaks.ca'">&#8592; Back to beforeitbreaks.ca</button>
-  </div>
-</div>
-
 <header>
   <div class="wordmark">
-    <span class="wordmark-main">SEPTIC DISPATCH</span>
-    <span class="wordmark-sub">Demo &mdash; beforeitbreaks.ca</span>
+    <span class="wordmark-main">RENE'S</span>
+    <span class="wordmark-sub">Septic Services</span>
   </div>
   <div class="header-right">
     <nav class="nav">
       <button class="nav-btn active" data-page="schedule" onclick="showPage('schedule',this)">Schedule</button>
       <button class="nav-btn" data-page="pt" onclick="showPage('pt',this)">PT Tracker</button>
     </nav>
-    <a class="home-btn" href="https://beforeitbreaks.ca" title="Back to beforeitbreaks.ca">&#8592; beforeitbreaks.ca</a>
     <button class="gear-btn" id="gear-btn" onclick="toggleSettings()" title="Settings">&#9881;</button>
   </div>
 </header>
@@ -645,7 +606,7 @@ textarea{resize:vertical;min-height:70px}
       <button class="modal-close" onclick="closeModal('modal-muni')">&#215;</button>
     </div>
     <input type="hidden" id="muni-id">
-    <div class="form-group" style="margin-bottom:12px;"><label>Name <span class="req">*</span></label><input type="text" id="muni-name" placeholder="R.M. of Cornwallis"></div>
+    <div class="form-group" style="margin-bottom:12px;"><label>Name <span class="req">*</span></label><input type="text" id="muni-name" placeholder="R.M. of Hanover"></div>
     <div class="checkbox-wrap"><input type="checkbox" id="muni-exempt"><label for="muni-exempt">Dump fee exempt</label></div>
     <div class="modal-footer">
       <button class="btn btn-ghost" onclick="closeModal('modal-muni')">Cancel</button>
@@ -694,10 +655,10 @@ const K={settings:'sd_settings',callnotes:'sd_callnotes',jobs:'sd_jobs',ptunits:
 function defaultSettings(){
   return{
     municipalities:[
-      {id:'m1',name:'City of Brandon',dumpFeeExempt:false},
-      {id:'m2',name:'Town of Portage la Prairie',dumpFeeExempt:false},
-      {id:'m3',name:'R.M. of Cornwallis',dumpFeeExempt:false},
-      {id:'m4',name:'R.M. of Portage la Prairie',dumpFeeExempt:false},
+      {id:'m1',name:'Ste. Anne',dumpFeeExempt:false},
+      {id:'m2',name:'La Broquerie',dumpFeeExempt:false},
+      {id:'m3',name:'R.M. of Hanover',dumpFeeExempt:false},
+      {id:'m4',name:'City of Steinbach',dumpFeeExempt:false},
     ],
     drivers:[
       {id:'d1',name:'Driver A',color:'#1a3f7a'},
@@ -733,37 +694,37 @@ function seedData(){
   const t=today();
   if(!localStorage.getItem(K.callnotes)){
     ss(K.callnotes,[
-      {id:uid(),customerName:'Kowalski',phone:'204-555-0181',address:'47 Dufferin Ave, Brandon',muniId:'m1',tankSize:'1000 gal',notes:'Dog in yard, latch on side gate',urgency:'Routine',dateCalled:t},
-      {id:uid(),customerName:'Chartrand',phone:'204-555-0234',address:'Rural Rte 3, Portage la Prairie',muniId:'m4',tankSize:'750 gal',notes:'',urgency:'Soon',dateCalled:t},
-      {id:uid(),customerName:'Unknown',phone:'204-555-0099',address:'224 PTH 26, Oakville area',muniId:'m4',tankSize:'',notes:'Backing up, needs ASAP',urgency:'Urgent',dateCalled:t},
+      {id:uid(),customerName:'Bergmann',phone:'204-555-0181',address:'247 Clearwater Dr, Steinbach',muniId:'m4',tankSize:'1000 gal',notes:'Dog in yard, use side gate',urgency:'Routine',dateCalled:t},
+      {id:uid(),customerName:'Fehr',phone:'204-555-0234',address:'Rural Rte 4, La Broquerie',muniId:'m2',tankSize:'750 gal',notes:'',urgency:'Soon',dateCalled:t},
+      {id:uid(),customerName:'Unknown',phone:'204-555-0099',address:'89 Oak Ave, Ste. Anne',muniId:'m1',tankSize:'',notes:'Backing up, needs ASAP',urgency:'Urgent',dateCalled:t},
     ]);
   }
   if(!localStorage.getItem(K.jobs)){
     ss(K.jobs,[
-      {id:uid(),customerName:'McKinnon Farm',phone:'',address:'Rural Rte 7, Carberry area',muniId:'m3',tankSize:'1500 gal',notes:'',urgency:'Routine',driverId:'d1',scheduledDate:t,rate:125,status:'Scheduled'},
-      {id:uid(),customerName:'Lavallee',phone:'',address:'19 Crocus Cres, Brandon',muniId:'m1',tankSize:'1000 gal',notes:'',urgency:'Routine',driverId:'d1',scheduledDate:t,rate:125,status:'Scheduled'},
-      {id:uid(),customerName:'Thiessen',phone:'',address:'PTH 26 North, Oakville',muniId:'m4',tankSize:'750 gal',notes:'',urgency:'Routine',driverId:'d2',scheduledDate:t,rate:125,status:'Scheduled'},
-      {id:uid(),customerName:'Derksen Acreage',phone:'',address:'Rural Rte 2, Portage la Prairie',muniId:'m4',tankSize:'1000 gal',notes:'',urgency:'Routine',driverId:'d2',scheduledDate:t,rate:125,status:'Done'},
-      {id:uid(),customerName:'Westoba Construction',phone:'',address:'Industrial Cres, Brandon',muniId:'m1',tankSize:'',notes:'PT service call',urgency:'Routine',driverId:'d3',scheduledDate:t,rate:125,status:'Scheduled'},
+      {id:uid(),customerName:'Peters',phone:'',address:'Blumenort Rd, Blumenort area',muniId:'m3',tankSize:'1500 gal',notes:'',urgency:'Routine',driverId:'d1',scheduledDate:t,rate:125,status:'Scheduled'},
+      {id:uid(),customerName:'Reimer',phone:'',address:'14 Maple Cres, Mitchell area',muniId:'m3',tankSize:'1000 gal',notes:'',urgency:'Routine',driverId:'d1',scheduledDate:t,rate:125,status:'Scheduled'},
+      {id:uid(),customerName:'Klassen',phone:'',address:'Hwy 52, Kleefeld area',muniId:'m3',tankSize:'750 gal',notes:'',urgency:'Routine',driverId:'d2',scheduledDate:t,rate:125,status:'Scheduled'},
+      {id:uid(),customerName:'Neufeld',phone:'',address:'Rural Rte 12, Ste. Anne',muniId:'m1',tankSize:'1000 gal',notes:'',urgency:'Routine',driverId:'d2',scheduledDate:t,rate:125,status:'Done'},
+      {id:uid(),customerName:'Penner Construction',phone:'',address:'Industrial Dr, Steinbach',muniId:'m4',tankSize:'',notes:'PT service call',urgency:'Routine',driverId:'d3',scheduledDate:t,rate:125,status:'Scheduled'},
     ]);
   }
   if(!localStorage.getItem(K.ptunits)){
     ss(K.ptunits,[
-      {id:uid(),unitId:'A1',typeId:'pt2',physicalNotes:'Blue, insulated, metal-clad',tarpId:'T-A1',status:'Deployed',currentCustomer:'Westoba Construction, Industrial Cres',deployDate:dateOffset(-14),expectedReturn:''},
+      {id:uid(),unitId:'A1',typeId:'pt2',physicalNotes:'Blue, insulated, metal-clad',tarpId:'T-A1',status:'Deployed',currentCustomer:'Penner Construction, Industrial Dr',deployDate:dateOffset(-14),expectedReturn:''},
       {id:uid(),unitId:'A2',typeId:'pt2',physicalNotes:'Blue, insulated, metal-clad',tarpId:'T-A2',status:'Available',currentCustomer:'',deployDate:'',expectedReturn:''},
-      {id:uid(),unitId:'H1',typeId:'pt4',physicalNotes:'White, heated unit',tarpId:'T-H1',status:'Deployed',currentCustomer:'Brandon Winter Fair',deployDate:dateOffset(-21),expectedReturn:today()},
+      {id:uid(),unitId:'H1',typeId:'pt4',physicalNotes:'White, heated unit',tarpId:'T-H1',status:'Deployed',currentCustomer:'Kleefeld Winter Event',deployDate:dateOffset(-21),expectedReturn:today()},
       {id:uid(),unitId:'H2',typeId:'pt4',physicalNotes:'White, heated unit',tarpId:'T-H2',status:'Needs Service',currentCustomer:'',deployDate:'',expectedReturn:''},
     ]);
   }
   if(!localStorage.getItem(K.deployments)){
     const a14=dateOffset(-14),a21=dateOffset(-21),a30=dateOffset(-30),yes=dateOffset(-1),tom=dateOffset(1);
     ss(K.deployments,[
-      {id:uid(),kind:'individual',unitId:'A1',typeId:'pt2',qty:1,customerName:'Westoba Construction',address:'Industrial Cres, Brandon',customerType:'Construction',deployDate:a14,expectedReturn:'',cashRental:false,notes:'',returned:false,returnDate:null},
-      {id:uid(),kind:'individual',unitId:'H1',typeId:'pt4',qty:1,customerName:'Brandon Winter Fair',address:'Keystone Centre, Brandon',customerType:'Event',deployDate:a21,expectedReturn:today(),cashRental:false,notes:'',returned:false,returnDate:null},
-      {id:uid(),kind:'count',unitId:null,typeId:'pt1',qty:8,customerName:'Westoba Construction',address:'Industrial Cres, Brandon',customerType:'Construction',deployDate:a21,expectedReturn:'',cashRental:false,notes:'',returned:false,returnDate:null},
-      {id:uid(),kind:'count',unitId:null,typeId:'pt2',qty:4,customerName:'Lavallee Wedding',address:'Rural Rte 5, Portage la Prairie',customerType:'Event',deployDate:yes,expectedReturn:tom,cashRental:false,notes:'',returned:false,returnDate:null},
-      {id:uid(),kind:'count',unitId:null,typeId:'pt3',qty:3,customerName:'City of Brandon Parks',address:'Brandon, MB',customerType:'Municipal',deployDate:a30,expectedReturn:'',cashRental:false,notes:'',returned:false,returnDate:null},
-      {id:uid(),kind:'count',unitId:null,typeId:'pt1',qty:2,customerName:'Kowalski',address:'Brandon, MB',customerType:'Cash Rental',deployDate:today(),expectedReturn:tom,cashRental:true,notes:'Weekend rental',returned:false,returnDate:null},
+      {id:uid(),kind:'individual',unitId:'A1',typeId:'pt2',qty:1,customerName:'Penner Construction',address:'Industrial Dr, Steinbach',customerType:'Construction',deployDate:a14,expectedReturn:'',cashRental:false,notes:'',returned:false,returnDate:null},
+      {id:uid(),kind:'individual',unitId:'H1',typeId:'pt4',qty:1,customerName:'Kleefeld Winter Event',address:'Kleefeld, MB',customerType:'Event',deployDate:a21,expectedReturn:today(),cashRental:false,notes:'',returned:false,returnDate:null},
+      {id:uid(),kind:'count',unitId:null,typeId:'pt1',qty:8,customerName:'Penner Construction',address:'Industrial Dr, Steinbach',customerType:'Construction',deployDate:a21,expectedReturn:'',cashRental:false,notes:'',returned:false,returnDate:null},
+      {id:uid(),kind:'count',unitId:null,typeId:'pt2',qty:4,customerName:'Reimer Wedding',address:'45 Garden Rd, Ste. Anne',customerType:'Event',deployDate:yes,expectedReturn:tom,cashRental:false,notes:'',returned:false,returnDate:null},
+      {id:uid(),kind:'count',unitId:null,typeId:'pt3',qty:3,customerName:'City of Steinbach Park Program',address:'Steinbach, MB',customerType:'Municipal',deployDate:a30,expectedReturn:'',cashRental:false,notes:'',returned:false,returnDate:null},
+      {id:uid(),kind:'count',unitId:null,typeId:'pt1',qty:2,customerName:'Friesen',address:'Steinbach, MB',customerType:'Cash Rental',deployDate:today(),expectedReturn:tom,cashRental:true,notes:'Weekend rental',returned:false,returnDate:null},
     ]);
   }
 }
@@ -1483,11 +1444,6 @@ function saveTruck(){
   const t={id:id||uid(),name};
   if(id){const idx=s.trucks.findIndex(t=>t.id===id);if(idx>=0)s.trucks[idx]=t}else s.trucks.push(t);
   saveS(s);closeModal('modal-truck');renderSettings();toast('Truck saved.');
-}
-
-// ── SPLASH ──
-function enterDemo(){
-  document.getElementById('splash-screen').classList.add('hidden');
 }
 
 // ── INIT ──
