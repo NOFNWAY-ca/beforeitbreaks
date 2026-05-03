@@ -41,6 +41,7 @@ Active marketing/demo site with multiple standalone demos.
 - Built `festival-command.html` — a full single-file event organizer demo for festival/fair/event organizer clients. Fictional event: Harvest & Holler, Millwood MB, Aug 9–10 2025. Five modules: Schedule (visual time grid), Vendors (with live budget sync), Volunteers, Budget (two-column with auto vendor fees line and net surplus/deficit), Incidents/Lost & Found. Dark/light mode, localStorage persistence, seed data, settings panel with export and reset, print views for schedule and volunteer roster. Confirm2 styled dialog throughout (no window.confirm).
 
 - Completed full hardening pass on `festival-command.html`: incidents search input wired, boot-time version migration guard, stale-data toast (5-min threshold), cross-tab storage listener, and FileReader-based JSON import handler on the settings panel.
+- Fixed iOS/Safari boot and layout risks in `festival-command.html`: storage access now falls back to in-memory data if localStorage is blocked, newer syntax hazards were removed, the app height is synced to the mobile viewport, and the top navigation scrolls horizontally on narrow screens.
 
 - Added the Before it Breaks thumbnail and preview identity system: favicon SVG/ICO/PNG assets, apple touch icon, 1200x630 PNG/SVG Open Graph images, and dedicated KIND tier preview images.
 - Wired page-specific favicon, canonical, Open Graph, and Twitter/X metadata into `index.html` and the three KIND demo pages.

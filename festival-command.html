@@ -13,6 +13,7 @@
 
     /* ── Color system ───────────────────────────────────── */
     :root {
+      --app-height: 100vh;
       --bg: #1a1612;
       --surface: #241f1a;
       --surface2: #2e2720;
@@ -23,7 +24,7 @@
       --brand: #c8841a;
       --brand-lit: #e89f3a;
       --success: #4a9e6a;
-      --warn: #c8841a;
+      --warn: #c8a020;
       --danger: #c84040;
       --danger-bg: #3d1a1a;
       --success-bg: #1a3d2a;
@@ -40,7 +41,7 @@
       --brand: #b07015;
       --brand-lit: #c8841a;
       --success: #2e7a4a;
-      --warn: #b07015;
+      --warn: #9a7010;
       --danger: #b03030;
       --danger-bg: #fde8e8;
       --success-bg: #e8f5ee;
@@ -54,6 +55,7 @@
       background: var(--bg);
       color: var(--text);
       min-height: 100vh;
+      min-height: var(--app-height);
       line-height: 1.4;
     }
 
@@ -109,6 +111,8 @@
       border-bottom: 1px solid var(--border);
       padding: 0 20px;
       display: flex;
+      overflow-x: auto;
+      -webkit-overflow-scrolling: touch;
     }
 
     .nav-tab {
@@ -125,9 +129,28 @@
       border-bottom: 2px solid transparent;
       margin-bottom: -1px;
       transition: color 0.15s, border-color 0.15s;
+      display: inline-flex;
+      align-items: center;
+      gap: 7px;
+      flex: 0 0 auto;
     }
     .nav-tab:hover { color: var(--text); }
     .nav-tab.active { color: var(--brand); border-bottom-color: var(--brand); }
+    .nav-badge {
+      min-width: 18px;
+      height: 18px;
+      padding: 0 5px;
+      border-radius: 99px;
+      background: var(--danger-bg);
+      border: 1px solid var(--danger);
+      color: var(--danger);
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      font-family: 'Oswald', sans-serif;
+      font-size: 10px;
+      line-height: 1;
+    }
 
     /* ── Main ───────────────────────────────────────────── */
     #main { padding: 20px; max-width: 1400px; margin: 0 auto; }
@@ -384,6 +407,7 @@
       right: -340px;
       width: 320px;
       height: 100vh;
+      height: var(--app-height);
       background: var(--surface);
       border-left: 1px solid var(--border);
       z-index: 301;
@@ -424,6 +448,39 @@
     .badge-auto    { background: var(--surface2);   color: var(--brand); border: 1px solid var(--brand); font-size: 10px; }
     .badge-open    { background: var(--danger-bg);  color: var(--danger); }
     .badge-resolved { background: var(--success-bg); color: var(--success); }
+    .checkin-badge { display: inline-flex; align-items: center; gap: 5px; }
+
+    /* Dashboard */
+    .dashboard-alert {
+      background: var(--danger-bg);
+      border: 1px solid var(--danger);
+      color: var(--danger);
+      border-radius: 6px;
+      padding: 12px 16px;
+      margin-bottom: 16px;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 12px;
+      flex-wrap: wrap;
+      font-weight: 600;
+    }
+    .dashboard-grid {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 16px;
+    }
+    .dashboard-current-list {
+      display: grid;
+      gap: 8px;
+      margin-top: 10px;
+    }
+    .dashboard-slot {
+      border: 1px solid var(--border);
+      border-radius: 4px;
+      padding: 10px 12px;
+      background: var(--surface2);
+    }
 
     /* ── Checkbox ───────────────────────────────────────── */
     input[type="checkbox"] {
@@ -443,12 +500,16 @@
 
     /* ── Print ──────────────────────────────────────────── */
     @media print {
-      #site-header, #site-nav, .no-print { display: none !important; }
+      #site-header, #site-nav, .no-print, .modal-overlay, #settings-overlay, #settings-panel, #toast-container, #confirm2-overlay { display: none !important; }
       body { background: white; color: black; font-size: 12px; }
+      #main { max-width: none; padding: 0; }
+      .module { display: none !important; }
+      .module.active { display: block !important; }
       .print-only { display: block !important; }
       .card, .stat-card { background: white !important; border: 1px solid #ccc; page-break-inside: avoid; }
       thead th { background: #f0f0f0 !important; color: black !important; }
       tbody tr:hover { background: none !important; }
+      .table-wrap { overflow: visible !important; }
     }
     .print-only { display: none; }
 
@@ -462,6 +523,7 @@
     /* ── Mobile layout ───────────────────────────────────── */
     @media (max-width: 768px) {
       .budget-grid { grid-template-columns: 1fr; }
+      .dashboard-grid { grid-template-columns: 1fr; }
       .stats-row { gap: 8px; }
       .stat-card { min-width: 100px; padding: 10px 12px; }
       .stat-card .stat-value { font-size: 22px; }
@@ -610,16 +672,18 @@
 
 <!-- ── Nav ─────────────────────────────────────────────── -->
 <nav id="site-nav">
-  <button class="nav-tab active" data-tab="schedule">Schedule</button>
+  <button class="nav-tab active" data-tab="dashboard">Dashboard</button>
+  <button class="nav-tab" data-tab="schedule">Schedule</button>
   <button class="nav-tab" data-tab="vendors">Vendors</button>
   <button class="nav-tab" data-tab="volunteers">Volunteers</button>
   <button class="nav-tab" data-tab="budget">Budget</button>
-  <button class="nav-tab" data-tab="incidents">Incidents</button>
+  <button class="nav-tab" data-tab="incidents">Incidents<span id="incident-nav-badge"></span></button>
 </nav>
 
 <!-- ── Modules ─────────────────────────────────────────── -->
 <main id="main">
-  <div id="mod-schedule"   class="module active"></div>
+  <div id="mod-dashboard"  class="module active"></div>
+  <div id="mod-schedule"   class="module"></div>
   <div id="mod-vendors"    class="module"></div>
   <div id="mod-volunteers" class="module"></div>
   <div id="mod-budget"     class="module"></div>
@@ -683,10 +747,40 @@
 const DATA_VERSION = 1;
 const MAX_EVENTS   = 500;
 
+// ── Module state ────────────────────────────────────────
+
+let activeTab = 'dashboard';
+let _c2cb = null;
+
+let schedDay        = 1;
+let schedAreaFilter = 'all';
+let _schedEditId    = null;
+
+let vendorFilter  = 'all';
+let vendorSearch  = '';
+let _vendorEditId = null;
+
+let volShiftFilter = 'all';
+let volRoleFilter  = 'all';
+let volSearch      = '';
+let _volEditId     = null;
+
+let _budgetEditId   = null;
+let _budgetEditType = 'income';
+
+let incStatusFilter = 'all';
+let incTypeFilter   = 'all';
+let incSearch       = '';
+let _incEditId      = null;
+
 // ── Utilities ───────────────────────────────────────────
 
 function uid() { return Math.random().toString(16).slice(2, 10); }
 function today() { return new Date().toISOString().slice(0, 10); }
+
+function setAppHeight() {
+  document.documentElement.style.setProperty('--app-height', window.innerHeight + 'px');
+}
 
 function fmt$(n) {
   n = Number(n) || 0;
@@ -701,18 +795,23 @@ function fmtTime(t) {
   return `${hour}:${String(m).padStart(2, '0')} ${ampm}`;
 }
 
+function searchableText(parts) {
+  return parts.map(p => String(p == null ? '' : p).toLowerCase()).join(' ');
+}
+
 function toast(msg) {
   const el = document.createElement('div');
   el.className = 'toast';
   el.textContent = msg;
   document.getElementById('toast-container').appendChild(el);
-  setTimeout(() => el.remove(), 2600);
+  setTimeout(() => {
+    if (el.parentNode) el.parentNode.removeChild(el);
+  }, 2600);
 }
 
 function openModal(id)  { document.getElementById(id).classList.add('open'); }
 function closeModal(id) { document.getElementById(id).classList.remove('open'); }
 
-let _c2cb = null;
 function confirm2(title, msg, onConfirm) {
   document.getElementById('confirm2-title').textContent = title;
   document.getElementById('confirm2-msg').textContent   = msg;
@@ -740,13 +839,47 @@ const KEYS = {
   incidents:  'fnfc_incidents',
   theme:      'fnfc_theme',
 };
+const KEY_LIST = [
+  KEYS.meta,
+  KEYS.schedule,
+  KEYS.vendors,
+  KEYS.volunteers,
+  KEYS.budget,
+  KEYS.incidents,
+  KEYS.theme,
+];
+const _storageFallback = {};
+
+function storageGetItem(key) {
+  try {
+    return localStorage.getItem(key);
+  } catch (err) {
+    return Object.prototype.hasOwnProperty.call(_storageFallback, key) ? _storageFallback[key] : null;
+  }
+}
+
+function storageSetItem(key, val) {
+  try {
+    localStorage.setItem(key, val);
+  } catch (err) {
+    _storageFallback[key] = val;
+  }
+}
+
+function storageRemoveItem(key) {
+  try {
+    localStorage.removeItem(key);
+  } catch (err) {
+    delete _storageFallback[key];
+  }
+}
 
 function load(key) {
-  try { return JSON.parse(localStorage.getItem(key)); } catch { return null; }
+  try { return JSON.parse(storageGetItem(key)); } catch (err) { return null; }
 }
 function save(key, val) {
-  localStorage.setItem(key, JSON.stringify(val));
-  if (key !== KEYS.theme) localStorage.setItem('fnfc_lastSaved', Date.now());
+  storageSetItem(key, JSON.stringify(val));
+  if (key !== KEYS.theme) storageSetItem('fnfc_lastSaved', String(Date.now()));
 }
 
 
@@ -917,8 +1050,6 @@ document.getElementById('theme-toggle').addEventListener('click', () => {
 
 // ── Tab routing ─────────────────────────────────────────
 
-let activeTab = 'schedule';
-
 function showTab(name) {
   document.querySelectorAll('.nav-tab').forEach(t => t.classList.toggle('active', t.dataset.tab === name));
   document.querySelectorAll('.module').forEach(m => m.classList.toggle('active', m.id === 'mod-' + name));
@@ -932,12 +1063,21 @@ document.querySelectorAll('.nav-tab').forEach(btn => {
 
 function renderActiveModule() {
   switch (activeTab) {
+    case 'dashboard':  renderDashboard();  break;
     case 'schedule':   renderSchedule();   break;
     case 'vendors':    renderVendors();    break;
     case 'volunteers': renderVolunteers(); break;
     case 'budget':     renderBudget();     break;
     case 'incidents':  renderIncidents();  break;
   }
+}
+
+function updateIncidentNavBadge() {
+  const badge = document.getElementById('incident-nav-badge');
+  if (!badge) return;
+  const openCount = (load(KEYS.incidents) || []).filter(i => i.status === 'open').length;
+  badge.className = openCount > 0 ? 'nav-badge' : '';
+  badge.textContent = openCount > 0 ? String(openCount) : '';
 }
 
 
@@ -968,6 +1108,7 @@ document.getElementById('s-save-btn').addEventListener('click', () => {
     subtitle:  document.getElementById('s-subtitle').value.trim(),
     day1:      document.getElementById('s-day1').value,
     day2:      document.getElementById('s-day2').value,
+    version:   DATA_VERSION,
   };
   save(KEYS.meta, meta);
   updateHeader();
@@ -977,7 +1118,7 @@ document.getElementById('s-save-btn').addEventListener('click', () => {
 
 document.getElementById('s-export-btn').addEventListener('click', () => {
   const data = {};
-  Object.entries(KEYS).forEach(([, k]) => { data[k] = load(k); });
+  KEY_LIST.forEach(k => { data[k] = load(k); });
   const blob = new Blob([JSON.stringify(data, null, 2)], { type: 'application/json' });
   const a = document.createElement('a');
   a.href = URL.createObjectURL(blob);
@@ -994,17 +1135,20 @@ document.getElementById('s-import-btn').addEventListener('click', () => {
   reader.onload = e => {
     try {
       const data = JSON.parse(e.target.result);
-      const validKeys = Object.values(KEYS);
       let restored = 0;
-      Object.entries(data).forEach(([k, v]) => {
-        if (validKeys.includes(k) && v !== null) { localStorage.setItem(k, JSON.stringify(v)); restored++; }
-      });
+      for (const k in data) {
+        if (KEY_LIST.includes(k) && data[k] !== null) {
+          storageSetItem(k, JSON.stringify(data[k]));
+          restored++;
+        }
+      }
       if (restored === 0) { toast('No valid data found in file.'); return; }
       updateHeader();
+      updateIncidentNavBadge();
       renderActiveModule();
       toast(`Imported ${restored} data blocks.`);
       closeSettings();
-    } catch {
+    } catch (err) {
       toast('Import failed: invalid JSON file.');
     }
   };
@@ -1016,9 +1160,10 @@ document.getElementById('s-reset-btn').addEventListener('click', () => {
     'Reset to seed data',
     'This will erase all data and reload defaults. Are you sure?',
     () => {
-      Object.values(KEYS).forEach(k => localStorage.removeItem(k));
+      KEY_LIST.forEach(k => storageRemoveItem(k));
       initSeeds();
       updateHeader();
+      updateIncidentNavBadge();
       renderActiveModule();
       toast('Data reset to defaults.');
       closeSettings();
@@ -1031,6 +1176,146 @@ function updateHeader() {
   document.getElementById('header-subtitle').textContent = meta.subtitle || '';
 }
 
+function getVendorFeeTotals() {
+  const vendors = load(KEYS.vendors) || [];
+  return {
+    budgeted: vendors.reduce((s, v) => s + Number(v.fee), 0),
+    actual: vendors.filter(v => v.paid).reduce((s, v) => s + Number(v.fee), 0),
+  };
+}
+
+function budgetLineActual(line) {
+  return line.id === 'vendor-fees' ? getVendorFeeTotals().actual : Number(line.actual);
+}
+
+function budgetLineBudgeted(line) {
+  return line.id === 'vendor-fees' ? getVendorFeeTotals().budgeted : Number(line.budgeted);
+}
+
+function getBudgetSummary() {
+  const budget   = load(KEYS.budget) || { income: [], expenses: [] };
+  const income   = budget.income   || [];
+  const expenses = budget.expenses || [];
+  const totBudgInc = income.reduce((s, l) => s + budgetLineBudgeted(l), 0);
+  const totActInc  = income.reduce((s, l) => s + budgetLineActual(l), 0);
+  const totBudgExp = expenses.reduce((s, l) => s + Number(l.budgeted), 0);
+  const totActExp  = expenses.reduce((s, l) => s + Number(l.actual), 0);
+  return {
+    income,
+    expenses,
+    totBudgInc,
+    totActInc,
+    totBudgExp,
+    totActExp,
+    budgNet: totBudgInc - totBudgExp,
+    actNet: totActInc - totActExp,
+    expenseVariance: totActExp - totBudgExp,
+  };
+}
+
+function getCurrentScheduleInfo() {
+  const meta = load(KEYS.meta) || SEED_META;
+  const dayMap = { [meta.day1]: 1, [meta.day2]: 2 };
+  const todayDate = today();
+  const day = dayMap[todayDate];
+  if (!day) {
+    return {
+      isFestivalDay: false,
+      message: 'Today is not one of the configured festival days.',
+      active: [],
+      next: null,
+    };
+  }
+
+  const now = new Date();
+  const nowMin = now.getHours() * 60 + now.getMinutes();
+  const slots = (load(KEYS.schedule) || [])
+    .filter(s => s.day === day && s.status !== 'cancelled')
+    .sort((a, b) => timeToMin(a.startTime) - timeToMin(b.startTime));
+  const active = slots.filter(s => nowMin >= timeToMin(s.startTime) && nowMin < timeToMin(s.endTime));
+  const next = slots.find(s => timeToMin(s.startTime) > nowMin) || null;
+  return { isFestivalDay: true, day, active, next };
+}
+
+// ── Dashboard module ────────────────────────────────────
+
+function renderDashboard() {
+  const incidents = load(KEYS.incidents) || [];
+  const volunteers = load(KEYS.volunteers) || [];
+  const vendors = load(KEYS.vendors) || [];
+  const budget = getBudgetSummary();
+
+  const openCount = incidents.filter(i => i.status === 'open').length;
+  const checkedInCount = volunteers.filter(v => v.checkedIn).length;
+  const unpaidCount = vendors.filter(v => !v.paid).length;
+  const budgetVariance = budget.expenseVariance;
+  const current = getCurrentScheduleInfo();
+
+  let currentHtml = '';
+  if (!current.isFestivalDay) {
+    currentHtml = `<p class="text-muted">${current.message}</p>`;
+  } else if (current.active.length) {
+    currentHtml = `
+      <div class="dashboard-current-list">
+        ${current.active.map(s => `
+          <div class="dashboard-slot">
+            <div style="font-family:'Oswald',sans-serif;font-weight:600">${s.name}</div>
+            <div class="text-muted" style="font-size:13px">${s.area} · ${fmtTime(s.startTime)} to ${fmtTime(s.endTime)}</div>
+          </div>
+        `).join('')}
+      </div>`;
+  } else if (current.next) {
+    currentHtml = `
+      <p class="text-muted" style="margin-bottom:8px">Nothing is active right now. Next up:</p>
+      <div class="dashboard-slot">
+        <div style="font-family:'Oswald',sans-serif;font-weight:600">${current.next.name}</div>
+        <div class="text-muted" style="font-size:13px">${current.next.area} · ${fmtTime(current.next.startTime)} to ${fmtTime(current.next.endTime)}</div>
+      </div>`;
+  } else {
+    currentHtml = '<p class="text-muted">No more scheduled slots for today.</p>';
+  }
+
+  const alertHtml = openCount > 0 ? `
+    <div class="dashboard-alert">
+      <span>⚠ ${openCount} open incident(s) require attention</span>
+      <button class="btn btn-danger btn-sm" id="dash-incidents-btn">Open Incidents</button>
+    </div>` : '';
+
+  const el = document.getElementById('mod-dashboard');
+  el.innerHTML = `
+    ${alertHtml}
+    <div class="stats-row">
+      <div class="stat-card ${openCount > 0 ? 'danger' : 'success'}"><div class="stat-value">${openCount}</div><div class="stat-label">Open Incidents</div></div>
+      <div class="stat-card success"><div class="stat-value">${checkedInCount} / ${volunteers.length}</div><div class="stat-label">Volunteers Checked In</div></div>
+      <div class="stat-card ${unpaidCount > 0 ? 'warn' : 'success'}"><div class="stat-value">${unpaidCount}</div><div class="stat-label">Vendors Unpaid</div></div>
+      <div class="stat-card ${budgetVariance > 0 ? 'danger' : 'success'}"><div class="stat-value">${budgetVariance > 0 ? '+' : ''}${fmt$(budgetVariance)}</div><div class="stat-label">Budget Variance</div></div>
+    </div>
+    <div class="dashboard-grid">
+      <div class="card">
+        <div style="font-family:'Oswald',sans-serif;font-size:16px;font-weight:600;margin-bottom:4px">Right Now</div>
+        ${currentHtml}
+      </div>
+      <div class="card no-print">
+        <div style="font-family:'Oswald',sans-serif;font-size:16px;font-weight:600;margin-bottom:10px">Quick Links</div>
+        <div class="toolbar" style="margin-bottom:0">
+          <button class="btn btn-ghost dash-link" data-target="schedule">Schedule</button>
+          <button class="btn btn-ghost dash-link" data-target="vendors">Vendors</button>
+          <button class="btn btn-ghost dash-link" data-target="volunteers">Volunteers</button>
+          <button class="btn btn-ghost dash-link" data-target="budget">Budget</button>
+          <button class="btn btn-ghost dash-link" data-target="incidents">Incidents</button>
+        </div>
+      </div>
+    </div>
+  `;
+
+  const incBtn = document.getElementById('dash-incidents-btn');
+  if (incBtn) incBtn.addEventListener('click', () => showTab('incidents'));
+  document.querySelectorAll('.dash-link').forEach(btn => {
+    btn.addEventListener('click', () => showTab(btn.dataset.target));
+  });
+  updateIncidentNavBadge();
+}
+
 
 // ── Schedule module ─────────────────────────────────────
 
@@ -1039,10 +1324,6 @@ const GRID_END   = 23 * 60;
 const PX_PER_MIN = 1.5;
 const TOTAL_H    = (GRID_END - GRID_START) * PX_PER_MIN;
 const AREAS      = ['Main Stage', 'Ag Ring', 'Community Hall', 'Midway'];
-
-let schedDay        = 1;
-let schedAreaFilter = 'all';
-let _schedEditId    = null;
 
 function timeToMin(t) {
   const [h, m] = t.split(':').map(Number);
@@ -1146,6 +1427,9 @@ function renderSchedule() {
   ).join('');
 
   const dayLabel = schedDay === 1 ? `Day 1 — ${meta.day1}` : `Day 2 — ${meta.day2}`;
+  const emptySchedule = daySlots.length === 0
+    ? `<div class="card" style="margin-bottom:12px;color:var(--muted)">No schedule slots yet. Use '+ Add Slot' to give the day something to do.</div>`
+    : '';
 
   const el = document.getElementById('mod-schedule');
   el.innerHTML = `
@@ -1164,6 +1448,7 @@ function renderSchedule() {
         <button class="btn btn-primary btn-sm no-print" id="sched-add-btn">+ Add Slot</button>
       </div>
     </div>
+    ${emptySchedule}
     <div class="card" style="padding:0;overflow:hidden">
       <div class="sched-col-headers">
         <div style="width:52px;flex-shrink:0"></div>
@@ -1241,56 +1526,58 @@ function openSchedModal(slot) {
   openModal('sched-modal');
 }
 
-document.getElementById('sm-save-btn').addEventListener('click', () => {
-  const name  = document.getElementById('sm-name').value.trim();
-  const start = document.getElementById('sm-start').value;
-  const end   = document.getElementById('sm-end').value;
-  if (!name)         { toast('Act / Event name is required.'); return; }
-  if (!start || !end){ toast('Start and end times are required.'); return; }
-  if (timeToMin(end) <= timeToMin(start)) { toast('End time must be after start time.'); return; }
+function bindScheduleModalHandlers() {
+  document.getElementById('sm-save-btn').addEventListener('click', () => {
+    const name  = document.getElementById('sm-name').value.trim();
+    const start = document.getElementById('sm-start').value;
+    const end   = document.getElementById('sm-end').value;
+    if (!name)         { toast('Act / Event name is required.'); return; }
+    if (!start || !end){ toast('Start and end times are required.'); return; }
+    if (timeToMin(end) <= timeToMin(start)) { toast('End time must be after start time.'); return; }
 
-  const slots = load(KEYS.schedule) || [];
-  const rec = {
-    id:          _schedEditId || uid(),
-    area:        document.getElementById('sm-area').value,
-    day:         Number(document.getElementById('sm-day').value),
-    startTime:   start,
-    endTime:     end,
-    name,
-    description: document.getElementById('sm-desc').value.trim(),
-    status:      document.getElementById('sm-status').value,
-  };
-
-  if (!_schedEditId && slots.length >= MAX_EVENTS) {
-    toast('Event limit reached. Delete some slots first.');
-    return;
-  }
-
-  if (_schedEditId) {
-    const idx = slots.findIndex(s => s.id === _schedEditId);
-    if (idx !== -1) slots[idx] = rec; else slots.push(rec);
-  } else {
-    slots.push(rec);
-  }
-
-  const sameArea = slots.filter(s => s.area === rec.area && s.day === rec.day && s.id !== rec.id);
-  if (sameArea.some(s => overlaps(s, rec))) toast('Warning: overlapping events detected in this area.');
-
-  save(KEYS.schedule, slots);
-  closeModal('sched-modal');
-  renderSchedule();
-  toast(_schedEditId ? 'Slot updated.' : 'Slot added.');
-});
-
-document.getElementById('sm-delete-btn').addEventListener('click', () => {
-  confirm2('Delete slot', 'Remove this slot from the schedule?', () => {
     const slots = load(KEYS.schedule) || [];
-    save(KEYS.schedule, slots.filter(s => s.id !== _schedEditId));
+    const rec = {
+      id:          _schedEditId || uid(),
+      area:        document.getElementById('sm-area').value,
+      day:         Number(document.getElementById('sm-day').value),
+      startTime:   start,
+      endTime:     end,
+      name,
+      description: document.getElementById('sm-desc').value.trim(),
+      status:      document.getElementById('sm-status').value,
+    };
+
+    if (!_schedEditId && slots.length >= MAX_EVENTS) {
+      toast('Event limit reached. Delete some slots first.');
+      return;
+    }
+
+    if (_schedEditId) {
+      const idx = slots.findIndex(s => s.id === _schedEditId);
+      if (idx !== -1) slots[idx] = rec; else slots.push(rec);
+    } else {
+      slots.push(rec);
+    }
+
+    const sameArea = slots.filter(s => s.area === rec.area && s.day === rec.day && s.id !== rec.id);
+    if (sameArea.some(s => overlaps(s, rec))) toast('Warning: overlapping events detected in this area.');
+
+    save(KEYS.schedule, slots);
     closeModal('sched-modal');
     renderSchedule();
-    toast('Slot deleted.');
+    toast(_schedEditId ? 'Slot updated.' : 'Slot added.');
   });
-});
+
+  document.getElementById('sm-delete-btn').addEventListener('click', () => {
+    confirm2('Delete slot', 'Remove this slot from the schedule?', () => {
+      const slots = load(KEYS.schedule) || [];
+      save(KEYS.schedule, slots.filter(s => s.id !== _schedEditId));
+      closeModal('sched-modal');
+      renderSchedule();
+      toast('Slot deleted.');
+    });
+  });
+}
 
 
 // ── Module stubs (replaced in subsequent phases) ────────
@@ -1298,9 +1585,6 @@ document.getElementById('sm-delete-btn').addEventListener('click', () => {
 // ── Vendors module ──────────────────────────────────────
 
 const VENDOR_CATS = ['Food', 'Craft', 'Ag', 'Sponsor', 'Other'];
-let vendorFilter  = 'all';
-let vendorSearch  = '';
-let _vendorEditId = null;
 
 function syncVendorFees(vendors) {
   const budget    = load(KEYS.budget) || { income: [], expenses: [] };
@@ -1322,7 +1606,8 @@ function renderVendors() {
   const q = vendorSearch.toLowerCase();
   const filtered = vendors.filter(v => {
     const catOk  = vendorFilter === 'all' || v.category === vendorFilter;
-    const srchOk = !q || v.name.toLowerCase().includes(q) || v.contactName.toLowerCase().includes(q) || String(v.booth).includes(q);
+    const haystack = searchableText([v.booth, v.name, v.category, v.contactName, v.contactPhone, v.fee, v.paid ? 'paid' : 'unpaid', v.notes]);
+    const srchOk = !q || haystack.includes(q);
     return catOk && srchOk;
   });
 
@@ -1344,7 +1629,7 @@ function renderVendors() {
       <td class="text-muted" style="font-size:13px;max-width:180px">${v.notes || ''}</td>
       <td><button class="btn btn-ghost btn-sm vendor-edit-btn" data-id="${v.id}">Edit</button></td>
     </tr>
-  `).join('') : '<tr><td colspan="8" style="text-align:center;padding:24px;color:var(--muted)">No vendors match this filter.</td></tr>';
+  `).join('') : '<tr><td colspan="8" style="text-align:center;padding:24px;color:var(--muted)">No vendors listed. Use \'+ Add Vendor\' to put one on the map.</td></tr>';
 
   const el = document.getElementById('mod-vendors');
   el.innerHTML = `
@@ -1420,54 +1705,51 @@ function openVendorModal(vendor) {
   openModal('vend-modal');
 }
 
-document.getElementById('vm-save-btn').addEventListener('click', () => {
-  const name = document.getElementById('vm-name').value.trim();
-  if (!name) { toast('Vendor name is required.'); return; }
-  const vs  = load(KEYS.vendors) || [];
-  const rec = {
-    id:          _vendorEditId || uid(),
-    name,
-    category:    document.getElementById('vm-cat').value,
-    booth:       document.getElementById('vm-booth').value.trim(),
-    contactName: document.getElementById('vm-contact').value.trim(),
-    contactPhone:document.getElementById('vm-phone').value.trim(),
-    fee:         Number(document.getElementById('vm-fee').value) || 0,
-    paid:        document.getElementById('vm-paid').checked,
-    notes:       document.getElementById('vm-notes').value.trim(),
-  };
-  if (_vendorEditId) {
-    const idx = vs.findIndex(v => v.id === _vendorEditId);
-    if (idx !== -1) vs[idx] = rec; else vs.push(rec);
-  } else {
-    vs.push(rec);
-  }
-  save(KEYS.vendors, vs);
-  syncVendorFees(vs);
-  closeModal('vend-modal');
-  renderVendors();
-  toast(_vendorEditId ? 'Vendor updated.' : 'Vendor added.');
-});
-
-document.getElementById('vm-delete-btn').addEventListener('click', () => {
-  confirm2('Delete vendor', 'Remove this vendor from the list?', () => {
-    const vs      = load(KEYS.vendors) || [];
-    const updated = vs.filter(v => v.id !== _vendorEditId);
-    save(KEYS.vendors, updated);
-    syncVendorFees(updated);
+function bindVendorModalHandlers() {
+  document.getElementById('vm-save-btn').addEventListener('click', () => {
+    const name = document.getElementById('vm-name').value.trim();
+    if (!name) { toast('Vendor name is required.'); return; }
+    const vs  = load(KEYS.vendors) || [];
+    const rec = {
+      id:          _vendorEditId || uid(),
+      name,
+      category:    document.getElementById('vm-cat').value,
+      booth:       document.getElementById('vm-booth').value.trim(),
+      contactName: document.getElementById('vm-contact').value.trim(),
+      contactPhone:document.getElementById('vm-phone').value.trim(),
+      fee:         Number(document.getElementById('vm-fee').value) || 0,
+      paid:        document.getElementById('vm-paid').checked,
+      notes:       document.getElementById('vm-notes').value.trim(),
+    };
+    if (_vendorEditId) {
+      const idx = vs.findIndex(v => v.id === _vendorEditId);
+      if (idx !== -1) vs[idx] = rec; else vs.push(rec);
+    } else {
+      vs.push(rec);
+    }
+    save(KEYS.vendors, vs);
+    syncVendorFees(vs);
     closeModal('vend-modal');
     renderVendors();
-    toast('Vendor deleted.');
+    toast(_vendorEditId ? 'Vendor updated.' : 'Vendor added.');
   });
-});
+
+  document.getElementById('vm-delete-btn').addEventListener('click', () => {
+    confirm2('Delete vendor', 'Remove this vendor from the list?', () => {
+      const vs      = load(KEYS.vendors) || [];
+      const updated = vs.filter(v => v.id !== _vendorEditId);
+      save(KEYS.vendors, updated);
+      syncVendorFees(updated);
+      closeModal('vend-modal');
+      renderVendors();
+      toast('Vendor deleted.');
+    });
+  });
+}
 // ── Volunteers module ───────────────────────────────────
 
 const VOL_ROLES  = ['Gate', 'Setup', 'Teardown', 'Stage Crew', 'First Aid', 'Information Booth', 'General'];
 const VOL_SHIFTS = ['Day 1 AM', 'Day 1 PM', 'Day 2 AM', 'Day 2 PM', 'Both Days'];
-
-let volShiftFilter = 'all';
-let volRoleFilter  = 'all';
-let volSearch      = '';
-let _volEditId     = null;
 
 function renderVolunteers() {
   const volunteers = load(KEYS.volunteers) || [];
@@ -1476,7 +1758,8 @@ function renderVolunteers() {
   const filtered = volunteers.filter(v => {
     const shiftOk = volShiftFilter === 'all' || v.shift === volShiftFilter || v.shift === 'Both Days';
     const roleOk  = volRoleFilter  === 'all' || v.role  === volRoleFilter;
-    const srchOk  = !vq || v.name.toLowerCase().includes(vq) || v.role.toLowerCase().includes(vq) || v.phone.includes(vq);
+    const haystack = searchableText([v.name, v.role, v.shift, v.phone, v.checkedIn ? 'checked in' : 'not checked in', v.notes]);
+    const srchOk  = !vq || haystack.includes(vq);
     return shiftOk && roleOk && srchOk;
   });
 
@@ -1489,23 +1772,25 @@ function renderVolunteers() {
 
   const rows = filtered.length ? filtered.map(v => `
     <tr>
+      <td style="text-align:center">
+        ${v.checkedIn
+          ? '<span class="badge badge-success checkin-badge">✓ In</span>'
+          : `<button class="btn btn-ghost btn-sm vol-checkin-btn" data-id="${v.id}">Check In</button>`}
+      </td>
       <td><strong>${v.name}</strong></td>
       <td><span class="badge badge-muted">${v.role}</span></td>
       <td style="white-space:nowrap">${v.shift}</td>
       <td style="font-size:13px">${v.phone || '<span class="text-muted">—</span>'}</td>
-      <td style="text-align:center">
-        <input type="checkbox" class="vol-checkin-toggle" data-id="${v.id}" ${v.checkedIn ? 'checked' : ''}>
-      </td>
       <td class="text-muted" style="font-size:13px">${v.notes || ''}</td>
       <td><button class="btn btn-ghost btn-sm vol-edit-btn" data-id="${v.id}">Edit</button></td>
     </tr>
-  `).join('') : '<tr><td colspan="7" style="text-align:center;padding:24px;color:var(--muted)">No volunteers match this filter.</td></tr>';
+  `).join('') : '<tr><td colspan="7" style="text-align:center;padding:24px;color:var(--muted)">No volunteers listed. Use \'+ Add Volunteer\' before the clipboard gets ideas.</td></tr>';
 
   const printRows = filtered.map(v => `
-    <tr><td>${v.name}</td><td>${v.role}</td><td>${v.shift}</td><td>${v.phone || ''}</td><td style="text-align:center">☐</td></tr>
+    <tr><td>${v.name}</td><td>${v.role}</td><td>${v.shift}</td><td>${v.phone || ''}</td><td></td></tr>
   `).join('');
 
-  const shiftBtns = ['all', 'Day 1 AM', 'Day 1 PM', 'Day 2 AM', 'Day 2 PM'].map(s =>
+  const shiftBtns = ['all', 'Day 1 AM', 'Day 1 PM', 'Day 2 AM', 'Day 2 PM', 'Both Days'].map(s =>
     `<button class="btn ${volShiftFilter===s?'btn-primary':'btn-ghost'} btn-sm vol-shift-btn" data-shift="${s}">${s === 'all' ? 'All Shifts' : s}</button>`
   ).join('');
 
@@ -1531,11 +1816,11 @@ function renderVolunteers() {
         <button class="btn btn-primary btn-sm no-print" id="vol-add-btn">+ Add Volunteer</button>
       </div>
     </div>
-    <div class="card" style="padding:0">
+    <div class="card no-print" style="padding:0">
       <div class="table-wrap">
         <table>
           <thead>
-            <tr><th>Name</th><th>Role</th><th>Shift</th><th>Phone</th><th style="text-align:center">Checked In</th><th>Notes</th><th></th></tr>
+            <tr><th style="text-align:center">Check In</th><th>Name</th><th>Role</th><th>Shift</th><th>Phone</th><th>Notes</th><th></th></tr>
           </thead>
           <tbody>${rows}</tbody>
         </table>
@@ -1545,7 +1830,7 @@ function renderVolunteers() {
       <h2 style="font-family:Oswald,sans-serif;margin-bottom:4px">[FN] Festival Command — Volunteer Roster</h2>
       <p style="font-size:12px;margin-bottom:10px;color:#666">${volShiftFilter === 'all' ? 'All Shifts' : volShiftFilter}${volRoleFilter !== 'all' ? ' · ' + volRoleFilter : ''}</p>
       <table class="sched-print-table">
-        <thead><tr><th>Name</th><th>Role</th><th>Shift</th><th>Phone</th><th style="text-align:center">Check In</th></tr></thead>
+        <thead><tr><th>Name</th><th>Role</th><th>Shift</th><th>Phone</th><th>Sig.</th></tr></thead>
         <tbody>${printRows}</tbody>
       </table>
     </div>
@@ -1559,15 +1844,15 @@ function renderVolunteers() {
   document.getElementById('vol-print-btn').addEventListener('click', () => window.print());
   document.getElementById('vol-add-btn').addEventListener('click', () => openVolModal(null));
 
-  document.querySelectorAll('.vol-checkin-toggle').forEach(cb => {
-    cb.addEventListener('change', () => {
+  document.querySelectorAll('.vol-checkin-btn').forEach(btn => {
+    btn.addEventListener('click', () => {
       const vs = load(KEYS.volunteers) || [];
-      const v  = vs.find(v => v.id === cb.dataset.id);
+      const v  = vs.find(v => v.id === btn.dataset.id);
       if (v) {
-        v.checkedIn = cb.checked;
+        v.checkedIn = true;
         save(KEYS.volunteers, vs);
         renderVolunteers();
-        toast(v.checkedIn ? `${v.name} checked in.` : `${v.name} check-in cleared.`);
+        toast(`${v.name} checked in.`);
       }
     });
   });
@@ -1592,45 +1877,45 @@ function openVolModal(vol) {
   openModal('vol-modal');
 }
 
-document.getElementById('volm-save-btn').addEventListener('click', () => {
-  const name = document.getElementById('volm-name').value.trim();
-  if (!name) { toast('Name is required.'); return; }
-  const vs  = load(KEYS.volunteers) || [];
-  const rec = {
-    id:        _volEditId || uid(),
-    name,
-    role:      document.getElementById('volm-role').value,
-    shift:     document.getElementById('volm-shift').value,
-    phone:     document.getElementById('volm-phone').value.trim(),
-    notes:     document.getElementById('volm-notes').value.trim(),
-    checkedIn: false,
-  };
-  if (_volEditId) {
-    const idx = vs.findIndex(v => v.id === _volEditId);
-    if (idx !== -1) { rec.checkedIn = vs[idx].checkedIn; vs[idx] = rec; }
-    else vs.push(rec);
-  } else {
-    vs.push(rec);
-  }
-  save(KEYS.volunteers, vs);
-  closeModal('vol-modal');
-  renderVolunteers();
-  toast(_volEditId ? 'Volunteer updated.' : 'Volunteer added.');
-});
-
-document.getElementById('volm-delete-btn').addEventListener('click', () => {
-  confirm2('Delete volunteer', 'Remove this volunteer from the list?', () => {
-    const vs = load(KEYS.volunteers) || [];
-    save(KEYS.volunteers, vs.filter(v => v.id !== _volEditId));
+function bindVolunteerModalHandlers() {
+  document.getElementById('volm-save-btn').addEventListener('click', () => {
+    const name = document.getElementById('volm-name').value.trim();
+    if (!name) { toast('Name is required.'); return; }
+    const vs  = load(KEYS.volunteers) || [];
+    const existing = vs.find(v => v.id === _volEditId);
+    const rec = {
+      id:        _volEditId || uid(),
+      name,
+      role:      document.getElementById('volm-role').value,
+      shift:     document.getElementById('volm-shift').value,
+      phone:     document.getElementById('volm-phone').value.trim(),
+      notes:     document.getElementById('volm-notes').value.trim(),
+      checkedIn: existing ? existing.checkedIn : false,
+    };
+    if (_volEditId) {
+      const idx = vs.findIndex(v => v.id === _volEditId);
+      if (idx !== -1) { rec.checkedIn = vs[idx].checkedIn; vs[idx] = rec; }
+      else vs.push(rec);
+    } else {
+      vs.push(rec);
+    }
+    save(KEYS.volunteers, vs);
     closeModal('vol-modal');
     renderVolunteers();
-    toast('Volunteer deleted.');
+    toast(_volEditId ? 'Volunteer updated.' : 'Volunteer added.');
   });
-});
-// ── Budget module ───────────────────────────────────────
 
-let _budgetEditId   = null;
-let _budgetEditType = 'income';
+  document.getElementById('volm-delete-btn').addEventListener('click', () => {
+    confirm2('Delete volunteer', 'Remove this volunteer from the list?', () => {
+      const vs = load(KEYS.volunteers) || [];
+      save(KEYS.volunteers, vs.filter(v => v.id !== _volEditId));
+      closeModal('vol-modal');
+      renderVolunteers();
+      toast('Volunteer deleted.');
+    });
+  });
+}
+// ── Budget module ───────────────────────────────────────
 
 function varHtml(actual, budgeted, type) {
   if (!Number(actual)) return '<span class="text-muted">—</span>';
@@ -1643,52 +1928,62 @@ function varHtml(actual, budgeted, type) {
 }
 
 function renderBudget() {
-  const budget   = load(KEYS.budget) || { income: [], expenses: [] };
-  const income   = budget.income   || [];
-  const expenses = budget.expenses || [];
-
-  const totBudgInc  = income.reduce((s, l) => s + Number(l.budgeted), 0);
-  const totActInc   = income.reduce((s, l) => s + Number(l.actual),   0);
-  const totBudgExp  = expenses.reduce((s, l) => s + Number(l.budgeted), 0);
-  const totActExp   = expenses.reduce((s, l) => s + Number(l.actual),   0);
-  const budgNet     = totBudgInc - totBudgExp;
-  const actNet      = totActInc  - totActExp;
+  const summary  = getBudgetSummary();
+  const income   = summary.income;
+  const expenses = summary.expenses;
+  const totBudgInc = summary.totBudgInc;
+  const totActInc = summary.totActInc;
+  const totBudgExp = summary.totBudgExp;
+  const totActExp = summary.totActExp;
+  const budgNet = summary.budgNet;
+  const actNet = summary.actNet;
 
   function incomeRows() {
+    if (!income.length) {
+      return '<tr><td colspan="6" style="text-align:center;padding:24px;color:var(--muted)">No income lines yet. Use \'+ Add Line\' before the math starts judging.</td></tr>';
+    }
     return income.map(l => {
-      const auto = l.auto ? '<span class="badge badge-auto" style="margin-left:6px;vertical-align:middle">auto</span>' : '';
+      const isVendorFees = l.id === 'vendor-fees';
+      const displayBudgeted = budgetLineBudgeted(l);
+      const displayActual = budgetLineActual(l);
+      const auto = isVendorFees
+        ? '<span class="text-muted" style="margin-left:6px;font-size:12px">(auto)</span>'
+        : (l.auto ? '<span class="badge badge-auto" style="margin-left:6px;vertical-align:middle">auto</span>' : '');
       const editBtn = l.auto ? '' : `<button class="btn btn-ghost btn-sm budget-edit-btn" data-id="${l.id}" data-type="income">Edit</button>`;
       return `<tr>
         <td class="text-muted" style="font-size:12px;white-space:nowrap">${l.category}</td>
         <td>${l.description}${auto}</td>
-        <td style="font-family:'Oswald',sans-serif;text-align:right;white-space:nowrap">${fmt$(l.budgeted)}</td>
-        <td style="font-family:'Oswald',sans-serif;text-align:right;white-space:nowrap">${Number(l.actual) > 0 ? fmt$(l.actual) : '<span class="text-muted">—</span>'}</td>
-        <td style="text-align:right;white-space:nowrap">${varHtml(l.actual, l.budgeted, 'income')}</td>
-        <td>${editBtn}</td>
+        <td style="font-family:'Oswald',sans-serif;text-align:right;white-space:nowrap">${fmt$(displayBudgeted)}</td>
+        <td style="font-family:'Oswald',sans-serif;text-align:right;white-space:nowrap">${Number(displayActual) > 0 ? fmt$(displayActual) : '<span class="text-muted">—</span>'}</td>
+        <td style="text-align:right;white-space:nowrap">${varHtml(displayActual, displayBudgeted, 'income')}</td>
+        <td class="no-print">${editBtn}</td>
       </tr>`;
     }).join('');
   }
 
   function expenseRows() {
+    if (!expenses.length) {
+      return '<tr><td colspan="6" style="text-align:center;padding:24px;color:var(--muted)">No expense lines yet. Use \'+ Add Line\' before receipts multiply.</td></tr>';
+    }
     return expenses.map(l => `<tr>
       <td class="text-muted" style="font-size:12px;white-space:nowrap">${l.category}</td>
       <td>${l.description}</td>
       <td style="font-family:'Oswald',sans-serif;text-align:right;white-space:nowrap">${fmt$(l.budgeted)}</td>
       <td style="font-family:'Oswald',sans-serif;text-align:right;white-space:nowrap">${Number(l.actual) > 0 ? fmt$(l.actual) : '<span class="text-muted">—</span>'}</td>
       <td style="text-align:right;white-space:nowrap">${varHtml(l.actual, l.budgeted, 'expense')}</td>
-      <td><button class="btn btn-ghost btn-sm budget-edit-btn" data-id="${l.id}" data-type="expense">Edit</button></td>
+      <td class="no-print"><button class="btn btn-ghost btn-sm budget-edit-btn" data-id="${l.id}" data-type="expense">Edit</button></td>
     </tr>`).join('');
   }
 
   const colTable = (rows, addId) => `
     <div class="table-wrap">
-      <table>
+      <table class="sched-print-table">
         <thead><tr>
           <th>Category</th><th>Description</th>
           <th style="text-align:right">Budgeted</th>
           <th style="text-align:right">Actual</th>
           <th style="text-align:right">Variance</th>
-          <th></th>
+          <th class="no-print"></th>
         </tr></thead>
         <tbody>${rows}</tbody>
       </table>
@@ -1699,6 +1994,14 @@ function renderBudget() {
 
   const el = document.getElementById('mod-budget');
   el.innerHTML = `
+    <div class="toolbar no-print">
+      <div class="toolbar-right">
+        <button class="btn btn-ghost btn-sm" id="budget-print-btn">Print Budget</button>
+      </div>
+    </div>
+    <div class="print-only">
+      <h2 style="font-family:Oswald,sans-serif;margin-bottom:8px">[FN] Festival Command - Budget</h2>
+    </div>
     <div class="budget-grid">
       <div class="card" style="padding:0">
         <div style="padding:12px 16px;border-bottom:1px solid var(--border);display:flex;align-items:center;justify-content:space-between;flex-wrap:wrap;gap:8px">
@@ -1753,6 +2056,7 @@ function renderBudget() {
 
   document.getElementById('budget-add-income').addEventListener('click',  () => openBudgetModal(null, 'income'));
   document.getElementById('budget-add-expense').addEventListener('click', () => openBudgetModal(null, 'expense'));
+  document.getElementById('budget-print-btn').addEventListener('click', () => window.print());
 
   document.querySelectorAll('.budget-edit-btn').forEach(btn => {
     btn.addEventListener('click', () => {
@@ -1778,54 +2082,51 @@ function openBudgetModal(line, type) {
   openModal('bud-modal');
 }
 
-document.getElementById('bud-save-btn').addEventListener('click', () => {
-  const desc = document.getElementById('bud-desc').value.trim();
-  if (!desc) { toast('Description is required.'); return; }
-  const b   = load(KEYS.budget) || { income: [], expenses: [] };
-  const arr = _budgetEditType === 'income' ? b.income : b.expenses;
-  const rec = {
-    id:          _budgetEditId || uid(),
-    category:    document.getElementById('bud-cat').value.trim(),
-    description: desc,
-    budgeted:    Number(document.getElementById('bud-budget').value) || 0,
-    actual:      Number(document.getElementById('bud-actual').value) || 0,
-    notes:       document.getElementById('bud-notes').value.trim(),
-    auto:        false,
-  };
-  if (_budgetEditId) {
-    const idx = arr.findIndex(l => l.id === _budgetEditId);
-    if (idx !== -1) arr[idx] = rec; else arr.push(rec);
-  } else {
-    arr.push(rec);
-  }
-  save(KEYS.budget, b);
-  closeModal('bud-modal');
-  renderBudget();
-  toast(_budgetEditId ? 'Line updated.' : 'Line added.');
-});
-
-document.getElementById('bud-delete-btn').addEventListener('click', () => {
-  confirm2('Delete line', 'Remove this budget line?', () => {
-    const b = load(KEYS.budget) || { income: [], expenses: [] };
-    if (_budgetEditType === 'income') {
-      b.income = b.income.filter(l => l.id !== _budgetEditId);
+function bindBudgetModalHandlers() {
+  document.getElementById('bud-save-btn').addEventListener('click', () => {
+    const desc = document.getElementById('bud-desc').value.trim();
+    if (!desc) { toast('Description is required.'); return; }
+    const b   = load(KEYS.budget) || { income: [], expenses: [] };
+    const arr = _budgetEditType === 'income' ? b.income : b.expenses;
+    const rec = {
+      id:          _budgetEditId || uid(),
+      category:    document.getElementById('bud-cat').value.trim(),
+      description: desc,
+      budgeted:    Number(document.getElementById('bud-budget').value) || 0,
+      actual:      Number(document.getElementById('bud-actual').value) || 0,
+      notes:       document.getElementById('bud-notes').value.trim(),
+      auto:        false,
+    };
+    if (_budgetEditId) {
+      const idx = arr.findIndex(l => l.id === _budgetEditId);
+      if (idx !== -1) arr[idx] = rec; else arr.push(rec);
     } else {
-      b.expenses = b.expenses.filter(l => l.id !== _budgetEditId);
+      arr.push(rec);
     }
     save(KEYS.budget, b);
     closeModal('bud-modal');
     renderBudget();
-    toast('Line deleted.');
+    toast(_budgetEditId ? 'Line updated.' : 'Line added.');
   });
-});
+
+  document.getElementById('bud-delete-btn').addEventListener('click', () => {
+    confirm2('Delete line', 'Remove this budget line?', () => {
+      const b = load(KEYS.budget) || { income: [], expenses: [] };
+      if (_budgetEditType === 'income') {
+        b.income = b.income.filter(l => l.id !== _budgetEditId);
+      } else {
+        b.expenses = b.expenses.filter(l => l.id !== _budgetEditId);
+      }
+      save(KEYS.budget, b);
+      closeModal('bud-modal');
+      renderBudget();
+      toast('Line deleted.');
+    });
+  });
+}
 // ── Incidents module ────────────────────────────────────
 
 const INC_TYPES = ['Incident', 'Lost Item', 'Found Item', 'Medical', 'Noise', 'Other'];
-
-let incStatusFilter = 'all';
-let incTypeFilter   = 'all';
-let incSearch       = '';
-let _incEditId      = null;
 
 function fmtDatetime(dt) {
   if (!dt) return '';
@@ -1848,6 +2149,9 @@ function renderIncidents() {
     const typeOk   = incTypeFilter   === 'all' || i.type   === incTypeFilter;
     const srchOk   = !iq || i.description.toLowerCase().includes(iq) || (i.reportedBy || '').toLowerCase().includes(iq) || (i.location || '').toLowerCase().includes(iq);
     return statusOk && typeOk && srchOk;
+  }).sort((a, b) => {
+    if (a.status !== b.status) return a.status === 'open' ? -1 : 1;
+    return new Date(b.datetime || 0) - new Date(a.datetime || 0);
   });
 
   const openCount     = incidents.filter(i => i.status === 'open').length;
@@ -1860,7 +2164,7 @@ function renderIncidents() {
 
   const rows = filtered.length ? filtered.map((inc, idx) => `
     <tr>
-      <td style="font-family:'Oswald',sans-serif;color:var(--muted);font-size:12px">${incidents.indexOf(inc) + 1}</td>
+      <td style="font-family:'Oswald',sans-serif;color:var(--muted);font-size:12px">${idx + 1}</td>
       <td style="font-size:12px;white-space:nowrap">${fmtDatetime(inc.datetime)}</td>
       <td><span class="badge badge-muted">${inc.type}</span></td>
       <td style="max-width:260px;font-size:13px">${inc.description}</td>
@@ -1872,7 +2176,7 @@ function renderIncidents() {
       </td>
       <td><button class="btn btn-ghost btn-sm inc-edit-btn" data-id="${inc.id}">Edit</button></td>
     </tr>
-  `).join('') : '<tr><td colspan="7" style="text-align:center;padding:24px;color:var(--muted)">No entries match this filter.</td></tr>';
+  `).join('') : '<tr><td colspan="7" style="text-align:center;padding:24px;color:var(--muted)">No incidents logged. Use \'+ Log Entry\' to record one.</td></tr>';
 
   const el = document.getElementById('mod-incidents');
   el.innerHTML = `
@@ -1895,7 +2199,7 @@ function renderIncidents() {
         <option value="all">All Types</option>
         ${INC_TYPES.map(t => `<option value="${t}"${incTypeFilter===t?' selected':''}>${t}</option>`).join('')}
       </select>
-      <input type="text" id="inc-search" placeholder="Search incidents…" style="width:auto;padding:5px 8px;border:1px solid var(--border);border-radius:4px;background:var(--bg);color:var(--text)" value="${incSearch}">
+      <input type="text" id="inc-search" placeholder="Search incidents…" style="width:auto;padding:5px 8px;flex:1;min-width:120px;max-width:220px" value="${incSearch}">
       <div class="toolbar-right">
         <button class="btn btn-primary btn-sm" id="inc-add-btn">+ Log Entry</button>
       </div>
@@ -1911,6 +2215,7 @@ function renderIncidents() {
       </div>
     </div>
   `;
+  updateIncidentNavBadge();
 
   document.querySelectorAll('.inc-sf-btn').forEach(btn => {
     btn.addEventListener('click', () => { incStatusFilter = btn.dataset.sf; renderIncidents(); });
@@ -1964,50 +2269,67 @@ function toggleResolutionField() {
   document.getElementById('incm-resolution-group').style.display = status === 'resolved' ? 'block' : 'none';
 }
 
-document.getElementById('incm-status').addEventListener('change', toggleResolutionField);
+function bindIncidentModalHandlers() {
+  document.getElementById('incm-status').addEventListener('change', toggleResolutionField);
 
-document.getElementById('incm-save-btn').addEventListener('click', () => {
-  const desc = document.getElementById('incm-desc').value.trim();
-  if (!desc) { toast('Description is required.'); return; }
-  const status = document.getElementById('incm-status').value;
-  const resolution = document.getElementById('incm-resolution').value.trim();
-  if (status === 'resolved' && !resolution) { toast('Resolution notes are required when marking resolved.'); return; }
+  document.getElementById('incm-save-btn').addEventListener('click', () => {
+    const desc = document.getElementById('incm-desc').value.trim();
+    if (!desc) { toast('Description is required.'); return; }
+    const status = document.getElementById('incm-status').value;
+    const resolution = document.getElementById('incm-resolution').value.trim();
+    if (status === 'resolved' && !resolution) { toast('Resolution notes are required when marking resolved.'); return; }
 
-  const incs = load(KEYS.incidents) || [];
-  const rec  = {
-    id:          _incEditId || uid(),
-    type:        document.getElementById('incm-type').value,
-    description: desc,
-    reportedBy:  document.getElementById('incm-reporter').value.trim(),
-    location:    document.getElementById('incm-location').value.trim(),
-    datetime:    document.getElementById('incm-datetime').value,
-    status,
-    resolution,
-  };
-  if (_incEditId) {
-    const idx = incs.findIndex(i => i.id === _incEditId);
-    if (idx !== -1) incs[idx] = rec; else incs.push(rec);
-  } else {
-    incs.push(rec);
-  }
-  save(KEYS.incidents, incs);
-  closeModal('inc-modal');
-  renderIncidents();
-  toast(_incEditId ? 'Entry updated.' : 'Entry logged.');
-});
-
-document.getElementById('incm-delete-btn').addEventListener('click', () => {
-  confirm2('Delete entry', 'Remove this log entry?', () => {
     const incs = load(KEYS.incidents) || [];
-    save(KEYS.incidents, incs.filter(i => i.id !== _incEditId));
+    const rec  = {
+      id:          _incEditId || uid(),
+      type:        document.getElementById('incm-type').value,
+      description: desc,
+      reportedBy:  document.getElementById('incm-reporter').value.trim(),
+      location:    document.getElementById('incm-location').value.trim(),
+      datetime:    document.getElementById('incm-datetime').value,
+      status,
+      resolution,
+    };
+    if (_incEditId) {
+      const idx = incs.findIndex(i => i.id === _incEditId);
+      if (idx !== -1) incs[idx] = rec; else incs.push(rec);
+    } else {
+      incs.push(rec);
+    }
+    save(KEYS.incidents, incs);
     closeModal('inc-modal');
     renderIncidents();
-    toast('Entry deleted.');
+    updateIncidentNavBadge();
+    toast(_incEditId ? 'Entry updated.' : 'Entry logged.');
   });
+
+  document.getElementById('incm-delete-btn').addEventListener('click', () => {
+    confirm2('Delete entry', 'Remove this log entry?', () => {
+      const incs = load(KEYS.incidents) || [];
+      save(KEYS.incidents, incs.filter(i => i.id !== _incEditId));
+      closeModal('inc-modal');
+      renderIncidents();
+      updateIncidentNavBadge();
+      toast('Entry deleted.');
+    });
+  });
+}
+
+
+document.addEventListener('DOMContentLoaded', () => {
+  bindScheduleModalHandlers();
+  bindVendorModalHandlers();
+  bindVolunteerModalHandlers();
+  bindBudgetModalHandlers();
+  bindIncidentModalHandlers();
 });
 
 
 // ── Boot ────────────────────────────────────────────────
+
+setAppHeight();
+window.addEventListener('resize', setAppHeight);
+window.addEventListener('orientationchange', setAppHeight);
 
 initSeeds();
 
@@ -2015,14 +2337,14 @@ initSeeds();
 (function migrateIfNeeded() {
   const meta = load(KEYS.meta);
   if (meta && meta.version !== DATA_VERSION) {
-    Object.values(KEYS).forEach(k => localStorage.removeItem(k));
+    KEY_LIST.forEach(k => storageRemoveItem(k));
     initSeeds();
     toast('Data format updated — seed data restored.');
   }
 })();
 
 // Stale data warning (5 min threshold)
-const _lastSaved = localStorage.getItem('fnfc_lastSaved');
+const _lastSaved = storageGetItem('fnfc_lastSaved');
 if (_lastSaved && Date.now() - Number(_lastSaved) > 300000) {
   toast('Data may be outdated — consider re-checking your entries.');
 }
@@ -2031,6 +2353,7 @@ if (_lastSaved && Date.now() - Number(_lastSaved) > 300000) {
 window.addEventListener('storage', e => {
   if (e.key && e.key.startsWith('fnfc_') && e.key !== 'fnfc_lastSaved') {
     toast('Changes detected from another tab.');
+    updateIncidentNavBadge();
     renderActiveModule();
   }
 });
@@ -2040,6 +2363,7 @@ updateHeader();
 tickClock();
 setInterval(tickClock, 1000);
 setInterval(() => { if (activeTab === 'schedule') updateNowLine(); }, 60000);
+updateIncidentNavBadge();
 renderActiveModule();
 
 </script>
