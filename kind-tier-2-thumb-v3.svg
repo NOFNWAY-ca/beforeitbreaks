@@ -1,0 +1,63 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="1200" height="630" viewBox="0 0 1200 630" role="img" aria-label="KIND Foster Coordination preview image">
+  <rect width="1200" height="630" fill="#f3f5f8"/>
+  <rect x="48" y="42" width="1104" height="546" fill="#ffffff" stroke="#bac5d2" stroke-width="2"/>
+  <rect x="48" y="42" width="1104" height="68" fill="#173a5d"/>
+  <text x="82" y="86" font-family="Segoe UI, Arial, sans-serif" font-size="23" font-weight="800" fill="#ffffff">KIND: Foster Coordination</text>
+  <rect x="940" y="61" width="126" height="30" fill="#ffffff" opacity="0.14"/>
+  <text x="963" y="82" font-family="Consolas, monospace" font-size="14" font-weight="700" fill="#ffffff">TIER 2</text>
+  <rect x="1080" y="61" width="42" height="30" fill="#ffffff" opacity="0.18"/>
+  <text x="1092" y="82" font-family="Segoe UI, Arial, sans-serif" font-size="16" font-weight="800" fill="#ffffff">+</text>
+
+  <text x="82" y="150" font-family="Consolas, monospace" font-size="15" font-weight="700" fill="#5f6b7a">INTAKE CORE + FOSTER CAPACITY</text>
+  <text x="82" y="185" font-family="Segoe UI, Arial, sans-serif" font-size="30" font-weight="800" fill="#1e2937">See available homes before placement gets messy.</text>
+
+  <rect x="82" y="224" width="314" height="304" fill="#ffffff" stroke="#bac5d2"/>
+  <rect x="82" y="224" width="314" height="48" fill="#eef4fb"/>
+  <text x="108" y="255" font-family="Segoe UI, Arial, sans-serif" font-size="19" font-weight="800" fill="#173a5d">Foster Overview</text>
+  <g font-family="Segoe UI, Arial, sans-serif">
+    <text x="108" y="315" font-size="16" font-weight="700" fill="#627083">Total capacity</text>
+    <text x="306" y="316" text-anchor="end" font-size="28" font-weight="800" fill="#1e2937">34</text>
+    <rect x="108" y="340" width="252" height="16" fill="#e9edf2"/>
+    <rect x="108" y="340" width="178" height="16" fill="#277a3f"/>
+    <text x="108" y="397" font-size="16" font-weight="700" fill="#627083">Open spots</text>
+    <text x="306" y="398" text-anchor="end" font-size="28" font-weight="800" fill="#277a3f">11</text>
+    <rect x="108" y="422" width="252" height="16" fill="#e9edf2"/>
+    <rect x="108" y="422" width="88" height="16" fill="#1f5fa8"/>
+    <text x="108" y="479" font-size="16" font-weight="700" fill="#627083">Full homes</text>
+    <text x="306" y="480" text-anchor="end" font-size="28" font-weight="800" fill="#c36b14">5</text>
+  </g>
+
+  <rect x="430" y="224" width="688" height="304" fill="#ffffff" stroke="#bac5d2"/>
+  <rect x="430" y="224" width="688" height="42" fill="#eef4fb"/>
+  <g font-family="Consolas, monospace" font-size="15" font-weight="700" fill="#173a5d">
+    <text x="456" y="251">FOSTER</text>
+    <text x="652" y="251">CAPACITY</text>
+    <text x="844" y="251">ANIMALS</text>
+    <text x="1000" y="251">FIT</text>
+  </g>
+  <g font-family="Segoe UI, Arial, sans-serif" font-size="18" fill="#1e2937">
+    <line x1="430" y1="318" x2="1118" y2="318" stroke="#d7dde5"/>
+    <line x1="430" y1="374" x2="1118" y2="374" stroke="#d7dde5"/>
+    <line x1="430" y1="430" x2="1118" y2="430" stroke="#d7dde5"/>
+    <text x="456" y="299" font-weight="700">Dana K.</text>
+    <text x="652" y="299">2 of 4</text>
+    <rect x="844" y="280" width="72" height="28" fill="#eef4fb" stroke="#93b8df"/>
+    <text x="864" y="300" font-size="14" font-weight="800" fill="#1f5fa8">DOG</text>
+    <text x="1000" y="299">Good</text>
+    <text x="456" y="355" font-weight="700">North House</text>
+    <text x="652" y="355">3 of 3</text>
+    <rect x="844" y="336" width="72" height="28" fill="#fff7ed" stroke="#e6c18c"/>
+    <text x="858" y="356" font-size="14" font-weight="800" fill="#9a540d">FULL</text>
+    <text x="1000" y="355">Hold</text>
+    <text x="456" y="411" font-weight="700">Mira S.</text>
+    <text x="652" y="411">1 of 2</text>
+    <rect x="844" y="392" width="72" height="28" fill="#eefbf2" stroke="#9ad3aa"/>
+    <text x="860" y="412" font-size="14" font-weight="800" fill="#277a3f">CAT</text>
+    <text x="1000" y="411">Open</text>
+    <text x="456" y="467" font-weight="700">Eli R.</text>
+    <text x="652" y="467">0 of 2</text>
+    <rect x="844" y="448" width="72" height="28" fill="#eefbf2" stroke="#9ad3aa"/>
+    <text x="858" y="468" font-size="14" font-weight="800" fill="#277a3f">OPEN</text>
+    <text x="1000" y="467">Best</text>
+  </g>
+</svg>
