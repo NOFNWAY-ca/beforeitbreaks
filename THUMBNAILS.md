@@ -23,10 +23,16 @@ Image standard: `1200x630` PNG.
 
 - `kind-tier-1-thumb.png` — Intake Board preview (`1200x630`)
 - `kind-tier-1-thumb.svg` — editable master version
+- `kind-tier-1-thumb-v2.png` — current Intake Board preview used by metadata and homepage cards (`1200x630`)
+- `kind-tier-1-thumb-v2.svg` — current editable master version
 - `kind-tier-2-thumb.png` — Foster Coordination preview (`1200x630`)
 - `kind-tier-2-thumb.svg` — editable master version
+- `kind-tier-2-thumb-v2.png` — current Foster Coordination preview used by metadata and homepage cards (`1200x630`)
+- `kind-tier-2-thumb-v2.svg` — current editable master version
 - `kind-tier-3-thumb.png` — Medical Tracker preview (`1200x630`)
 - `kind-tier-3-thumb.svg` — editable master version
+- `kind-tier-3-thumb-v2.png` — current Medical Tracker preview used by metadata and homepage cards (`1200x630`)
+- `kind-tier-3-thumb-v2.svg` — current editable master version
 
 # Metadata Implementation
 

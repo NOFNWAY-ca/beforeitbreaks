@@ -53,6 +53,7 @@ Active marketing/demo site with multiple standalone demos.
 - Wired page-specific favicon, canonical, Open Graph, and Twitter/X metadata into `index.html` and the three KIND demo pages.
 - Added a quiet KIND demo ladder section back to `index.html` with thumbnail cards for intake, foster coordination, and medical tracking.
 - Reworked the KIND tier thumbnails so they resemble the actual demo interfaces instead of generic dark preview cards, regenerated the 1200x630 PNGs, and pointed the landing-page KIND cards at the PNG assets.
+- Added `kind-tier-*-thumb-v2` assets and switched homepage cards plus KIND Open Graph/Twitter metadata to those versioned filenames to bypass stale CDN caches on the original thumbnail URLs.
 - Added `THUMBNAILS.md` documenting the asset roles, preview sizes, metadata locations, absolute social image URLs, and preview testing steps.
 - Added `DEPLOY.md` as the operational deployment reference for `sync.sh`, pre-sync checks, post-sync verification, and preview debugger use.
 
