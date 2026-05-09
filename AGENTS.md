@@ -1,4 +1,4 @@
-# AGENTS.md — Before It Breaks
+# AGENTS.md — Before it Breaks
 
 ## What This Directory Is
 

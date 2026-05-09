@@ -1,4 +1,4 @@
-# Before It Breaks Deploy Reference
+# Before it Breaks Deploy Reference
 
 This repo deploys by committing the current working tree and pushing `main`.
 

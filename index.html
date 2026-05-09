@@ -59,6 +59,9 @@
             color: var(--text);
             line-height: 1.6;
             transition: background 0.2s, color 0.2s;
+            -webkit-font-smoothing: antialiased;
+            -moz-osx-font-smoothing: grayscale;
+            font-synthesis: none;
         }
 
         a { color: var(--brand-lit); text-decoration: none; }
@@ -396,13 +399,13 @@
             background: var(--surface2);
             text-decoration: none;
         }
-        .kind-thumb {
+        .kind-card-preview {
             display: block;
             width: 100%;
             aspect-ratio: 1200 / 630;
             object-fit: cover;
+            background: #f3f5f8;
             border-bottom: 1px solid var(--border);
-            background: #171610;
         }
         .kind-card-body {
             padding: 22px;
@@ -895,7 +898,7 @@
         </div>
         <div class="kind-grid">
             <a href="/kind-tier-1-intake.html" target="_blank" class="kind-card">
-                <img src="/kind-tier-1-thumb.svg" alt="BiB KIND Intake Board preview" class="kind-thumb" width="1200" height="630" loading="lazy">
+                <img src="/kind-tier-1-thumb.png" alt="" class="kind-card-preview" loading="lazy" width="1200" height="630">
                 <div class="kind-card-body">
                     <div class="kind-tier">Tier 1</div>
                     <h3>KIND - Intake Board</h3>
@@ -903,7 +906,7 @@
                 </div>
             </a>
             <a href="/kind-tier-2-foster.html" target="_blank" class="kind-card">
-                <img src="/kind-tier-2-thumb.svg" alt="BiB KIND Foster Coordination preview" class="kind-thumb" width="1200" height="630" loading="lazy">
+                <img src="/kind-tier-2-thumb.png" alt="" class="kind-card-preview" loading="lazy" width="1200" height="630">
                 <div class="kind-card-body">
                     <div class="kind-tier">Tier 2</div>
                     <h3>KIND - Foster Coordination</h3>
@@ -911,7 +914,7 @@
                 </div>
             </a>
             <a href="/kind-tier-3-medical.html" target="_blank" class="kind-card">
-                <img src="/kind-tier-3-thumb.svg" alt="BiB KIND Medical Tracker preview" class="kind-thumb" width="1200" height="630" loading="lazy">
+                <img src="/kind-tier-3-thumb.png" alt="" class="kind-card-preview" loading="lazy" width="1200" height="630">
                 <div class="kind-card-body">
                     <div class="kind-tier">Tier 3</div>
                     <h3>KIND - Medical Tracker</h3>
@@ -1101,7 +1104,7 @@
         <div class="contact-right">
             <form id="contact-form" action="https://api.web3forms.com/submit" method="POST">
                 <input type="hidden" name="access_key" value="99644fbe-75fa-4063-919f-e5209d69de79">
-                <input type="hidden" name="subject" value="New inquiry — Before It Breaks">
+                <input type="hidden" name="subject" value="New inquiry — Before it Breaks">
                 <input type="hidden" name="redirect" value="false">
                 <input type="checkbox" name="botcheck" style="display:none">
                 <div class="form-row">
@@ -1131,7 +1134,8 @@
 
 <!-- ── FOOTER ── -->
 <footer>
-    <p>Before It Breaks &mdash; Gerry &copy; 2026</p>
+    <p>Before it Breaks &mdash; Gerry &copy; 2026</p>
+    <p>Before it Breaks is a registered business name in Manitoba.</p>
     <p>Tools built and maintained at <a href="https://nofnway.ca" target="_blank">nofnway.ca</a></p>
 </footer>
 

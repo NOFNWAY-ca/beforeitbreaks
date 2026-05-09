@@ -1,4 +1,4 @@
-# CLAUDE.md — Before It Breaks
+# CLAUDE.md — Before it Breaks
 
 Marketing/demo site for bespoke single-file business tools. Static site, separate git repo.
 

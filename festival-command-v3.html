@@ -93,7 +93,6 @@
       background: none;
       border: 1px solid var(--border);
       color: var(--muted);
-      text-decoration: none;
       border-radius: 4px;
       width: 34px;
       height: 34px;
@@ -127,7 +126,6 @@
       color: var(--muted);
       border: none;
       background: none;
-      text-decoration: none;
       border-bottom: 2px solid transparent;
       margin-bottom: -1px;
       transition: color 0.15s, border-color 0.15s;
@@ -156,23 +154,8 @@
 
     /* ── Main ───────────────────────────────────────────── */
     #main { padding: 20px; max-width: 1400px; margin: 0 auto; }
-    .module { display: block; scroll-margin-top: 112px; }
-    .js .module { display: none; }
-    .js .module.active { display: block; }
-    .requires-app { display: none !important; }
-    .requires-shim { display: none !important; }
-    .shim .requires-shim { display: flex !important; }
-    .js .requires-app { display: block !important; }
-    .js .form-row.requires-app { display: flex !important; }
-    .js button.requires-app,
-    .js .btn.requires-app { display: inline-flex !important; }
-    .app-fallback-note {
-      font-size: 13px;
-      color: var(--muted);
-      margin-bottom: 14px;
-      line-height: 1.45;
-    }
-    .js .app-fallback-note { display: none; }
+    .module { display: none; }
+    .module.active { display: block; }
 
     /* ── Cards ──────────────────────────────────────────── */
     .card {
@@ -418,8 +401,7 @@
       z-index: 300;
       cursor: pointer;
     }
-    #settings-overlay.open,
-    #settings-panel:target ~ #settings-overlay { display: block; }
+    #settings-overlay.open { display: block; }
     #settings-panel {
       position: fixed;
       top: 0;
@@ -435,8 +417,7 @@
       transition: transform 0.25s ease;
       pointer-events: none;
     }
-    #settings-panel.open,
-    #settings-panel:target { transform: translateX(0); pointer-events: auto; }
+    #settings-panel.open { transform: translateX(0); pointer-events: auto; }
     .settings-header {
       display: flex;
       align-items: center;
@@ -686,127 +667,47 @@
   </div>
   <div class="header-clock" id="clock">00:00:00</div>
   <div class="header-controls">
-    <button class="icon-btn requires-shim" id="theme-toggle" title="Toggle theme">☀</button>
-    <a class="icon-btn" id="settings-btn" href="#settings-panel" title="Settings">⚙</a>
+    <button class="icon-btn" id="theme-toggle" title="Toggle theme">☀</button>
+    <button class="icon-btn" id="settings-btn" title="Settings">⚙</button>
   </div>
 </header>
 
 <!-- ── Nav ─────────────────────────────────────────────── -->
 <nav id="site-nav">
-  <a class="nav-tab active" href="#mod-dashboard" data-tab="dashboard">Dashboard</a>
-  <a class="nav-tab" href="#mod-schedule" data-tab="schedule">Schedule</a>
-  <a class="nav-tab" href="#mod-vendors" data-tab="vendors">Vendors</a>
-  <a class="nav-tab" href="#mod-volunteers" data-tab="volunteers">Volunteers</a>
-  <a class="nav-tab" href="#mod-budget" data-tab="budget">Budget</a>
-  <a class="nav-tab" href="#mod-incidents" data-tab="incidents">Incidents<span id="incident-nav-badge"></span></a>
+  <button class="nav-tab active" data-tab="dashboard">Dashboard</button>
+  <button class="nav-tab" data-tab="schedule">Schedule</button>
+  <button class="nav-tab" data-tab="vendors">Vendors</button>
+  <button class="nav-tab" data-tab="volunteers">Volunteers</button>
+  <button class="nav-tab" data-tab="budget">Budget</button>
+  <button class="nav-tab" data-tab="incidents">Incidents<span id="incident-nav-badge"></span></button>
 </nav>
 
 <!-- ── Modules ─────────────────────────────────────────── -->
 <main id="main">
-  <div id="mod-dashboard" class="module active">
-    <div class="stats-row">
-      <div class="stat-card danger"><div class="stat-value">3</div><div class="stat-label">Open Incidents</div></div>
-      <div class="stat-card"><div class="stat-value">20</div><div class="stat-label">Volunteers</div></div>
-      <div class="stat-card warn"><div class="stat-value">5</div><div class="stat-label">Vendors Unpaid</div></div>
-      <div class="stat-card success"><div class="stat-value">$4,775.00</div><div class="stat-label">Fees Collected</div></div>
-    </div>
-    <div class="dashboard-grid">
-      <div class="card">
-        <div style="font-family:'Oswald',sans-serif;font-size:16px;font-weight:600;margin-bottom:4px">Right Now</div>
-        <p class="text-muted">Fallback view is active. If the controls do not edit data, open this file in Safari instead of an attachment preview.</p>
-      </div>
-      <div class="card">
-        <div style="font-family:'Oswald',sans-serif;font-size:16px;font-weight:600;margin-bottom:10px">Festival File</div>
-        <p class="text-muted">Harvest &amp; Holler · Millwood, MB · Aug 9-10, 2025</p>
-      </div>
-    </div>
-  </div>
-  <div id="mod-schedule" class="module">
-    <div class="card" style="padding:0">
-      <div class="table-wrap">
-        <table class="sched-print-table">
-          <thead><tr><th>Time</th><th>Area</th><th>Act / Event</th><th>Status</th></tr></thead>
-          <tbody>
-            <tr><td>12:00 PM - 1:00 PM</td><td>Main Stage</td><td>Millwood Fiddle Club</td><td>Confirmed</td></tr>
-            <tr><td>2:00 PM - 3:30 PM</td><td>Main Stage</td><td>The Prairiefire Band</td><td>Confirmed</td></tr>
-            <tr><td>7:00 PM - 9:00 PM</td><td>Main Stage</td><td>Dusty Creek</td><td>Confirmed</td></tr>
-            <tr><td>10:00 AM - 11:30 AM</td><td>Ag Ring</td><td>4-H Beef Showmanship</td><td>Confirmed</td></tr>
-            <tr><td>11:00 AM - 10:00 PM</td><td>Midway</td><td>Midway &amp; Rides Open</td><td>Confirmed</td></tr>
-          </tbody>
-        </table>
-      </div>
-    </div>
-  </div>
-  <div id="mod-vendors" class="module">
-    <div class="card" style="padding:0">
-      <div class="table-wrap">
-        <table>
-          <thead><tr><th>Booth #</th><th>Vendor</th><th>Category</th><th>Fee</th><th>Paid</th></tr></thead>
-          <tbody>
-            <tr><td>1</td><td>Friesen's Fry Shack</td><td>Food</td><td>$175.00</td><td>Yes</td></tr>
-            <tr><td>5</td><td>Neufeld Lemonade</td><td>Food</td><td>$125.00</td><td>No</td></tr>
-            <tr><td>9</td><td>Hildebrand Quilts</td><td>Craft</td><td>$100.00</td><td>No</td></tr>
-            <tr><td>16</td><td>Community Credit Union</td><td>Sponsor</td><td>$500.00</td><td>Yes</td></tr>
-          </tbody>
-        </table>
-      </div>
-    </div>
-  </div>
-  <div id="mod-volunteers" class="module">
-    <div class="card" style="padding:0">
-      <div class="table-wrap">
-        <table>
-          <thead><tr><th>Name</th><th>Role</th><th>Shift</th><th>Phone</th></tr></thead>
-          <tbody>
-            <tr><td>Kevin Doell</td><td>Setup</td><td>Day 1 AM</td><td>204-555-0121</td></tr>
-            <tr><td>Sandra Wiebe</td><td>Gate</td><td>Day 1 AM</td><td>204-555-0134</td></tr>
-            <tr><td>Lori Peters</td><td>First Aid</td><td>Day 1 AM</td><td>204-555-0177</td></tr>
-            <tr><td>Judy Peters</td><td>Teardown</td><td>Both Days</td><td>204-555-0318</td></tr>
-          </tbody>
-        </table>
-      </div>
-    </div>
-  </div>
-  <div id="mod-budget" class="module">
-    <div class="stats-row">
-      <div class="stat-card success"><div class="stat-value">$13,670.00</div><div class="stat-label">Budgeted Income</div></div>
-      <div class="stat-card success"><div class="stat-value">$8,995.00</div><div class="stat-label">Actual Income</div></div>
-      <div class="stat-card danger"><div class="stat-value">$12,590.00</div><div class="stat-label">Budgeted Expenses</div></div>
-      <div class="stat-card danger"><div class="stat-value">$11,740.00</div><div class="stat-label">Actual Expenses</div></div>
-    </div>
-  </div>
-  <div id="mod-incidents" class="module">
-    <div class="card" style="padding:0">
-      <div class="table-wrap">
-        <table>
-          <thead><tr><th>Time</th><th>Type</th><th>Description</th><th>Status</th></tr></thead>
-          <tbody>
-            <tr><td>Aug 9, 6:50 PM</td><td>Noise</td><td>Complaint from neighbouring property re: bass levels</td><td>Open</td></tr>
-            <tr><td>Aug 9, 8:20 PM</td><td>Lost Item</td><td>Wallet found near beer gardens</td><td>Open</td></tr>
-            <tr><td>Aug 10, 9:55 AM</td><td>Incident</td><td>Minor slip near Ag Ring wash station</td><td>Open</td></tr>
-          </tbody>
-        </table>
-      </div>
-    </div>
-  </div>
+  <div id="mod-dashboard"  class="module active"></div>
+  <div id="mod-schedule"   class="module"></div>
+  <div id="mod-vendors"    class="module"></div>
+  <div id="mod-volunteers" class="module"></div>
+  <div id="mod-budget"     class="module"></div>
+  <div id="mod-incidents"  class="module"></div>
 </main>
 
 <!-- ── Settings panel ──────────────────────────────────── -->
+<div id="settings-overlay"></div>
 <aside id="settings-panel">
   <div class="settings-header">
     <div class="settings-title">Settings</div>
-    <a class="icon-btn" id="settings-close" href="#main">✕</a>
+    <button class="icon-btn" id="settings-close">✕</button>
   </div>
-  <p class="app-fallback-note">Settings controls need the app script. The section links and static event data still work if a preview blocks scripts.</p>
-  <div class="form-group requires-app">
+  <div class="form-group">
     <label>Event Name</label>
     <input type="text" id="s-event-name">
   </div>
-  <div class="form-group requires-app">
+  <div class="form-group">
     <label>Subtitle / Location</label>
     <input type="text" id="s-subtitle">
   </div>
-  <div class="form-row requires-app">
+  <div class="form-row">
     <div class="form-group">
       <label>Day 1 Date</label>
       <input type="date" id="s-day1">
@@ -816,17 +717,16 @@
       <input type="date" id="s-day2">
     </div>
   </div>
-  <button class="btn btn-primary requires-app" style="width:100%;margin-bottom:10px;" id="s-save-btn">Save Changes</button>
-  <hr class="divider requires-app">
-  <button class="btn btn-ghost requires-app" style="width:100%;margin-bottom:10px;" id="s-export-btn">Export Data (JSON)</button>
-  <div class="requires-app" style="margin-bottom:10px">
+  <button class="btn btn-primary" style="width:100%;margin-bottom:10px;" id="s-save-btn">Save Changes</button>
+  <hr class="divider">
+  <button class="btn btn-ghost" style="width:100%;margin-bottom:10px;" id="s-export-btn">Export Data (JSON)</button>
+  <div style="margin-bottom:10px">
     <label style="display:block;font-size:11px;font-family:'Oswald',sans-serif;text-transform:uppercase;letter-spacing:0.06em;color:var(--muted);margin-bottom:6px">Import Backup (.json)</label>
     <input type="file" id="s-import-file" accept=".json" style="width:100%;margin-bottom:6px;font-size:13px;color:var(--text)">
     <button class="btn btn-ghost" style="width:100%;" id="s-import-btn">Import Data</button>
   </div>
-  <button class="btn btn-danger requires-app" style="width:100%;" id="s-reset-btn">Reset to Seed Data</button>
+  <button class="btn btn-danger" style="width:100%;" id="s-reset-btn">Reset to Seed Data</button>
 </aside>
-<a id="settings-overlay" href="#main" aria-label="Close settings"></a>
 
 <!-- ── Toast ───────────────────────────────────────────── -->
 <div id="toast-container"></div>
@@ -846,9 +746,6 @@
 <script>
 (function () {
   var lastTouch = 0;
-  if (document.documentElement.className.indexOf('shim') === -1) {
-    document.documentElement.className += ' shim';
-  }
 
   function hasClass(el, name) {
     return (' ' + el.className + ' ').indexOf(' ' + name + ' ') !== -1;
@@ -896,7 +793,6 @@
     var panel = document.getElementById('settings-panel');
     setClass(overlay, 'open', false);
     setClass(panel, 'open', false);
-    if (window.location && window.location.hash === '#settings-panel') window.location.hash = 'main';
   }
 
   function showTabFallback(name) {
@@ -1113,35 +1009,26 @@ const KEY_LIST = [
   KEYS.theme,
 ];
 const _storageFallback = {};
-const _storageFallbackActive = {};
 
 function storageGetItem(key) {
-  if (_storageFallbackActive[key] && Object.prototype.hasOwnProperty.call(_storageFallback, key)) {
-    return _storageFallback[key];
-  }
-  try {
-    const stored = localStorage.getItem(key);
-    if (stored !== null) return stored;
-  } catch (err) {
-  }
   if (Object.prototype.hasOwnProperty.call(_storageFallback, key)) return _storageFallback[key];
-  return null;
+  try {
+    return localStorage.getItem(key);
+  } catch (err) {
+    return null;
+  }
 }
 
 function storageSetItem(key, val) {
+  _storageFallback[key] = val;
   try {
     localStorage.setItem(key, val);
-    delete _storageFallback[key];
-    delete _storageFallbackActive[key];
   } catch (err) {
-    _storageFallback[key] = val;
-    _storageFallbackActive[key] = true;
   }
 }
 
 function storageRemoveItem(key) {
   delete _storageFallback[key];
-  delete _storageFallbackActive[key];
   try {
     localStorage.removeItem(key);
   } catch (err) {
@@ -1366,7 +1253,6 @@ function openSettings() {
 function closeSettings() {
   document.getElementById('settings-overlay').classList.remove('open');
   document.getElementById('settings-panel').classList.remove('open');
-  if (window.location && window.location.hash === '#settings-panel') window.location.hash = 'main';
 }
 
 document.getElementById('s-save-btn').addEventListener('click', () => {
@@ -2589,10 +2475,6 @@ function bindIncidentModalHandlers() {
 
 
 function bootApp() {
-  if (document.documentElement.className.indexOf('js') === -1) {
-    document.documentElement.className += ' js';
-  }
-
   window.fnfcApp = {
     toggleTheme,
     openSettings,

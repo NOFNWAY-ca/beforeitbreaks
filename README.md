@@ -1,4 +1,4 @@
-# Before It Breaks
+# Before it Breaks
 
 Marketing/demo site for bespoke single-file business tools.
 

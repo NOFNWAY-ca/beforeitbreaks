@@ -1,4 +1,4 @@
-# GEMINI.md — Before It Breaks project context
+# GEMINI.md — Before it Breaks project context
 
 This file provides guidance to Gemini CLI when working in the `beforeitbreaks/` directory.
 
