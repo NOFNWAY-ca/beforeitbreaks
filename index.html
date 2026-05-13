@@ -4,20 +4,20 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Before it Breaks</title>
-    <meta name="description" content="Practical tools for real work that don't get in the way.">
+    <meta name="description" content="Lightweight operational tools for intake, scheduling, tracking, paperwork, and workflow problems.">
     <link rel="canonical" href="https://beforeitbreaks.ca/">
     <link rel="icon" href="/favicon.ico" sizes="any">
     <link rel="icon" href="/favicon.svg" type="image/svg+xml">
     <link rel="icon" href="/favicon-32.png" type="image/png" sizes="32x32">
     <link rel="apple-touch-icon" href="/apple-touch-icon.png">
     <meta property="og:title" content="Before it Breaks">
-    <meta property="og:description" content="Practical tools for real work that don't get in the way.">
+    <meta property="og:description" content="Lightweight operational tools for intake, scheduling, tracking, paperwork, and workflow problems.">
     <meta property="og:image" content="https://beforeitbreaks.ca/og-image.png">
     <meta property="og:type" content="website">
     <meta property="og:url" content="https://beforeitbreaks.ca/">
     <meta name="twitter:card" content="summary_large_image">
     <meta name="twitter:title" content="Before it Breaks">
-    <meta name="twitter:description" content="Practical tools for real work that don't get in the way.">
+    <meta name="twitter:description" content="Lightweight operational tools for intake, scheduling, tracking, paperwork, and workflow problems.">
     <meta name="twitter:image" content="https://beforeitbreaks.ca/og-image.png">
     <style>
         *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
@@ -167,9 +167,31 @@
             color: var(--muted);
             line-height: 1.8;
             max-width: 420px;
-            margin-bottom: 40px;
+            margin-bottom: 22px;
         }
         .hero-sub em { color: var(--text); font-style: normal; }
+        .hero-position {
+            font-size: 1rem;
+            color: var(--text);
+            line-height: 1.7;
+            max-width: 520px;
+            margin-bottom: 8px;
+        }
+        .hero-support {
+            font-size: 0.92rem;
+            color: var(--muted);
+            line-height: 1.7;
+            max-width: 460px;
+            margin-bottom: 16px;
+        }
+        .hero-local {
+            font-size: 0.78rem;
+            font-weight: 700;
+            letter-spacing: 0.08em;
+            text-transform: uppercase;
+            color: var(--gold);
+            margin-bottom: 34px;
+        }
         .hero-actions { display: flex; gap: 12px; flex-wrap: wrap; align-items: center; }
         .btn {
             display: inline-block;
@@ -290,6 +312,11 @@
             color: var(--muted);
             max-width: 500px;
             line-height: 1.7;
+        }
+        .tools-header .work-pain {
+            color: var(--text);
+            margin-top: 14px;
+            max-width: 650px;
         }
 
         .featured-tool {
@@ -434,6 +461,38 @@
             line-height: 1.6;
         }
 
+        .audience-section {
+            border-top: 1px solid var(--border);
+            background: var(--bg);
+        }
+        .audience-inner {
+            max-width: 1200px;
+            margin: 0 auto;
+            padding: 64px 60px;
+            display: grid;
+            grid-template-columns: minmax(0, 0.8fr) minmax(0, 1.2fr);
+            gap: 60px;
+            align-items: start;
+        }
+        .audience-inner h2 {
+            font-family: system-ui, -apple-system, sans-serif;
+            font-size: clamp(1.8rem, 3vw, 2.4rem);
+            font-weight: 900;
+            letter-spacing: -1px;
+            line-height: 1.08;
+        }
+        .audience-list {
+            display: grid;
+            gap: 10px;
+            color: var(--muted);
+            font-size: 1rem;
+            line-height: 1.6;
+        }
+        .audience-list p {
+            border-bottom: 1px solid var(--border);
+            padding-bottom: 10px;
+        }
+
         /* ═══════════════════════════════
            ALL TOOLS GRID
         ═══════════════════════════════ */
@@ -537,6 +596,23 @@
             font-size: 0.9rem;
             color: var(--muted);
             line-height: 1.7;
+        }
+        .process-summary {
+            border-top: 1px solid var(--border2);
+            padding-top: 22px;
+            color: var(--text);
+            font-size: 0.95rem;
+            line-height: 1.75;
+        }
+        .ownership-callout {
+            margin-top: 34px;
+            border-left: 4px solid var(--brand-lit);
+            padding: 18px 0 18px 22px;
+            font-size: clamp(1.3rem, 2.4vw, 1.9rem);
+            font-weight: 900;
+            letter-spacing: -0.5px;
+            line-height: 1.15;
+            color: var(--text);
         }
 
         /* ═══════════════════════════════
@@ -731,6 +807,7 @@
             .ft-left, .ft-right { padding: 40px 24px; border-right: none !important; }
 
             .tools-header { padding: 60px 24px 40px; }
+            .audience-inner { grid-template-columns: 1fr; gap: 24px; padding: 52px 24px; }
             .kind-inner { padding: 60px 24px; }
             .kind-header { grid-template-columns: 1fr; gap: 16px; }
             .kind-grid { grid-template-columns: 1fr; }
@@ -768,6 +845,9 @@
         <p class="hero-sub">
             ...easier. No magic answers or overbuilt gadgets, just the thing that gets it done and out of your way. Farm, business, school, club, anywhere.
         </p>
+        <p class="hero-position">Lightweight operational tools for intake, scheduling, tracking, paperwork, and workflow problems — built to work on the devices you already use.</p>
+        <p class="hero-support">Small enough to stay manageable. Focused enough to become useful quickly.</p>
+        <p class="hero-local">Built in Manitoba. Designed for real-world use, not investor demos.</p>
         <div class="hero-actions">
             <a href="#work" class="btn btn-primary">See the work</a>
             <a href="https://nofnway.ca" target="_blank" class="btn btn-ghost">nofnway.ca</a>
@@ -787,60 +867,43 @@
     </div>
 </section>
 
+<!-- ── PITCH ── -->
+<div class="pitch-section">
+    <div class="pitch-inner">
+        <h2>Big companies<br>have teams.<br><span>You have me.</span></h2>
+        <div class="pitch-copy">
+            <p>A development team. A QA team. A budget line for software. A project manager to keep all of it moving. That's what a large organization has when something needs building.</p>
+            <p>Small businesses, nonprofits, and individuals have a problem and no one to solve it. That's the gap I work in.</p>
+            <p>One person, building exactly what you need and nothing extra. Turnaround is days, not weeks.</p>
+            <p>If you have a problem that needs solving, I'm the right size for the job.</p>
+        </div>
+    </div>
+</div>
+
+<!-- ── WHO THIS IS FOR ── -->
+<section class="audience-section" aria-labelledby="audience-title">
+    <div class="audience-inner">
+        <div>
+            <p class="section-label">Who this is for</p>
+            <h2 id="audience-title">The kind of places this fits.</h2>
+        </div>
+        <div class="audience-list">
+            <p>Service businesses</p>
+            <p>Rural operations</p>
+            <p>Nonprofits</p>
+            <p>Teams running on notebooks, spreadsheets, and group chats</p>
+            <p>Organizations that need clarity more than complexity</p>
+        </div>
+    </div>
+</section>
+
 <!-- ── FEATURED TOOLS ── -->
 <div class="tools-section" id="work">
     <div class="tools-header">
         <p class="section-label">The Work</p>
         <h2>Real problems.<br>Working solutions.</h2>
-        <p>Each tool started as something someone needed to fix a problem they shouldn't have. Three are demonstrated live on this page. All of them are free at nofnway.ca.</p>
-    </div>
-
-    <!-- Sleep Math -->
-    <div class="featured-tool">
-        <div class="ft-left">
-            <div class="ft-name">[FN] SLEEP MATH</div>
-            <p class="ft-desc">
-                You're exhausted but you don't know when to go to bed. Sleep happens in 90-minute cycles.
-                Go to bed at the wrong time and you wake up mid-cycle, groggy and feeling wrecked.
-                This calculates the rest (pun totally intended).
-            </p>
-            <a href="https://nofnway.ca/sleep_math" target="_blank" class="ft-link">See this at nofnway.ca</a>
-        </div>
-        <div class="ft-right">
-            <p class="demo-label">Live — [FN] SLEEP MATH</p>
-            <div class="browser-frame">
-                <div class="browser-chrome">
-                    <div class="browser-dots">
-                        <span></span><span></span><span></span>
-                    </div>
-                    <div class="browser-url">nofnway.ca/sleep_math</div>
-                </div>
-                <iframe src="https://nofnway.ca/sleep_math" class="browser-iframe" title="[FN] SLEEP MATH" loading="lazy"></iframe>
-            </div>
-        </div>
-    </div>
-
-    <!-- Just Pick -->
-    <div class="featured-tool">
-        <div class="ft-left">
-            <div class="ft-name">JUST [FN] PICK</div>
-            <p class="ft-desc">
-                Decision paralysis is real. When every option feels equally impossible (or equally fine), spending ten minutes choosing is a tax on attention you can't afford. Add your options, get a choice.
-            </p>
-            <a href="https://nofnway.ca/just_pick" target="_blank" class="ft-link">See this at nofnway.ca</a>
-        </div>
-        <div class="ft-right">
-            <p class="demo-label">Live — [FN] JUST PICK</p>
-            <div class="browser-frame">
-                <div class="browser-chrome">
-                    <div class="browser-dots">
-                        <span></span><span></span><span></span>
-                    </div>
-                    <div class="browser-url">nofnway.ca/just_pick</div>
-                </div>
-                <iframe src="https://nofnway.ca/just_pick" class="browser-iframe" title="[FN] JUST PICK" loading="lazy"></iframe>
-            </div>
-        </div>
+        <p>Each tool started as something someone needed to fix a problem they shouldn't have.</p>
+        <p class="work-pain">Missed details. Lost paperwork. Repeated questions. Confusing handoffs. That's the kind of operational friction I build around.</p>
     </div>
 
     <!-- Septic Dispatch -->
@@ -927,9 +990,18 @@
 
 <!-- ── ALL TOOLS ── -->
 <div class="all-tools">
-    <p class="section-label">Everything else</p>
-    <h2>All the toys and tools, free at nofnway.ca</h2>
+    <p class="section-label">Public proof</p>
+    <h2>Public tools built from real-world problems</h2>
+    <p style="color:var(--muted);line-height:1.75;max-width:680px;margin:-22px 0 36px;">NOFNWAY is where I build public tools around the same kinds of workflow and friction problems I solve for organizations.</p>
     <div class="tools-grid">
+        <a href="https://nofnway.ca/sleep_math" target="_blank" class="tool-cell">
+            <div class="tool-cell-name">[FN] SLEEP MATH</div>
+            <div class="tool-cell-desc">Sleep cycles, wake-up times, and the small math you should not have to do while exhausted.</div>
+        </a>
+        <a href="https://nofnway.ca/just_pick" target="_blank" class="tool-cell">
+            <div class="tool-cell-name">JUST [FN] PICK</div>
+            <div class="tool-cell-desc">Decision paralysis, addressed with one tiny tool that makes the choice and gets out of the way.</div>
+        </a>
         <a href="https://nofnway.ca/one_thing" target="_blank" class="tool-cell">
             <div class="tool-cell-name">ONE [FN] THING</div>
             <div class="tool-cell-desc">The one task you need to do today fills the screen. That's the plan.</div>
@@ -994,6 +1066,7 @@
             <p>I'm not a developer. I'm someone who understands problems precisely which turns out to be a lot of the work.</p>
             <p>I use AI to build solutions. What I provide is <em>knowing what the problem actually is</em>, whether the solution solves it, and whether it does anything it shouldn't. I've rejected plenty of outputs that ran fine but were wrong. Running fine and being right are different things.</p>
             <p>Everything built this way is fully open. One file, nothing hidden, no moving parts you can't see. View Source is the receipt, and the receipt is readable.</p>
+            <div class="ownership-callout">If I disappeared tomorrow, the tool would still work.</div>
         </div>
         <div class="how-right">
             <div class="how-steps">
@@ -1001,7 +1074,7 @@
                     <div class="how-num">1</div>
                     <div class="how-step-body">
                         <h3>Understand the problem</h3>
-                        <p>Recognizing potential problems is the first step to avoiding them altogether.</p>
+                        <p>You describe the problem in plain language — no specs, no wireframes, no technical knowledge required.</p>
                     </div>
                 </div>
                 <div class="how-step">
@@ -1022,23 +1095,11 @@
                     <div class="how-num">4</div>
                     <div class="how-step-body">
                         <h3>You get something you own outright</h3>
-                        <p>A file. Runs in any browser. No subscriptions, no dependencies, nothing to maintain. If I disappeared tomorrow, the tool would still work — and any web developer could open it and keep going. The code is yours with no strings attached.</p>
+                        <p>A file. Runs in any browser. No subscriptions, no dependencies, nothing to maintain. Any web developer could open it and keep going. The code is yours with no strings attached.</p>
                     </div>
                 </div>
+                <p class="process-summary">Identify the bottleneck → build a focused prototype → test it against real use → hand over a standalone tool you fully own.</p>
             </div>
-        </div>
-    </div>
-</div>
-
-<!-- ── PITCH ── -->
-<div class="pitch-section">
-    <div class="pitch-inner">
-        <h2>Big companies<br>have teams.<br><span>You have me.</span></h2>
-        <div class="pitch-copy">
-            <p>A development team. A QA team. A budget line for software. A project manager to keep all of it moving. That's what a large organization has when something needs building.</p>
-            <p>Small businesses, nonprofits, and individuals have a problem and no one to solve it. That's the gap I work in.</p>
-            <p>One person, building exactly what you need and nothing extra. Turnaround is days, not weeks.</p>
-            <p>If you have a problem that needs solving, I'm the right size for the job.</p>
         </div>
     </div>
 </div>
@@ -1046,7 +1107,7 @@
 <!-- ── FAQ ── -->
 <div class="faq-section" id="faq">
     <p class="section-label">Fair Questions</p>
-    <h2>On building software with AI.</h2>
+    <h2>Things you might want to know first.</h2>
     <div class="faq-list">
         <div class="faq-item">
             <p class="faq-q">Is AI-generated code reliable?</p>
@@ -1100,11 +1161,13 @@
     <div class="contact-inner">
         <div class="contact-left">
             <h2>Have a problem?<br>Tell me<br>about it.</h2>
+            <p>Most projects start with a conversation, not a contract.</p>
+            <p class="contact-note">Based in Steinbach, Manitoba. You do not need a detailed technical plan before reaching out.</p>
         </div>
         <div class="contact-right">
             <form id="contact-form" action="https://api.web3forms.com/submit" method="POST">
                 <input type="hidden" name="access_key" value="99644fbe-75fa-4063-919f-e5209d69de79">
-                <input type="hidden" name="subject" value="New inquiry — Before it Breaks">
+                <input type="hidden" name="subject" value="New inquiry - Before it Breaks">
                 <input type="hidden" name="redirect" value="false">
                 <input type="checkbox" name="botcheck" style="display:none">
                 <div class="form-row">
@@ -1134,7 +1197,7 @@
 
 <!-- ── FOOTER ── -->
 <footer>
-    <p>Before it Breaks &mdash; Gerry &copy; 2026</p>
+    <p>Before it Breaks · Gerry &copy; 2026</p>
     <p>Before it Breaks is a registered business name in Manitoba.</p>
     <p>Tools built and maintained at <a href="https://nofnway.ca" target="_blank">nofnway.ca</a></p>
 </footer>
@@ -1158,7 +1221,7 @@
                     });
                     var data = await res.json();
                     if (data.success) {
-                        status.textContent = "Got it — I'll be in touch.";
+                        status.textContent = "Got it. I'll be in touch.";
                         status.className = 'form-status success';
                         form.reset();
                     } else {
