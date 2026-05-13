@@ -60,6 +60,7 @@ Active marketing/demo site with multiple standalone demos.
 
 ## Recent Changes (continued)
 - Registration identity cleanup completed (2026-05-07): business name standardized to "Before it Breaks" (lowercase 'i') across all HTML files, doc headings, and metadata. Credibility line added to footer of `index.html`. Invoice template added at `docs/invoice-template.md`. No layout changes made.
+- 2026-05-12: Business registration PDFs are kept local and private. Added `*.pdf` to `.gitignore` so sync/deploy does not publish registration paperwork by accident.
 
 ## Recent Changes (continued)
 - Fixed `caylie_V2.html` (renamed to `caylie_V4.html`) which was a non-functional hollow interface on iPhone. Root causes: (1) `color-mix()` CSS function not supported on iOS < 16.2 — replaced all instances with pre-computed rgba/hex variables defined per theme; (2) Google Fonts `<link rel="stylesheet">` in `<head>` was blocking script execution in WebKit/Safari — removed from head entirely and moved to a dynamically-injected `<link>` at the top of the `<script>` block so nothing can block JS; (3) `window.scrollTo(0,0)` on tab switch was scrolling back to the persistent dashboard, making it look like tabs did nothing — now scrolls to the section element instead. Also added `-webkit-backdrop-filter`, replaced `inset:0` with explicit TRBL on modals, and removed optional chaining `?.` for broader iOS compat.
